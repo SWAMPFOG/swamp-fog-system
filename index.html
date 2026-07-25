@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.7.4 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.7.5 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -268,7 +268,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.7.4</h1>
+  <h1>SWAMP-FOG 初回回し Ver.7.5</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
@@ -293,8 +293,8 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v7_4_complete";
-const MIGRATION_KEYS=["swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
+const STORAGE_KEY="swamp_fog_v7_5_complete";
+const MIGRATION_KEYS=["swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
   settings:{editMode:false},
   casts:[
@@ -363,10 +363,11 @@ function eligibility(c,t){
     r.push("場内中：通常の初回卓には着席不可");
   }
 
-  // 送り2回制限は初回のみ。お連れ様には適用しない
-  // A・Sは制限対象外。SはVIPにも着席可能
-  if(!companion&&!vip&&c.sends>=2&&!["A","S"].includes(c.rank)){
-    r.push("2送り：通常の初回卓はA・Sランクのみ");
+  // 送り2回制限はA・Bプランの初回卓に全ランク適用
+  // ランクがA・Sでも、送り制限中はA・Bプランに着席不可
+  // 適用外はVIPプランとお連れ様卓
+  if(!companion&&!vip&&c.sends>=2){
+    r.push("2送り：A・Bプランの初回卓には着席不可");
   }
 
   return{ok:r.length===0,reasons:r}
@@ -395,7 +396,7 @@ function closeSheet(){const s=document.getElementById("sheet");s.classList.remov
 document.getElementById("backdrop").onclick=closeSheet;
 function openCast(id){
   const isNew=!id,c=isNew?{id:"c"+Date.now(),name:"",rank:"C",nameColor:"#ffffff",sends:0,penalty:false,inHouse:false,ngTables:[]}:data.casts.find(x=>x.id===id);
-  openSheet(`<h2>${isNew?"キャスト追加":"キャスト設定"}</h2><div class="form-grid"><div class="field full"><label>名前</label><input id="castName" value="${esc(c.name)}"></div><div class="field"><label>ランク（色なし）</label><select id="castRank">${["C","B","A","S"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select></div><div class="field"><label>名前の色</label><input id="castColor" type="color" value="${esc(c.nameColor)}"></div><div class="field"><label>送り数（初回のみ）</label><input id="castSends" type="number" min="0" value="${c.sends}"></div><div class="field full checkrow"><input id="castPenalty" type="checkbox" ${c.penalty?"checked":""}><label>勤怠ペナルティ（初回のみ）</label></div><div class="field full"><label>場内状態</label><button type="button" id="inHouseBtn" class="${c.inHouse?"danger":"cancel"}" style="height:44px;border:1px solid #555;border-radius:9px;color:#fff;font-weight:900">${c.inHouse?"場内中・押して解除":"場内中にする"}</button><input type="hidden" id="castInHouse" value="${c.inHouse?"1":"0"}"></div><div class="field full"><label>卓別NG</label>${data.tables.map(t=>`<div class="checkrow"><input type="checkbox" class="ngTable" value="${t.id}" ${(c.ngTables||[]).includes(t.id)?"checked":""}><span>${esc(t.number)}（${esc(t.plan)}）</span></div>`).join("")||"卓がありません"}</div></div><div class="small-note">VIPはA・Sランクのみ。場内中でも送り制限中でもVIPには着席できます。場内中は通常の初回卓だけ自動的に着席不可になり、お連れ様には影響しません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteCast">削除</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCast">保存</button></div>`);
+  openSheet(`<h2>${isNew?"キャスト追加":"キャスト設定"}</h2><div class="form-grid"><div class="field full"><label>名前</label><input id="castName" value="${esc(c.name)}"></div><div class="field"><label>ランク（色なし）</label><select id="castRank">${["C","B","A","S"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select></div><div class="field"><label>名前の色</label><input id="castColor" type="color" value="${esc(c.nameColor)}"></div><div class="field"><label>送り数（初回のみ）</label><input id="castSends" type="number" min="0" value="${c.sends}"></div><div class="field full checkrow"><input id="castPenalty" type="checkbox" ${c.penalty?"checked":""}><label>勤怠ペナルティ（初回のみ）</label></div><div class="field full"><label>場内状態</label><button type="button" id="inHouseBtn" class="${c.inHouse?"danger":"cancel"}" style="height:44px;border:1px solid #555;border-radius:9px;color:#fff;font-weight:900">${c.inHouse?"場内中・押して解除":"場内中にする"}</button><input type="hidden" id="castInHouse" value="${c.inHouse?"1":"0"}"></div><div class="field full"><label>卓別NG</label>${data.tables.map(t=>`<div class="checkrow"><input type="checkbox" class="ngTable" value="${t.id}" ${(c.ngTables||[]).includes(t.id)?"checked":""}><span>${esc(t.number)}（${esc(t.plan)}）</span></div>`).join("")||"卓がありません"}</div></div><div class="small-note">VIPはA・Sランクのみ。A・Sランクでも送り制限中はA・Bプランに着席できません。送り制限の適用外はVIPとお連れ様です。場内中は通常の初回卓だけ自動的に着席不可になり、お連れ様には影響しません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteCast">削除</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCast">保存</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
   document.getElementById("inHouseBtn").onclick=()=>{
     const hidden=document.getElementById("castInHouse");
