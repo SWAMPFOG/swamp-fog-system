@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.7.3 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.7.4 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -268,7 +268,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.7.3</h1>
+  <h1>SWAMP-FOG 初回回し Ver.7.4</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
@@ -293,16 +293,16 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v7_3_complete";
-const MIGRATION_KEYS=["swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
+const STORAGE_KEY="swamp_fog_v7_4_complete";
+const MIGRATION_KEYS=["swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
   settings:{editMode:false},
   casts:[
-    {id:"c1",name:"さや",rank:"C",nameColor:"#4cff5a",sends:0,penalty:false,ngTables:[]},
-    {id:"c2",name:"あい",rank:"C",nameColor:"#4cff5a",sends:1,penalty:false,ngTables:[]},
-    {id:"c3",name:"みく",rank:"B",nameColor:"#43a2ff",sends:2,penalty:false,ngTables:["t2"]},
-    {id:"c4",name:"りな",rank:"A",nameColor:"#ffd54a",sends:2,penalty:false,ngTables:[]},
-    {id:"c5",name:"ゆい",rank:"S",nameColor:"#ff5a5f",sends:0,penalty:false,ngTables:[]}
+    {id:"c1",name:"さや",rank:"C",nameColor:"#4cff5a",sends:0,penalty:false,inHouse:false,ngTables:[]},
+    {id:"c2",name:"あい",rank:"C",nameColor:"#4cff5a",sends:1,penalty:false,inHouse:false,ngTables:[]},
+    {id:"c3",name:"みく",rank:"B",nameColor:"#43a2ff",sends:2,penalty:false,inHouse:false,ngTables:["t2"]},
+    {id:"c4",name:"りな",rank:"A",nameColor:"#ffd54a",sends:2,penalty:false,inHouse:false,ngTables:[]},
+    {id:"c5",name:"ゆい",rank:"S",nameColor:"#ff5a5f",sends:0,penalty:false,inHouse:false,ngTables:[]}
   ],
   tables:[
     {id:"t1",number:"S1",start:"21:05",people:2,plan:"A",durationSec:900,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0},
@@ -318,7 +318,7 @@ function normalize(d){
   d.settings=d.settings||{}; d.settings.editMode=!!d.settings.editMode;
   d.history=Array.isArray(d.history)?d.history:[]; d.seated=d.seated||{}; d.selected={}; d.planned=d.planned||{}; d.planningTableId=null;
   d.casts=Array.isArray(d.casts)?d.casts:[]; d.tables=Array.isArray(d.tables)?d.tables:[];
-  d.casts.forEach(c=>{c.ngTables=Array.isArray(c.ngTables)?c.ngTables:[];c.sends=Number(c.sends)||0;c.penalty=!!c.penalty;if(!c.nameColor)c.nameColor={C:"#4cff5a",B:"#43a2ff",A:"#ffd54a",S:"#ff5a5f"}[c.rank]||"#ffffff"});
+  d.casts.forEach(c=>{c.ngTables=Array.isArray(c.ngTables)?c.ngTables:[];c.sends=Number(c.sends)||0;c.penalty=!!c.penalty;c.inHouse=!!c.inHouse;if(!c.nameColor)c.nameColor={C:"#4cff5a",B:"#43a2ff",A:"#ffd54a",S:"#ff5a5f"}[c.rank]||"#ffffff"});
   d.tables.forEach(t=>{if(!("pausedAt" in t))t.pausedAt=null;if(!("totalPaused" in t))t.totalPaused=0;if(!("turnCounter" in t))t.turnCounter=Number(t.roundCounter)||0;if(!("startedAt" in t))t.startedAt=null;if(!("durationSec" in t))t.durationSec=900});
   const counters={};
   Object.keys(d.seated).forEach(k=>{if(!d.seated[k]){delete d.seated[k];return}const tid=k.split(":")[1];counters[tid]=(counters[tid]||0)+1;if(typeof d.seated[k]!=="object")d.seated[k]={turn:counters[tid],at:Date.now()};else{d.seated[k].turn=Number(d.seated[k].turn||d.seated[k].order)||counters[tid];d.seated[k].at=Number(d.seated[k].at)||Date.now();delete d.seated[k].order}});
@@ -341,13 +341,35 @@ function timerClass(t){if(!t.startedAt)return"not-started";if(t.pausedAt)return"
 function startTimer(t){t.startedAt=Date.now();t.pausedAt=null;t.totalPaused=0}
 function isCompanion(t){return t.plan==="お連れ様"}
 function eligibility(c,t){
-  const reasons=[];
-  if(!isCompanion(t)&&c.penalty)reasons.push("勤怠ペナルティ中（初回のみ）");
-  if((c.ngTables||[]).includes(t.id))reasons.push("この卓はNG");
-  if(!isCompanion(t)&&c.sends>=2){
-    if(c.rank==="S"&&t.plan==="VIP"){} else if(!["S","A"].includes(c.rank))reasons.push("2送り：初回A・B・VIPはA・Sランクのみ");
+  const r=[];
+  const companion=isCompanion(t);
+  const vip=t.plan==="VIP";
+
+  // 卓別NGはすべての卓で適用
+  if((c.ngTables||[]).includes(t.id))r.push("この卓はNG");
+
+  // VIPはA・Sランクのみ。送り制限中・場内中でも着席可能
+  if(vip&&!["A","S"].includes(c.rank)){
+    r.push("VIPプランはA・Sランクのみ");
   }
-  return{ok:reasons.length===0,reasons};
+
+  // 勤怠ペナルティは初回のみ。お連れ様には適用しない
+  if(!companion&&c.penalty){
+    r.push("勤怠ペナルティ中（初回のみ）");
+  }
+
+  // 場内中は通常の初回卓に着席不可。VIP・お連れ様は対象外
+  if(!companion&&!vip&&c.inHouse){
+    r.push("場内中：通常の初回卓には着席不可");
+  }
+
+  // 送り2回制限は初回のみ。お連れ様には適用しない
+  // A・Sは制限対象外。SはVIPにも着席可能
+  if(!companion&&!vip&&c.sends>=2&&!["A","S"].includes(c.rank)){
+    r.push("2送り：通常の初回卓はA・Sランクのみ");
+  }
+
+  return{ok:r.length===0,reasons:r}
 }
 function seatRecord(c,t){return data.seated[pairKey(c,t)]||null}
 function isPlanned(c,t){return!!data.planned[pairKey(c,t)]}
@@ -361,7 +383,7 @@ function nextCastSuggestion(t){const p=isCompanion(t)?data.casts.find(c=>isPlann
 function render(){
   if(!data.tables.some(t=>t.id===activeTableId))activeTableId=data.tables[0]?.id||null;
   const board=document.getElementById("board");
-  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>`<tr><td class="cast ${data.settings.editMode?"editable":""}" data-cast="${c.id}"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name" style="color:${esc(c.nameColor)}">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${c.penalty?"・初回停止":""}</div></td>${data.tables.map(t=>{const st=stateFor(c,t),rec=seatRecord(c.id,t.id);return`<td class="state-cell"><button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec)}</button></td>`}).join("")}</tr>`).join("")}</tbody>`;
+  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>`<tr><td class="cast ${data.settings.editMode?"editable":""}" data-cast="${c.id}"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name" style="color:${esc(c.nameColor)}">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${c.penalty?"・初回停止":""}${c.inHouse?"・場内中":""}</div></td>${data.tables.map(t=>{const st=stateFor(c,t),rec=seatRecord(c.id,t.id);return`<td class="state-cell"><button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec)}</button></td>`}).join("")}</tr>`).join("")}</tbody>`;
   board.querySelectorAll(".table-head").forEach(el=>el.onclick=()=>{const id=el.dataset.table;if(activeTableId===id)openTableQuick(id);else{setActiveTable(id);save();render()}});
   board.querySelectorAll(".state-btn").forEach(btn=>btn.onclick=()=>{const c=data.casts.find(x=>x.id===btn.dataset.cast),t=data.tables.find(x=>x.id===btn.dataset.table);setActiveTable(t.id);const k=pairKey(c.id,t.id);if(data.planningTableId===t.id&&isCompanion(t)){data.planned[k]?delete data.planned[k]:data.planned[k]=true;save();render();return}const st=stateFor(c,t);if(st==="blocked"){showReason(c,t);return}if(st==="checked"){showSeatDetail(c,t);return}data.selected[k]?delete data.selected[k]:data.selected[k]=true;save();render()});
   board.querySelectorAll(".cast").forEach(el=>el.onclick=()=>{if(data.settings.editMode)openCast(el.dataset.cast)});
@@ -372,10 +394,18 @@ function openSheet(h){const s=document.getElementById("sheet");s.innerHTML=h;doc
 function closeSheet(){const s=document.getElementById("sheet");s.classList.remove("open");setTimeout(()=>document.getElementById("backdrop").classList.remove("open"),180)}
 document.getElementById("backdrop").onclick=closeSheet;
 function openCast(id){
-  const isNew=!id,c=isNew?{id:"c"+Date.now(),name:"",rank:"C",nameColor:"#ffffff",sends:0,penalty:false,ngTables:[]}:data.casts.find(x=>x.id===id);
-  openSheet(`<h2>${isNew?"キャスト追加":"キャスト設定"}</h2><div class="form-grid"><div class="field full"><label>名前</label><input id="castName" value="${esc(c.name)}"></div><div class="field"><label>ランク（色なし）</label><select id="castRank">${["C","B","A","S"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select></div><div class="field"><label>名前の色</label><input id="castColor" type="color" value="${esc(c.nameColor)}"></div><div class="field"><label>送り数（初回のみ）</label><input id="castSends" type="number" min="0" value="${c.sends}"></div><div class="field full checkrow"><input id="castPenalty" type="checkbox" ${c.penalty?"checked":""}><label>勤怠ペナルティ（初回のみ）</label></div><div class="field full"><label>卓別NG</label>${data.tables.map(t=>`<div class="checkrow"><input type="checkbox" class="ngTable" value="${t.id}" ${(c.ngTables||[]).includes(t.id)?"checked":""}><span>${esc(t.number)}（${esc(t.plan)}）</span></div>`).join("")||"卓がありません"}</div></div><div class="small-note">送り数・勤怠ペナルティは初回だけに適用され、お連れ様には反映されません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteCast">削除</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCast">保存</button></div>`);
+  const isNew=!id,c=isNew?{id:"c"+Date.now(),name:"",rank:"C",nameColor:"#ffffff",sends:0,penalty:false,inHouse:false,ngTables:[]}:data.casts.find(x=>x.id===id);
+  openSheet(`<h2>${isNew?"キャスト追加":"キャスト設定"}</h2><div class="form-grid"><div class="field full"><label>名前</label><input id="castName" value="${esc(c.name)}"></div><div class="field"><label>ランク（色なし）</label><select id="castRank">${["C","B","A","S"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select></div><div class="field"><label>名前の色</label><input id="castColor" type="color" value="${esc(c.nameColor)}"></div><div class="field"><label>送り数（初回のみ）</label><input id="castSends" type="number" min="0" value="${c.sends}"></div><div class="field full checkrow"><input id="castPenalty" type="checkbox" ${c.penalty?"checked":""}><label>勤怠ペナルティ（初回のみ）</label></div><div class="field full"><label>場内状態</label><button type="button" id="inHouseBtn" class="${c.inHouse?"danger":"cancel"}" style="height:44px;border:1px solid #555;border-radius:9px;color:#fff;font-weight:900">${c.inHouse?"場内中・押して解除":"場内中にする"}</button><input type="hidden" id="castInHouse" value="${c.inHouse?"1":"0"}"></div><div class="field full"><label>卓別NG</label>${data.tables.map(t=>`<div class="checkrow"><input type="checkbox" class="ngTable" value="${t.id}" ${(c.ngTables||[]).includes(t.id)?"checked":""}><span>${esc(t.number)}（${esc(t.plan)}）</span></div>`).join("")||"卓がありません"}</div></div><div class="small-note">VIPはA・Sランクのみ。場内中でも送り制限中でもVIPには着席できます。場内中は通常の初回卓だけ自動的に着席不可になり、お連れ様には影響しません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteCast">削除</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCast">保存</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
-  document.getElementById("saveCast").onclick=()=>{const n=document.getElementById("castName").value.trim();if(!n){alert("名前を入力してください");return}c.name=n;c.rank=document.getElementById("castRank").value;c.nameColor=document.getElementById("castColor").value;c.sends=Math.max(0,Number(document.getElementById("castSends").value)||0);c.penalty=document.getElementById("castPenalty").checked;c.ngTables=[...document.querySelectorAll(".ngTable:checked")].map(x=>x.value);if(isNew)data.casts.push(c);sortCasts();save();closeSheet();render()};
+  document.getElementById("inHouseBtn").onclick=()=>{
+    const hidden=document.getElementById("castInHouse");
+    const active=hidden.value==="1";
+    hidden.value=active?"0":"1";
+    const btn=document.getElementById("inHouseBtn");
+    btn.textContent=active?"場内中にする":"場内中・押して解除";
+    btn.className=active?"cancel":"danger";
+  };
+  document.getElementById("saveCast").onclick=()=>{const n=document.getElementById("castName").value.trim();if(!n){alert("名前を入力してください");return}c.name=n;c.rank=document.getElementById("castRank").value;c.nameColor=document.getElementById("castColor").value;c.sends=Math.max(0,Number(document.getElementById("castSends").value)||0);c.penalty=document.getElementById("castPenalty").checked;c.inHouse=document.getElementById("castInHouse").value==="1";c.ngTables=[...document.querySelectorAll(".ngTable:checked")].map(x=>x.value);if(isNew)data.casts.push(c);sortCasts();save();closeSheet();render()};
   if(!isNew)document.getElementById("deleteCast").onclick=()=>{if(confirm(c.name+"を削除しますか？")){data.casts=data.casts.filter(x=>x.id!==c.id);[data.seated,data.selected,data.planned].forEach(o=>Object.keys(o).forEach(k=>{if(k.startsWith(c.id+":"))delete o[k]}));save();closeSheet();render()}};
 }
 function moveTable(id,dir){const i=data.tables.findIndex(t=>t.id===id),j=i+dir;if(i<0||j<0||j>=data.tables.length)return;[data.tables[i],data.tables[j]]=[data.tables[j],data.tables[i]];save();closeSheet();render()}
