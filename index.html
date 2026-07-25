@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.7.1 修正版</title>
+<title>SWAMP-FOG 初回回し Ver.7.2 完成版</title>
 <style>
 :root{
   --name-col:88px;
@@ -45,7 +45,7 @@ button{touch-action:manipulation}
 .statusbar{
   position:sticky;top:46px;z-index:50;
   min-height:35px;padding:5px 7px;
-  display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;
+  display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center;
   background:#151516;border-bottom:1px solid #333;
   font-size:11px;white-space:nowrap
 }
@@ -56,6 +56,13 @@ button{touch-action:manipulation}
 .add-table{
   width:44px;height:27px;border:1px solid #555;border-radius:8px;
   background:#2d2d30;color:#fff;font-size:11px;font-weight:900
+}
+.timer-start-btn{
+  width:58px;height:27px;border:1px solid #2b9a59;border-radius:8px;
+  background:#176b3b;color:#fff;font-size:10px;font-weight:900
+}
+.timer-start-btn.running{
+  border-color:#666;background:#303034;color:#ddd
 }
 .board-wrap{
   width:100%;overflow:auto;-webkit-overflow-scrolling:touch;
@@ -135,12 +142,41 @@ tbody td{
   width:var(--table-col);min-width:var(--table-col);max-width:var(--table-col);padding:0
 }
 .state-btn{
+  position:relative;
   width:100%;height:58px;border:0;background:transparent;color:#fff;
   font-size:26px;line-height:1
 }
 .state-btn:active{background:#2a2a2d}
-.state-btn.selected{background:#173f2a;color:#65ff9d}
-.state-btn.blocked{font-size:21px}
+.state-btn.empty{color:#f3f3f3}
+.state-btn.selected{
+  background:#173f5a;
+  color:#67b8ff;
+  box-shadow:inset 0 0 0 2px #368fd1
+}
+.state-btn.checked{
+  background:#123a26;
+  color:#59f08c;
+}
+.state-btn.blocked{
+  background:#3a1719;
+  color:#ff696f;
+  font-size:21px
+}
+.order-badge{
+  position:absolute;
+  right:5px;
+  top:5px;
+  min-width:20px;
+  height:20px;
+  padding:0 5px;
+  border-radius:999px;
+  background:#57ef8b;
+  color:#0a2515;
+  font-size:11px;
+  line-height:20px;
+  font-weight:900;
+  box-shadow:0 0 0 2px rgba(0,0,0,.35)
+}
 .bottom{
   position:sticky;bottom:0;z-index:40;display:grid;grid-template-columns:74px 74px 1fr;gap:7px;
   padding:7px 8px calc(7px + env(safe-area-inset-bottom));
@@ -223,14 +259,14 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.7.1</h1>
+  <h1>SWAMP-FOG 初回回し Ver.7.2</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
 <div class="statusbar">
   <div class="status-main" id="activeLabel">卓を選択してください</div>
   <div class="status-count" id="selectedCount">0名</div>
-  <button class="add-table" id="addTableBtn">＋卓</button>
+  <button class="timer-start-btn" id="timerStartBtn">開始</button><button class="add-table" id="addTableBtn">＋卓</button>
 </div>
 
 <div class="board-wrap">
@@ -268,9 +304,9 @@ const defaultData={
     {id:"c5",name:"ゆい",rank:"S",sends:0,penalty:false,ngTables:[]}
   ],
   tables:[
-    {id:"t1",number:"S1",start:"21:05",people:2,plan:"A",startedAt:Date.now()-195000,pausedAt:null,totalPaused:0},
-    {id:"t2",number:"VIP1",start:"21:12",people:3,plan:"VIP",startedAt:Date.now()-328000,pausedAt:null,totalPaused:0},
-    {id:"t3",number:"A2",start:"21:18",people:1,plan:"B",startedAt:Date.now()-75000,pausedAt:null,totalPaused:0}
+    {id:"t1",number:"S1",start:"21:05",people:2,plan:"A",startedAt:null,pausedAt:null,totalPaused:0},
+    {id:"t2",number:"VIP1",start:"21:12",people:3,plan:"VIP",startedAt:null,pausedAt:null,totalPaused:0},
+    {id:"t3",number:"A2",start:"21:18",people:1,plan:"B",startedAt:null,pausedAt:null,totalPaused:0}
   ],
   seated:{"c2:t1":true,"c1:t2":true,"c4:t3":true},
   selected:{},
@@ -299,6 +335,7 @@ function normalize(d){
   d.tables.forEach(t=>{
     if(!("pausedAt" in t))t.pausedAt=null;
     if(!("totalPaused" in t))t.totalPaused=0;
+    if(!("startedAt" in t))t.startedAt=null;
   });
   return d;
 }
@@ -331,16 +368,19 @@ function dateTimeText(ts){
   }).format(new Date(ts));
 }
 function timerSeconds(t){
+  if(!t.startedAt)return 0;
   const end=t.pausedAt||Date.now();
   return Math.max(0,Math.floor((end-t.startedAt-(t.totalPaused||0))/1000));
 }
 function formatElapsed(t){
+  if(!t.startedAt)return "--:--";
   const sec=timerSeconds(t);
   const m=Math.floor(sec/60).toString().padStart(2,"0");
   const s=(sec%60).toString().padStart(2,"0");
   return m+":"+s;
 }
 function timerClass(t){
+  if(!t.startedAt)return"paused";
   if(t.pausedAt)return"paused";
   const min=timerSeconds(t)/60;
   if(min>=data.settings.overMinutes)return"over";
@@ -384,6 +424,23 @@ function nextCastSuggestion(table){
   });
   return available[0]||null;
 }
+function seatOrder(castId,tableId){
+  const relevant=data.history
+    .filter(h=>h.type==="seat"&&h.tableId===tableId&&(h.castIds||[]).includes(castId))
+    .sort((a,b)=>a.at-b.at);
+  if(!relevant.length)return null;
+  const all=data.history
+    .filter(h=>h.type==="seat"&&h.tableId===tableId)
+    .sort((a,b)=>a.at-b.at);
+  let count=0;
+  for(const h of all){
+    for(const id of (h.castIds||[])){
+      count++;
+      if(id===castId)return count;
+    }
+  }
+  return null;
+}
 
 function render(){
   if(!data.tables.some(t=>t.id===activeTableId))activeTableId=data.tables[0]?.id||null;
@@ -412,9 +469,10 @@ function render(){
         </td>
         ${data.tables.map(t=>{
           const st=stateFor(c,t);
+          const order=st==="checked"?seatOrder(c.id,t.id):null;
           return `<td class="state-cell">
             <button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}" aria-label="${esc(c.name)} ${esc(t.number)}">
-              ${stateIcon(st)}
+              ${stateIcon(st)}${order?`<span class="order-badge">${order}</span>`:""}
             </button>
           </td>`;
         }).join("")}
@@ -465,6 +523,20 @@ function updateStatus(){
   modeBtn.textContent=data.settings.editMode?"編集モード":"営業モード";
   modeBtn.classList.toggle("active",data.settings.editMode);
   document.getElementById("addTableBtn").style.visibility=data.settings.editMode?"visible":"hidden";
+  const timerBtn=document.getElementById("timerStartBtn");
+  if(!t){
+    timerBtn.disabled=true;
+    timerBtn.textContent="開始";
+    timerBtn.classList.remove("running");
+  }else if(!t.startedAt){
+    timerBtn.disabled=false;
+    timerBtn.textContent="開始";
+    timerBtn.classList.remove("running");
+  }else{
+    timerBtn.disabled=false;
+    timerBtn.textContent=t.pausedAt?"再開":"再開始";
+    timerBtn.classList.add("running");
+  }
 }
 
 function openSheet(html){
@@ -562,7 +634,7 @@ function openTable(id){
   const hh=String(now.getHours()).padStart(2,"0");
   const mm=String(now.getMinutes()).padStart(2,"0");
   const t=isNew
-    ?{id:"t"+Date.now(),number:"",start:hh+":"+mm,people:1,plan:"A",startedAt:Date.now(),pausedAt:null,totalPaused:0}
+    ?{id:"t"+Date.now(),number:"",start:hh+":"+mm,people:1,plan:"A",startedAt:null,pausedAt:null,totalPaused:0}
     :data.tables.find(x=>x.id===id);
   const paused=!!t.pausedAt;
   openSheet(`
@@ -579,11 +651,11 @@ function openTable(id){
       <div class="small-note">現在のタイマー：${formatElapsed(t)}${paused?"（一時停止中）":""}</div>
       <div class="quick-row">
         <button id="moveLeft">← 左へ</button>
-        <button id="pauseTimer">${paused?"再開":"一時停止"}</button>
+        <button id="pauseTimer">${!t.startedAt?"開始":paused?"再開":"一時停止"}</button>
         <button id="moveRight">右へ →</button>
       </div>
       <div class="sheet-actions">
-        <button class="cancel" id="resetTimer">タイマー0:00</button>
+        <button class="cancel" id="resetTimer">タイマー停止・リセット</button>
       </div>`}
     <div class="sheet-actions">
       ${isNew?"":'<button class="danger" id="deleteTable">卓終了</button>'}
@@ -605,15 +677,19 @@ function openTable(id){
     document.getElementById("moveLeft").onclick=()=>moveTable(t.id,-1);
     document.getElementById("moveRight").onclick=()=>moveTable(t.id,1);
     document.getElementById("pauseTimer").onclick=()=>{
-      if(t.pausedAt){
+      if(!t.startedAt){
+        t.startedAt=Date.now();t.pausedAt=null;t.totalPaused=0;
+      }else if(t.pausedAt){
         t.totalPaused=(t.totalPaused||0)+(Date.now()-t.pausedAt);
         t.pausedAt=null;
-      }else t.pausedAt=Date.now();
+      }else{
+        t.pausedAt=Date.now();
+      }
       save();closeSheet();render();
     };
     document.getElementById("resetTimer").onclick=()=>{
-      if(confirm("タイマーを0:00に戻しますか？")){
-        t.startedAt=Date.now();t.pausedAt=null;t.totalPaused=0;
+      if(confirm("タイマーを停止してリセットしますか？")){
+        t.startedAt=null;t.pausedAt=null;t.totalPaused=0;
         save();closeSheet();render();
       }
     };
@@ -747,6 +823,20 @@ document.getElementById("modeBtn").onclick=()=>{
   clearSelections();save();render();
 };
 document.getElementById("menuBtn").onclick=openMenu;
+document.getElementById("timerStartBtn").onclick=()=>{
+  const t=activeTable();
+  if(!t)return;
+  const message=t.startedAt
+    ? "タイマーを0:00から再スタートしますか？"
+    : "この卓のタイマーをスタートしますか？";
+  if(confirm(message)){
+    t.startedAt=Date.now();
+    t.pausedAt=null;
+    t.totalPaused=0;
+    save();render();
+  }
+};
+
 document.getElementById("addTableBtn").onclick=()=>openTable();
 document.getElementById("clearSelectBtn").onclick=()=>{clearSelections();save();render()};
 document.getElementById("seatBtn").onclick=()=>{
@@ -763,6 +853,9 @@ document.getElementById("seatBtn").onclick=()=>{
     delete data.selected[pairKey(c.id,t.id)];
   });
   data.history.unshift(event);
+  t.startedAt=Date.now();
+  t.pausedAt=null;
+  t.totalPaused=0;
   save();render();
 };
 document.getElementById("undoBtn").onclick=()=>{
