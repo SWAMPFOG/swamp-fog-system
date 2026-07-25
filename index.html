@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.7 完全版</title>
+<title>SWAMP-FOG 初回回し Ver.7.1 修正版</title>
 <style>
 :root{
   --name-col:88px;
@@ -67,12 +67,17 @@ table{
 }
 th,td{border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 thead th{
-  position:sticky;top:81px;z-index:8;
+  position:relative;
+  z-index:8;
   width:var(--table-col);min-width:var(--table-col);max-width:var(--table-col);
-  padding:5px 2px 6px;background:var(--panel2);text-align:center;vertical-align:middle
+  height:104px;
+  padding:7px 2px 7px;background:var(--panel2);text-align:center;vertical-align:middle
 }
 thead th:first-child{
-  left:0;z-index:16;width:var(--name-col);min-width:var(--name-col);max-width:var(--name-col);
+  position:sticky;
+  left:0;
+  z-index:16;
+  width:var(--name-col);min-width:var(--name-col);max-width:var(--name-col);
   padding-left:6px;background:#151516;text-align:left;font-size:11px
 }
 .table-head{cursor:pointer}
@@ -90,14 +95,21 @@ thead th:first-child{
 .timer.paused{color:#b7b7bb}
 .timer.warn{color:var(--yellow)}
 .timer.over{color:var(--red)}
-tbody td{height:54px;background:#141415;text-align:center}
+tbody tr{height:58px}
+tbody td{
+  height:58px;
+  min-height:58px;
+  background:#141415;
+  text-align:center;
+  vertical-align:middle
+}
 .cast{
   position:sticky;left:0;z-index:5;
   width:var(--name-col);min-width:var(--name-col);max-width:var(--name-col);
-  padding:4px 5px;background:#181819;text-align:left
+  padding:7px 5px 6px;background:#181819;text-align:left;vertical-align:middle
 }
 .cast.editable{cursor:pointer}
-.cast-line{display:flex;align-items:center;gap:3px;min-width:0}
+.cast-line{display:flex;align-items:center;gap:3px;min-width:0;height:22px;line-height:22px;overflow:visible}
 .rank-dot{
   width:15px;height:15px;border-radius:50%;flex:0 0 auto;
   box-shadow:inset 0 1px 2px rgba(255,255,255,.5)
@@ -108,7 +120,7 @@ tbody td{height:54px;background:#141415;text-align:center}
   font-size:14px;font-weight:800
 }
 .cast-sub{
-  margin-top:2px;padding-left:18px;color:#a9a9ad;font-size:9px;
+  margin-top:1px;padding-left:18px;color:#a9a9ad;font-size:10px;line-height:14px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis
 }
 .c .rank,.c .name{color:#4cff5a}
@@ -123,7 +135,7 @@ tbody td{height:54px;background:#141415;text-align:center}
   width:var(--table-col);min-width:var(--table-col);max-width:var(--table-col);padding:0
 }
 .state-btn{
-  width:100%;height:54px;border:0;background:transparent;color:#fff;
+  width:100%;height:58px;border:0;background:transparent;color:#fff;
   font-size:26px;line-height:1
 }
 .state-btn:active{background:#2a2a2d}
@@ -196,6 +208,11 @@ input,select{
   min-height:40px;border:1px solid #555;border-radius:9px;background:#303034;color:#fff;font-weight:800
 }
 .hidden-input{display:none}
+@supports (-webkit-touch-callout:none){
+  .board-wrap{overflow-x:auto;overflow-y:visible}
+  thead th{position:relative;top:auto}
+  thead th:first-child{position:sticky;left:0}
+}
 @media(max-width:390px){
   :root{--name-col:84px;--table-col:76px}
   .topbar{grid-template-columns:68px 1fr 68px}
@@ -206,7 +223,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.7</h1>
+  <h1>SWAMP-FOG 初回回し Ver.7.1</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
