@@ -2,264 +2,52 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#07080b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>SWAMP-FOG 初回回し Ver.3</title>
+<title>SWAMP-FOG 初回回し Ver.4</title>
 <style>
-:root{
-  --bg:#07080b;--panel:#11141a;--panel2:#1a1e26;--line:#2c313c;
-  --text:#f5f7fb;--muted:#949aa8;--gold:#d8b65b;--green:#39cf7e;
-  --yellow:#f2c14f;--red:#ff6171;--blue:#62aaff;--purple:#a78bfa;
-}
-*{box-sizing:border-box} html,body{margin:0;background:linear-gradient(180deg,#050609,#0d1118);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-.app{max-width:1500px;margin:auto;padding:12px 12px 100px}
-header{position:sticky;top:0;z-index:50;background:rgba(7,8,11,.94);backdrop-filter:blur(16px);margin:-12px -12px 12px;padding:12px;border-bottom:1px solid var(--line)}
-.top{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
-h1{font-size:22px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:9px 12px;border-radius:11px;font-weight:800}
-.btn.gold{background:var(--gold);color:#171208;border-color:transparent}.btn.red{background:#3b1b22;color:#ffc5cb}.btn.blue{background:#163451;color:#bedfff}
-.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:10px;text-align:center}
-.stat b{display:block;font-size:20px}.stat span{font-size:11px;color:var(--muted)}
-.tables{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.table{background:var(--panel);border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.25)}
-.table.inactive{opacity:.5}
-.head{padding:12px;background:linear-gradient(180deg,#181c24,#12151b);border-bottom:1px solid var(--line)}
-.title-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.title-left{display:flex;align-items:center;gap:8px}.title-left h2{margin:0;font-size:21px}
-.toggle{width:42px;height:24px;border:0;border-radius:999px;background:#3b404b;position:relative}
-.toggle:after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:white;top:3px;left:3px;transition:.2s}
-.toggle.on{background:var(--green)}.toggle.on:after{left:21px}
-.info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:10px}
-.field{background:#0d1015;border:1px solid var(--line);border-radius:10px;padding:7px}
-.field label{display:block;font-size:10px;color:var(--muted);margin-bottom:3px}
-.field input,.field select,.field textarea{width:100%;background:transparent;border:0;outline:0;color:var(--text)}
-.field textarea{resize:none;min-height:42px}
-.full{grid-column:1/-1}
-.suggest{margin-top:9px;padding:9px 10px;background:#0d1015;border:1px solid var(--line);border-radius:11px}
-.suggest small{display:block;color:var(--muted);margin-bottom:3px}.suggest strong{color:var(--gold);font-size:17px}
-.reason{font-size:11px;color:#b9bfca;margin-top:3px}
-.timer-row{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:center;margin-top:9px}
-.timer{font-size:25px;font-weight:900;text-align:center;font-variant-numeric:tabular-nums;background:#090c11;border:1px solid var(--line);border-radius:11px;padding:8px}
-.timer.warn{color:var(--yellow)}.timer.done{color:var(--red);animation:pulse 1s infinite}@keyframes pulse{50%{opacity:.5}}
-.timerbtn{border:0;border-radius:9px;padding:10px 11px;font-weight:900;background:var(--blue);color:#08111c}.resetbtn{background:#353b47;color:white}
-.head-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}
-.head-actions button{border:1px solid var(--line);background:#222630;color:white;border-radius:9px;padding:8px;font-size:11px;font-weight:800}
-.queue{padding:9px;display:flex;flex-direction:column;gap:7px;min-height:90px}
-.empty{border:1px dashed var(--line);border-radius:11px;color:var(--muted);text-align:center;padding:22px 8px}
-.person{display:grid;grid-template-columns:34px 44px 1fr auto;gap:7px;align-items:center;background:#181b22;border:1px solid var(--line);border-radius:12px;padding:8px;touch-action:none}
-.person.waiting{border-left:5px solid var(--yellow)}.person.seated{border-left:5px solid var(--green);background:#112019}.person.finished{border-left:5px solid var(--red);background:#211317;opacity:.78}
-.drag{font-size:22px;color:#727988;text-align:center}
-.avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;background:#2b3039;display:grid;place-items:center;font-weight:900;color:var(--gold);overflow:hidden}
-.avatar img{width:100%;height:100%;object-fit:cover}
-.name-row{display:flex;gap:6px;align-items:center}.name{width:100%;background:transparent;border:0;outline:0;color:white;font-weight:850;font-size:15px}
-.rank{border:1px solid var(--line);background:#0e1116;color:white;border-radius:7px;padding:3px 4px;font-size:11px}
-.meta{font-size:10px;color:var(--muted);margin-top:2px}
-.p-actions{display:grid;grid-template-columns:repeat(2,40px);gap:5px}
-.p-actions button{width:40px;height:34px;border:1px solid var(--line);background:#292e38;color:white;border-radius:8px}
-.p-actions .wide{grid-column:1/-1;width:85px;font-size:10px;font-weight:800}.remove{background:#3a1b21!important;color:#ffbcc4!important}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:flex-end;z-index:100}.modal.show{display:flex}
-.sheet{width:100%;max-height:88vh;overflow:auto;background:#11141a;border-radius:20px 20px 0 0;padding:16px;border-top:1px solid var(--line)}
-.cast-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.cast-card{border:1px solid var(--line);background:#191d24;border-radius:12px;padding:10px}
-.cast-card input,.cast-card select{width:100%;margin-top:5px;background:#0f1217;color:white;border:1px solid var(--line);border-radius:8px;padding:8px}
-.cast-card .avatar{margin:auto}.sheet h3{margin-top:0}.sheet-actions{display:flex;gap:8px;position:sticky;bottom:0;background:#11141a;padding-top:10px}
-.sheet-actions button{flex:1}
-@media(max-width:1050px){.tables{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:720px){.tables{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.summary .stat:last-child{grid-column:1/-1}.app{padding:9px 9px 100px}.cast-grid{grid-template-columns:1fr}}
+:root{--bg:#07080b;--panel:#11141a;--panel2:#191d24;--line:#2c313c;--text:#f5f7fb;--muted:#949aa8;--gold:#d8b65b;--green:#39cf7e;--yellow:#f2c14f;--red:#ff6171;--blue:#62aaff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:#07080b;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1500px;margin:auto;padding:calc(10px + env(safe-area-inset-top)) 9px calc(60px + env(safe-area-inset-bottom))}header{position:sticky;top:0;z-index:40;background:rgba(7,8,11,.96);backdrop-filter:blur(14px);margin:calc(-10px - env(safe-area-inset-top)) -9px 8px;padding:calc(10px + env(safe-area-inset-top)) 9px 9px;border-bottom:1px solid var(--line)}.top{display:flex;align-items:center;justify-content:space-between;gap:8px}.brand h1{font-size:19px;margin:0;white-space:nowrap}.sub{font-size:10px;color:var(--muted);margin-top:2px}.top-actions{display:flex;gap:5px}.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:8px 10px;border-radius:10px;font-weight:800}.btn.blue{background:#163451;color:#cfe8ff}.btn.gold{background:var(--gold);color:#171208;border-color:transparent}.btn.red{background:#3b1b22;color:#ffc5cb}.btn.small{padding:6px 8px;font-size:11px}.controlbar{display:grid;grid-template-columns:1fr auto;gap:7px;margin-bottom:8px}.controlbar input{min-width:0;background:#11141a;border:1px solid var(--line);border-radius:11px;color:white;padding:10px 12px;outline:0;text-transform:uppercase}.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:8px}.stat{background:#11141a;border:1px solid var(--line);border-radius:10px;padding:7px 3px;text-align:center}.stat b{display:block;font-size:17px}.stat span{font-size:9px;color:var(--muted)}.tables{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.table{background:#11141a;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.25)}.table-head{padding:8px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#181c24,#12151b)}.title-row{display:flex;align-items:center;gap:5px}.table-name{width:78px;min-width:0;background:#090c11;color:white;border:1px solid var(--line);border-radius:8px;padding:6px 7px;font-size:18px;font-weight:900;text-transform:uppercase}.title-spacer{flex:1}.icon-btn{border:1px solid var(--line);background:#222630;color:white;border-radius:8px;padding:6px 7px;font-size:11px;font-weight:800}.icon-btn.active{background:#554516;color:#ffe49a;border-color:#806b25}.icon-btn.danger{background:#35171d;color:#ffb8c0}.quick-info{display:grid;grid-template-columns:54px 65px 1fr;gap:5px;margin-top:6px}.quick-info select,.quick-info input{width:100%;min-width:0;background:#0d1015;color:white;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:11px;outline:0}.recommend{display:flex;align-items:center;gap:5px;margin-top:6px;background:#0d1015;border:1px solid var(--line);border-radius:8px;padding:6px 7px;font-size:11px}.recommend span{color:var(--muted)}.recommend strong{color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.timer-row{display:grid;grid-template-columns:1fr auto auto;gap:5px;margin-top:6px}.timer{background:#090c11;border:1px solid var(--line);border-radius:8px;text-align:center;padding:6px;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}.timer.warn{color:var(--yellow)}.timer.done{color:var(--red)}.timer-row button{border:0;border-radius:8px;padding:7px 8px;font-size:11px;font-weight:900}.start{background:var(--blue);color:#07101c}.reset{background:#353b47;color:white}.table-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}.table-actions button{border:1px solid var(--line);background:#222630;color:white;border-radius:8px;padding:7px;font-size:10px;font-weight:800}.queue{padding:6px;display:flex;flex-direction:column;gap:4px;min-height:42px}.empty{border:1px dashed var(--line);border-radius:8px;color:var(--muted);text-align:center;padding:10px 5px;font-size:11px}.person{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:5px;background:#191d24;border:1px solid var(--line);border-radius:9px;padding:5px 6px}.person.waiting{border-left:4px solid var(--yellow)}.person.seated{border-left:4px solid var(--green);background:#102019}.person.finished{border-left:4px solid var(--red);background:#211317;opacity:.78}.order{font-size:10px;color:var(--muted);text-align:center}.person-name{font-size:12px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.person-meta{font-size:9px;color:var(--muted)}.person-actions{display:flex;gap:3px}.person-actions button{border:1px solid var(--line);background:#292e38;color:white;border-radius:6px;padding:5px 6px;font-size:9px;font-weight:800}.person-actions .status{min-width:46px}.person-actions .remove{background:#3a1b21;color:#ffbcc4}.order-controls{display:flex;gap:3px}.order-controls button{width:28px}.details{margin-top:6px}.details summary{font-size:10px;color:#bfc5d1;cursor:pointer}.details textarea{width:100%;min-height:48px;margin-top:5px;background:#0d1015;color:white;border:1px solid var(--line);border-radius:8px;padding:7px;resize:none;font-size:11px}.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:flex-end;z-index:100}.modal.show{display:flex}.sheet{width:100%;max-height:90vh;overflow:auto;background:#11141a;border-radius:20px 20px 0 0;padding:15px;border-top:1px solid var(--line)}.sheet h3{margin:0 0 10px}.sheet-actions{display:flex;gap:8px;position:sticky;bottom:0;background:#11141a;padding-top:10px}.sheet-actions button{flex:1}.cast-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.cast-card{border:1px solid var(--line);background:#191d24;border-radius:11px;padding:9px}.cast-card input,.cast-card select{width:100%;margin-top:5px;background:#0f1217;color:white;border:1px solid var(--line);border-radius:8px;padding:8px}.picker-tools{display:flex;gap:7px;position:sticky;top:0;background:#11141a;padding-bottom:9px;z-index:2}.picker-search{flex:1;min-width:0;background:#0d1015;color:white;border:1px solid var(--line);border-radius:10px;padding:10px}.picker-count{font-size:11px;color:var(--gold);font-weight:800;align-self:center}.picker-shortcuts{display:flex;gap:7px;margin-bottom:9px}.picker-shortcuts button{flex:1}.picker-list{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.picker-item{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#191d24;border-radius:11px;padding:9px;text-align:left;color:white}.picker-item.selected{border-color:var(--gold);background:#2a2517}.picker-check{width:22px;height:22px;border-radius:6px;border:1px solid #59606d;display:grid;place-items:center;font-weight:900;flex:none}.picker-item.selected .picker-check{background:var(--gold);color:#171208}.picker-name{font-size:13px;font-weight:850}.picker-meta{font-size:10px;color:var(--muted)}
+@media(max-width:900px){.tables{grid-template-columns:repeat(2,minmax(0,1fr))}.brand h1{font-size:17px}.sub{display:none}}
+@media(max-width:560px){.app{padding-left:6px;padding-right:6px}.tables{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.table{border-radius:11px}.table-head{padding:6px}.title-row{gap:3px}.table-name{width:56px;font-size:15px;padding:5px}.icon-btn{padding:5px;font-size:9px}.quick-info{grid-template-columns:42px 52px 1fr;gap:3px}.quick-info select,.quick-info input{font-size:9px;padding:5px 3px}.recommend{font-size:9px;padding:5px}.timer{font-size:17px}.timer-row button{font-size:9px;padding:6px 5px}.table-actions button{font-size:9px;padding:6px 3px}.queue{padding:4px}.person{grid-template-columns:18px minmax(0,1fr) auto;padding:4px;gap:3px}.person-name{font-size:10px}.person-meta{font-size:8px}.person-actions{gap:2px}.person-actions button{font-size:8px;padding:4px}.person-actions .status{min-width:39px}.summary{gap:3px}.stat{padding:5px 2px}.stat b{font-size:14px}.stat span{font-size:8px}.top-actions .btn{padding:7px 8px;font-size:11px}.cast-grid,.picker-list{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
-<header>
-  <div class="top">
-    <div><h1>SWAMP-FOG 初回回し Ver.3</h1><div class="sub">複数卓・卓情報・キャスト管理・自動提案</div></div>
-    <div class="actions">
-      <button class="btn blue" onclick="openCastManager()">キャスト管理</button>
-      <button class="btn gold" onclick="saveNow()">保存</button>
-      <button class="btn red" onclick="endBusiness()">営業終了</button>
-    </div>
-  </div>
-</header>
-
-<section class="summary">
-  <div class="stat"><b id="activeCount">0</b><span>稼働卓</span></div>
-  <div class="stat"><b id="waitingCount">0</b><span>未着席</span></div>
-  <div class="stat"><b id="seatedCount">0</b><span>着席済み</span></div>
-  <div class="stat"><b id="finishedCount">0</b><span>終了</span></div>
-  <div class="stat"><b id="rotationCount">0</b><span>総着席回数</span></div>
-</section>
-
+<header><div class="top"><div class="brand"><h1>SWAMP-FOG 初回回し Ver.4</h1><div class="sub">全卓ボード・複数選択・安全な並べ替え</div></div><div class="top-actions"><button class="btn blue small" onclick="openCastManager()">キャスト</button><button class="btn red small" onclick="endBusiness()">営業終了</button></div></div></header>
+<div class="controlbar"><input id="newTableName" placeholder="卓番を入力（例 S1 / A3 / C8）" maxlength="12" onkeydown="if(event.key==='Enter')addTable()"><button class="btn gold" onclick="addTable()">＋卓追加</button></div>
+<section class="summary"><div class="stat"><b id="activeCount">0</b><span>稼働卓</span></div><div class="stat"><b id="waitingCount">0</b><span>未着席</span></div><div class="stat"><b id="seatedCount">0</b><span>着席済み</span></div><div class="stat"><b id="finishedCount">0</b><span>終了</span></div><div class="stat"><b id="rotationCount">0</b><span>総着席</span></div></section>
 <main id="tables" class="tables"></main>
 </div>
-
-<div id="castModal" class="modal" onclick="if(event.target===this)closeCastManager()">
-  <div class="sheet">
-    <h3>本日のキャスト管理</h3>
-    <div id="castGrid" class="cast-grid"></div>
-    <button class="btn blue" style="width:100%;margin-top:10px" onclick="addMasterCast()">＋キャスト追加</button>
-    <div class="sheet-actions">
-      <button class="btn" onclick="closeCastManager()">閉じる</button>
-      <button class="btn gold" onclick="saveMasterCasts()">保存して反映</button>
-    </div>
-  </div>
-</div>
-
+<div id="castModal" class="modal" onclick="if(event.target===this)closeCastManager()"><div class="sheet"><h3>本日のキャスト管理</h3><div id="castGrid" class="cast-grid"></div><button class="btn blue" style="width:100%;margin-top:9px" onclick="addMasterCast()">＋キャスト追加</button><div class="sheet-actions"><button class="btn" onclick="closeCastManager()">閉じる</button><button class="btn gold" onclick="saveMasterCasts()">保存して反映</button></div></div></div>
+<div id="queueModal" class="modal" onclick="if(event.target===this)closeQueuePicker()"><div class="sheet"><div class="picker-tools"><input id="queueSearch" class="picker-search" placeholder="名前を検索" oninput="renderQueuePicker()"><span id="pickerCount" class="picker-count">0人選択</span></div><div class="picker-shortcuts"><button class="btn" onclick="selectAllPicker()">全員選択</button><button class="btn" onclick="clearPickerSelection()">全解除</button></div><div id="queuePickerList" class="picker-list"></div><div class="sheet-actions"><button class="btn" onclick="closeQueuePicker()">キャンセル</button><button id="addSelectedBtn" class="btn gold" onclick="addSelectedCasts()">選択したキャストを追加</button></div></div></div>
 <script>
-const KEY="swamp_fog_v3";
-const TIMER=210;
-let state={casts:[],tables:[]},intervals={};
-
+const KEY="swamp_fog_v4_board";const OLD_KEYS=["swamp_fog_v4","swamp_fog_v3"];const TIMER=210;let state={casts:[],tables:[]},intervals={},reorderMode=new Set();
 function uid(){return crypto?.randomUUID?crypto.randomUUID():"id"+Date.now()+Math.random()}
-function defaultState(){
-  const casts=["キャスト1","キャスト2","キャスト3","キャスト4"].map((name,i)=>({id:uid(),name,rank:["S","A","B","C"][i],image:"",rotations:0}));
-  return {casts,tables:Array.from({length:9},(_,i)=>({
-    id:uid(),name:"S"+(i+1),active:false,guestCount:1,plan:"B",preference:"",
-    timer:{remaining:TIMER,running:false,last:null},queue:[]
-  }))};
-}
-function load(){try{state=JSON.parse(localStorage.getItem(KEY))||defaultState()}catch{state=defaultState()}normalize();render();resume()}
-function normalize(){
-  const now=Date.now();
-  state.tables.forEach(t=>{
-    t.guestCount??=1;t.plan??="B";t.preference??="";t.queue??=[];t.timer??={remaining:TIMER,running:false,last:null};
-    if(t.timer.running&&t.timer.last){const e=Math.floor((now-t.timer.last)/1000);t.timer.remaining=Math.max(0,t.timer.remaining-e);t.timer.last=now;if(!t.timer.remaining)t.timer.running=false}
-  });
-  state.casts.forEach(c=>{c.rotations??=0;c.rank??="C";c.image??=""});
-  persist();
-}
-function persist(){localStorage.setItem(KEY,JSON.stringify(state))}
-function saveNow(){persist();alert("保存しました")}
-function getTable(id){return state.tables.find(t=>t.id===id)}
-function getCast(id){return state.casts.find(c=>c.id===id)}
-function esc(s=""){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
-function format(sec){return `${String(Math.floor(sec/60)).padStart(2,"0")}:${String(sec%60).padStart(2,"0")}`}
-function rankScore(r){return {S:4,A:3,B:2,C:1}[r]||0}
-
-function recommendation(t){
-  const waiting=t.queue.map(q=>({q,cast:getCast(q.castId)})).filter(x=>x.q.status==="waiting"&&x.cast);
-  if(!waiting.length)return {name:"待機なし",reason:"未着席キャストがいません"};
-  waiting.sort((a,b)=>{
-    if(a.cast.rotations!==b.cast.rotations)return a.cast.rotations-b.cast.rotations;
-    return rankScore(b.cast.rank)-rankScore(a.cast.rank);
-  });
-  const x=waiting[0];
-  return {name:x.cast.name,reason:`本日${x.cast.rotations}卓・ランク${x.cast.rank}を優先`};
-}
-
-function render(){
-  const root=document.getElementById("tables");
-  root.innerHTML=state.tables.map(t=>{
-    const rec=recommendation(t);
-    return `<section class="table ${t.active?"":"inactive"}">
-      <div class="head">
-        <div class="title-row">
-          <div class="title-left"><h2>${t.name}</h2><button class="toggle ${t.active?"on":""}" onclick="toggleTable('${t.id}')"></button></div>
-          <button class="btn" style="padding:7px 9px" onclick="addQueueCast('${t.id}')">＋追加</button>
-        </div>
-        <div class="info-grid">
-          <div class="field"><label>人数</label><select onchange="updateTable('${t.id}','guestCount',this.value)"><option ${t.guestCount==1?"selected":""}>1</option><option ${t.guestCount==2?"selected":""}>2</option><option ${t.guestCount==3?"selected":""}>3</option></select></div>
-          <div class="field"><label>プラン</label><select onchange="updateTable('${t.id}','plan',this.value)"><option ${t.plan==="A"?"selected":""}>A</option><option ${t.plan==="B"?"selected":""}>B</option><option ${t.plan==="VIP"?"selected":""}>VIP</option></select></div>
-          <div class="field full"><label>好きなタイプ・メモ</label><textarea placeholder="右：高身長　左：黒髪" oninput="updateTable('${t.id}','preference',this.value)">${esc(t.preference)}</textarea></div>
-        </div>
-        <div class="suggest"><small>次に回すおすすめ</small><strong>${esc(rec.name)}</strong><div class="reason">${esc(rec.reason)}</div></div>
-        <div class="timer-row">
-          <div id="timer-${t.id}" class="timer ${t.timer.remaining<=30&&t.timer.remaining>0?"warn":""} ${t.timer.remaining===0?"done":""}">${format(t.timer.remaining)}</div>
-          <button class="timerbtn" id="tb-${t.id}" onclick="startPause('${t.id}')">${t.timer.running?"一時停止":"スタート"}</button>
-          <button class="timerbtn resetbtn" onclick="resetTimer('${t.id}')">リセット</button>
-        </div>
-        <div class="head-actions">
-          <button onclick="markNextSeated('${t.id}')">次を着席</button>
-          <button onclick="resetStatuses('${t.id}')">未着席へ</button>
-          <button onclick="clearTable('${t.id}')">卓を空に</button>
-        </div>
-      </div>
-      <div class="queue">
-        ${t.queue.length?t.queue.map((q,i)=>personHtml(t,q,i)).join(""):'<div class="empty">キャストを追加してください</div>'}
-      </div>
-    </section>`
-  }).join("");
-  bindDrag();updateSummary();
-}
-function personHtml(t,q,i){
-  const c=getCast(q.castId);if(!c)return"";
-  return `<div class="person ${q.status}" draggable="true" data-tid="${t.id}" data-qid="${q.id}">
-    <div class="drag">≡</div>
-    <div class="avatar">${c.image?`<img src="${c.image}">`:esc(c.name.slice(0,1))}</div>
-    <div><div class="name-row"><input class="name" value="${esc(c.name)}" readonly><span class="rank">${c.rank}</span></div><div class="meta">${i+1}番目・${label(q.status)}・本日${c.rotations}卓</div></div>
-    <div class="p-actions"><button onclick="move('${t.id}','${q.id}',-1)">↑</button><button onclick="move('${t.id}','${q.id}',1)">↓</button><button class="wide" onclick="cycle('${t.id}','${q.id}')">${label(q.status)} →</button><button class="wide remove" onclick="removeQ('${t.id}','${q.id}')">削除</button></div>
-  </div>`
-}
-function label(s){return s==="waiting"?"未着席":s==="seated"?"着席済み":"終了"}
-function updateSummary(){
-  const q=state.tables.flatMap(t=>t.queue);
-  activeCount.textContent=state.tables.filter(t=>t.active).length;
-  waitingCount.textContent=q.filter(x=>x.status==="waiting").length;
-  seatedCount.textContent=q.filter(x=>x.status==="seated").length;
-  finishedCount.textContent=q.filter(x=>x.status==="finished").length;
-  rotationCount.textContent=state.casts.reduce((a,c)=>a+c.rotations,0);
-}
-function toggleTable(id){const t=getTable(id);t.active=!t.active;persist();render()}
-function updateTable(id,key,val){const t=getTable(id);t[key]=key==="guestCount"?Number(val):val;t.active=true;persist();render()}
-function addQueueCast(tid){
-  const t=getTable(tid); if(!state.casts.length)return alert("先にキャスト管理から登録してください");
-  const choices=state.casts.map((c,i)=>`${i+1}. ${c.name}（${c.rank}）`).join("\n");
-  const ans=prompt("追加する番号を入力\n"+choices); if(!ans)return;
-  const c=state.casts[Number(ans)-1]; if(!c)return;
-  t.queue.push({id:uid(),castId:c.id,status:"waiting"});t.active=true;persist();render()
-}
+function defaultState(){return{casts:["キャスト1","キャスト2","キャスト3","キャスト4"].map((name,i)=>({id:uid(),name,rank:["S","A","B","C"][i],rotations:0})),tables:[]}}
+function load(){try{state=JSON.parse(localStorage.getItem(KEY));if(!state){for(const k of OLD_KEYS){const old=JSON.parse(localStorage.getItem(k));if(old){state=old;break}}}if(!state)state=defaultState()}catch{state=defaultState()}normalize();render();resume()}
+function normalize(){state.casts??=[];state.tables??=[];state.casts.forEach(c=>{c.rotations??=0;c.rank??="C"});state.tables=state.tables.filter(t=>t.active!==false||t.queue?.length||t.preference).map(t=>({id:t.id||uid(),name:t.name||"卓",guestCount:t.guestCount??1,plan:t.plan||"B",preference:t.preference||"",timer:t.timer||{remaining:TIMER,running:false,last:null},queue:t.queue||[]}));const now=Date.now();state.tables.forEach(t=>{if(t.timer.running&&t.timer.last){const e=Math.floor((now-t.timer.last)/1000);t.timer.remaining=Math.max(0,t.timer.remaining-e);t.timer.last=now;if(!t.timer.remaining)t.timer.running=false}});persist()}
+function persist(){localStorage.setItem(KEY,JSON.stringify(state))}function getTable(id){return state.tables.find(t=>t.id===id)}function getCast(id){return state.casts.find(c=>c.id===id)}function esc(s=""){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}function format(sec){return`${String(Math.floor(sec/60)).padStart(2,"0")}:${String(sec%60).padStart(2,"0")}`}function label(s){return s==="waiting"?"未着席":s==="seated"?"着席": "終了"}
+function recommendation(t){const x=t.queue.map(q=>({q,c:getCast(q.castId)})).filter(x=>x.q.status==="waiting"&&x.c).sort((a,b)=>a.c.rotations-b.c.rotations)[0];return x?x.c.name:"待機なし"}
+function addTable(){const input=document.getElementById("newTableName");const name=input.value.trim().toUpperCase();if(!name)return alert("卓番を入力してください");if(state.tables.some(t=>t.name.toUpperCase()===name))return alert("同じ卓番がすでにあります");state.tables.push({id:uid(),name,guestCount:1,plan:"B",preference:"",timer:{remaining:TIMER,running:false,last:null},queue:[]});input.value="";persist();render()}
+function removeTable(id){if(!confirm("この卓を削除しますか？"))return;stop(id);state.tables=state.tables.filter(t=>t.id!==id);reorderMode.delete(id);persist();render()}
+function updateTable(id,key,val){const t=getTable(id);t[key]=key==="guestCount"?Number(val):val;persist();if(key!=="preference")render()}
+function render(){tables.innerHTML=state.tables.length?state.tables.map(t=>`<section class="table"><div class="table-head"><div class="title-row"><input class="table-name" value="${esc(t.name)}" onchange="updateTable('${t.id}','name',this.value.toUpperCase())"><span class="title-spacer"></span><button class="icon-btn ${reorderMode.has(t.id)?"active":""}" onclick="toggleReorder('${t.id}')">並替</button><button class="icon-btn" onclick="openQueuePicker('${t.id}')">＋追加</button><button class="icon-btn danger" onclick="removeTable('${t.id}')">削除</button></div><div class="quick-info"><select onchange="updateTable('${t.id}','guestCount',this.value)">${[1,2,3,4,5].map(n=>`<option ${t.guestCount==n?"selected":""}>${n}名</option>`).join("")}</select><select onchange="updateTable('${t.id}','plan',this.value)">${["A","B","VIP","連れ"].map(p=>`<option ${t.plan===p?"selected":""}>${p}</option>`).join("")}</select><input placeholder="タイプ・メモ" value="${esc(t.preference)}" oninput="updateTable('${t.id}','preference',this.value)"></div><div class="recommend"><span>次：</span><strong>${esc(recommendation(t))}</strong></div><div class="timer-row"><div id="timer-${t.id}" class="timer ${t.timer.remaining<=30&&t.timer.remaining>0?"warn":""} ${t.timer.remaining===0?"done":""}">${format(t.timer.remaining)}</div><button id="tb-${t.id}" class="start" onclick="startPause('${t.id}')">${t.timer.running?"停止":"開始"}</button><button class="reset" onclick="resetTimer('${t.id}')">戻す</button></div><div class="table-actions"><button onclick="markNextSeated('${t.id}')">次を着席</button><button onclick="clearTable('${t.id}')">卓を空に</button></div></div><div class="queue">${t.queue.length?t.queue.map((q,i)=>personHtml(t,q,i)).join(""):'<div class="empty">＋追加からキャストを選択</div>'}</div></section>`).join(""):'<div class="empty" style="grid-column:1/-1;padding:30px">上の入力欄から卓番を追加してください</div>';updateSummary()}
+function personHtml(t,q,i){const c=getCast(q.castId);if(!c)return"";return`<div class="person ${q.status}"><div class="order">${i+1}</div><div><div class="person-name">${esc(c.name)}</div><div class="person-meta">${c.rank}・本日${c.rotations}卓</div></div><div class="person-actions">${reorderMode.has(t.id)?`<span class="order-controls"><button onclick="move('${t.id}','${q.id}',-1)">↑</button><button onclick="move('${t.id}','${q.id}',1)">↓</button></span>`:""}<button class="status" onclick="cycle('${t.id}','${q.id}')">${label(q.status)}</button><button class="remove" onclick="removeQ('${t.id}','${q.id}')">×</button></div></div>`}
+function toggleReorder(id){reorderMode.has(id)?reorderMode.delete(id):reorderMode.add(id);render()}
 function move(tid,qid,d){const t=getTable(tid),i=t.queue.findIndex(q=>q.id===qid),n=i+d;if(i<0||n<0||n>=t.queue.length)return;[t.queue[i],t.queue[n]]=[t.queue[n],t.queue[i]];persist();render()}
-function cycle(tid,qid){
-  const t=getTable(tid),q=t.queue.find(x=>x.id===qid);if(!q)return;
-  const prev=q.status;q.status=prev==="waiting"?"seated":prev==="seated"?"finished":"waiting";
-  if(prev!=="seated"&&q.status==="seated"){const c=getCast(q.castId);c.rotations++}
-  persist();render()
-}
-function markNextSeated(tid){const t=getTable(tid),q=t.queue.find(x=>x.status==="waiting");if(!q)return alert("未着席キャストがいません");q.status="seated";getCast(q.castId).rotations++;persist();render()}
-function removeQ(tid,qid){const t=getTable(tid);t.queue=t.queue.filter(x=>x.id!==qid);persist();render()}
-function resetStatuses(tid){getTable(tid).queue.forEach(q=>q.status="waiting");persist();render()}
-function clearTable(tid){if(!confirm("この卓を空にしますか？"))return;const t=getTable(tid);t.queue=[];t.active=false;resetTimer(tid,false);persist();render()}
-
-function startPause(id){
-  const t=getTable(id);if(t.timer.remaining<=0)t.timer.remaining=TIMER;t.timer.running=!t.timer.running;t.timer.last=t.timer.running?Date.now():null;persist();t.timer.running?run(id):stop(id);render()
-}
-function run(id){stop(id);intervals[id]=setInterval(()=>{const t=getTable(id);if(!t.timer.running)return;t.timer.remaining=Math.max(0,t.timer.remaining-1);t.timer.last=Date.now();if(!t.timer.remaining){t.timer.running=false;t.timer.last=null;stop(id);navigator.vibrate?.([250,150,250])}persist();const el=document.getElementById("timer-"+id);if(el){el.textContent=format(t.timer.remaining);el.className="timer "+(t.timer.remaining===0?"done":t.timer.remaining<=30?"warn":"")}const b=document.getElementById("tb-"+id);if(b)b.textContent=t.timer.running?"一時停止":"スタート"},1000)}
-function stop(id){if(intervals[id])clearInterval(intervals[id]);delete intervals[id]}
-function resetTimer(id,r=true){const t=getTable(id);stop(id);t.timer={remaining:TIMER,running:false,last:null};persist();if(r)render()}
-function resume(){state.tables.forEach(t=>t.timer.running&&run(t.id))}
-function endBusiness(){if(!confirm("営業終了として全卓・回数・タイマーをリセットしますか？"))return;Object.keys(intervals).forEach(stop);state.tables.forEach(t=>{t.active=false;t.guestCount=1;t.plan="B";t.preference="";t.queue=[];t.timer={remaining:TIMER,running:false,last:null}});state.casts.forEach(c=>c.rotations=0);persist();render()}
-
-function openCastManager(){renderCastManager();castModal.classList.add("show")}
-function closeCastManager(){castModal.classList.remove("show")}
-function renderCastManager(){
-  castGrid.innerHTML=state.casts.map((c,i)=>`<div class="cast-card">
-    <div class="avatar">${c.image?`<img src="${c.image}">`:esc(c.name.slice(0,1))}</div>
-    <input value="${esc(c.name)}" oninput="state.casts[${i}].name=this.value">
-    <select onchange="state.casts[${i}].rank=this.value"><option ${c.rank==="S"?"selected":""}>S</option><option ${c.rank==="A"?"selected":""}>A</option><option ${c.rank==="B"?"selected":""}>B</option><option ${c.rank==="C"?"selected":""}>C</option></select>
-    <input type="file" accept="image/*" onchange="loadImage(event,${i})">
-    <button class="btn red" style="width:100%;margin-top:5px" onclick="removeMasterCast(${i})">削除</button>
-  </div>`).join("")
-}
-function addMasterCast(){state.casts.push({id:uid(),name:"",rank:"C",image:"",rotations:0});renderCastManager()}
-function removeMasterCast(i){const id=state.casts[i].id;state.casts.splice(i,1);state.tables.forEach(t=>t.queue=t.queue.filter(q=>q.castId!==id));renderCastManager()}
-function loadImage(e,i){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{state.casts[i].image=r.result;renderCastManager()};r.readAsDataURL(f)}
-function saveMasterCasts(){persist();closeCastManager();render()}
-
-function bindDrag(){
-  let d=null;
-  document.querySelectorAll(".person").forEach(el=>{
-    el.addEventListener("dragstart",()=>{d={tid:el.dataset.tid,qid:el.dataset.qid};el.style.opacity=.4});
-    el.addEventListener("dragend",()=>el.style.opacity=1);
-    el.addEventListener("dragover",e=>e.preventDefault());
-    el.addEventListener("drop",e=>{e.preventDefault();if(!d||d.tid!==el.dataset.tid)return;const t=getTable(d.tid),a=t.queue.findIndex(q=>q.id===d.qid),b=t.queue.findIndex(q=>q.id===el.dataset.qid);if(a<0||b<0||a===b)return;const [x]=t.queue.splice(a,1);t.queue.splice(b,0,x);persist();render()});
-    let y=0;el.addEventListener("touchstart",e=>{if(e.target.closest("button"))return;y=e.touches[0].clientY},{passive:true});
-    el.addEventListener("touchend",e=>{if(e.target.closest("button"))return;const dy=e.changedTouches[0].clientY-y;if(Math.abs(dy)>45)move(el.dataset.tid,el.dataset.qid,dy<0?-1:1)},{passive:true})
-  })
-}
+function cycle(tid,qid){const q=getTable(tid).queue.find(x=>x.id===qid);const prev=q.status;q.status=prev==="waiting"?"seated":prev==="seated"?"finished":"waiting";if(prev!=="seated"&&q.status==="seated")getCast(q.castId).rotations++;persist();render()}
+function markNextSeated(tid){const q=getTable(tid).queue.find(x=>x.status==="waiting");if(!q)return alert("未着席キャストがいません");q.status="seated";getCast(q.castId).rotations++;persist();render()}
+function removeQ(tid,qid){const t=getTable(tid);t.queue=t.queue.filter(q=>q.id!==qid);persist();render()}
+function clearTable(tid){if(!confirm("この卓のキャストと情報を空にしますか？"))return;const t=getTable(tid);t.queue=[];t.preference="";t.guestCount=1;t.plan="B";resetTimer(tid,false);persist();render()}
+function updateSummary(){const q=state.tables.flatMap(t=>t.queue);activeCount.textContent=state.tables.length;waitingCount.textContent=q.filter(x=>x.status==="waiting").length;seatedCount.textContent=q.filter(x=>x.status==="seated").length;finishedCount.textContent=q.filter(x=>x.status==="finished").length;rotationCount.textContent=state.casts.reduce((a,c)=>a+(c.rotations||0),0)}
+function startPause(id){const t=getTable(id);if(t.timer.remaining<=0)t.timer.remaining=TIMER;t.timer.running=!t.timer.running;t.timer.last=t.timer.running?Date.now():null;persist();t.timer.running?run(id):stop(id);render()}
+function run(id){stop(id);intervals[id]=setInterval(()=>{const t=getTable(id);if(!t||!t.timer.running)return;t.timer.remaining=Math.max(0,t.timer.remaining-1);t.timer.last=Date.now();if(!t.timer.remaining){t.timer.running=false;t.timer.last=null;stop(id);navigator.vibrate?.([250,150,250])}persist();const el=document.getElementById("timer-"+id);if(el){el.textContent=format(t.timer.remaining);el.className="timer "+(t.timer.remaining===0?"done":t.timer.remaining<=30?"warn":"")}const b=document.getElementById("tb-"+id);if(b)b.textContent=t.timer.running?"停止":"開始"},1000)}function stop(id){if(intervals[id])clearInterval(intervals[id]);delete intervals[id]}function resetTimer(id,r=true){const t=getTable(id);if(!t)return;stop(id);t.timer={remaining:TIMER,running:false,last:null};persist();if(r)render()}function resume(){state.tables.forEach(t=>t.timer.running&&run(t.id))}
+function endBusiness(){if(!confirm("全卓・回数・タイマーをリセットしますか？"))return;Object.keys(intervals).forEach(stop);state.tables=[];state.casts.forEach(c=>c.rotations=0);reorderMode.clear();persist();render()}
+let pickerTableId=null,pickerSelected=new Set();function openQueuePicker(id){if(!state.casts.length)return alert("先にキャストを登録してください");pickerTableId=id;pickerSelected.clear();queueSearch.value="";renderQueuePicker();queueModal.classList.add("show")}function closeQueuePicker(){queueModal.classList.remove("show");pickerTableId=null;pickerSelected.clear()}function pickerCandidates(){const t=getTable(pickerTableId);if(!t)return[];const existing=new Set(t.queue.map(q=>q.castId)),s=(queueSearch.value||"").trim().toLowerCase();return state.casts.filter(c=>!existing.has(c.id)&&(!s||c.name.toLowerCase().includes(s)||c.rank.toLowerCase().includes(s)))}function renderQueuePicker(){const list=pickerCandidates();queuePickerList.innerHTML=list.length?list.map(c=>`<button class="picker-item ${pickerSelected.has(c.id)?"selected":""}" onclick="togglePickerCast('${c.id}')"><span class="picker-check">${pickerSelected.has(c.id)?"✓":""}</span><span><div class="picker-name">${esc(c.name)}</div><div class="picker-meta">${c.rank}・本日${c.rotations}卓</div></span></button>`).join(""):'<div class="empty" style="grid-column:1/-1">追加できるキャストがいません</div>';pickerCount.textContent=`${pickerSelected.size}人選択`;addSelectedBtn.textContent=pickerSelected.size?`${pickerSelected.size}人を一括追加`:"選択したキャストを追加";addSelectedBtn.disabled=!pickerSelected.size;addSelectedBtn.style.opacity=pickerSelected.size?1:.5}function togglePickerCast(id){pickerSelected.has(id)?pickerSelected.delete(id):pickerSelected.add(id);renderQueuePicker()}function selectAllPicker(){pickerCandidates().forEach(c=>pickerSelected.add(c.id));renderQueuePicker()}function clearPickerSelection(){pickerSelected.clear();renderQueuePicker()}function addSelectedCasts(){const t=getTable(pickerTableId);if(!t||!pickerSelected.size)return;state.casts.filter(c=>pickerSelected.has(c.id)).forEach(c=>t.queue.push({id:uid(),castId:c.id,status:"waiting"}));persist();closeQueuePicker();render()}
+function openCastManager(){renderCastManager();castModal.classList.add("show")}function closeCastManager(){castModal.classList.remove("show")}function renderCastManager(){castGrid.innerHTML=state.casts.map((c,i)=>`<div class="cast-card"><input value="${esc(c.name)}" oninput="state.casts[${i}].name=this.value"><select onchange="state.casts[${i}].rank=this.value">${["S","A","B","C"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select><button class="btn red" style="width:100%;margin-top:5px" onclick="removeMasterCast(${i})">削除</button></div>`).join("")}function addMasterCast(){state.casts.push({id:uid(),name:"",rank:"C",rotations:0});renderCastManager()}function removeMasterCast(i){const id=state.casts[i].id;state.casts.splice(i,1);state.tables.forEach(t=>t.queue=t.queue.filter(q=>q.castId!==id));renderCastManager()}function saveMasterCasts(){state.casts=state.casts.filter(c=>c.name.trim());persist();closeCastManager();render()}
 load();
 </script>
 </body>
