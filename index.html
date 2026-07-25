@@ -8,25 +8,27 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.7.2 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.7.3 完成版</title>
 <style>
 :root{
-  --name-col:88px;
-  --table-col:80px;
+  --name-col:92px;
+  --table-col:82px;
   --line:#393939;
   --bg:#0f0f10;
   --panel:#181819;
   --panel2:#252527;
-  --muted:#a8a8ad;
-  --green:#55ee88;
+  --green:#52ef87;
+  --green-dark:#123c25;
+  --blue:#52a9ff;
+  --blue-dark:#143653;
   --yellow:#ffd24b;
+  --yellow-dark:#4a3b0d;
   --red:#ff6268;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{
-  margin:0;background:var(--bg);color:#fff;
-  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
-  min-height:100%;
+  margin:0;min-height:100%;background:var(--bg);color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif
 }
 button,input,select{font:inherit}
 button{touch-action:manipulation}
@@ -45,7 +47,7 @@ button{touch-action:manipulation}
 .statusbar{
   position:sticky;top:46px;z-index:50;
   min-height:35px;padding:5px 7px;
-  display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center;
+  display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;
   background:#151516;border-bottom:1px solid #333;
   font-size:11px;white-space:nowrap
 }
@@ -57,16 +59,9 @@ button{touch-action:manipulation}
   width:44px;height:27px;border:1px solid #555;border-radius:8px;
   background:#2d2d30;color:#fff;font-size:11px;font-weight:900
 }
-.timer-start-btn{
-  width:58px;height:27px;border:1px solid #2b9a59;border-radius:8px;
-  background:#176b3b;color:#fff;font-size:10px;font-weight:900
-}
-.timer-start-btn.running{
-  border-color:#666;background:#303034;color:#ddd
-}
 .board-wrap{
-  width:100%;overflow:auto;-webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain
+  width:100%;overflow-x:auto;overflow-y:visible;
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain
 }
 table{
   border-collapse:separate;border-spacing:0;table-layout:fixed;
@@ -74,16 +69,13 @@ table{
 }
 th,td{border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 thead th{
-  position:relative;
-  z-index:8;
+  position:relative;z-index:8;
   width:var(--table-col);min-width:var(--table-col);max-width:var(--table-col);
-  height:104px;
-  padding:7px 2px 7px;background:var(--panel2);text-align:center;vertical-align:middle
+  height:104px;padding:7px 2px;background:var(--panel2);
+  text-align:center;vertical-align:middle
 }
 thead th:first-child{
-  position:sticky;
-  left:0;
-  z-index:16;
+  position:sticky;left:0;z-index:16;
   width:var(--name-col);min-width:var(--name-col);max-width:var(--name-col);
   padding-left:6px;background:#151516;text-align:left;font-size:11px
 }
@@ -92,23 +84,23 @@ thead th:first-child{
   background:#263b30;
   box-shadow:inset 0 -3px 0 var(--green)
 }
+.table-head.planning{background:#4a3b0d;box-shadow:inset 0 -3px 0 var(--yellow)}
 .table-no{font-size:17px;font-weight:900;line-height:1}
 .start{margin-top:3px;font-size:11px;color:#e2e2e5}
 .meta{margin-top:3px;font-size:10px;color:#ccccd0;white-space:nowrap}
 .timer{
-  margin-top:4px;font-size:17px;line-height:1;font-weight:900;
+  margin-top:5px;font-size:17px;line-height:1;font-weight:900;
   color:var(--green);font-variant-numeric:tabular-nums
 }
+.timer.not-started{color:#a9a9ad;font-size:13px}
 .timer.paused{color:#b7b7bb}
 .timer.warn{color:var(--yellow)}
 .timer.over{color:var(--red)}
+.duration{margin-top:3px;font-size:9px;color:#9f9fa5}
 tbody tr{height:58px}
 tbody td{
-  height:58px;
-  min-height:58px;
-  background:#141415;
-  text-align:center;
-  vertical-align:middle
+  height:58px;min-height:58px;background:#141415;
+  text-align:center;vertical-align:middle
 }
 .cast{
   position:sticky;left:0;z-index:5;
@@ -116,19 +108,23 @@ tbody td{
   padding:7px 5px 6px;background:#181819;text-align:left;vertical-align:middle
 }
 .cast.editable{cursor:pointer}
-.cast-line{display:flex;align-items:center;gap:3px;min-width:0;height:22px;line-height:22px;overflow:visible}
+.cast-line{
+  display:flex;align-items:center;gap:3px;min-width:0;
+  height:22px;line-height:22px;overflow:visible
+}
 .rank-dot{
   width:15px;height:15px;border-radius:50%;flex:0 0 auto;
   box-shadow:inset 0 1px 2px rgba(255,255,255,.5)
 }
 .rank{font-size:12px;font-weight:900;flex:0 0 auto}
 .name{
-  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  font-size:14px;font-weight:800
+  min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;font-size:14px;font-weight:800
 }
 .cast-sub{
-  margin-top:1px;padding-left:18px;color:#a9a9ad;font-size:10px;line-height:14px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+  margin-top:1px;padding-left:18px;color:#a9a9ad;
+  font-size:10px;line-height:14px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis
 }
 .c .rank,.c .name{color:#4cff5a}
 .b .rank,.b .name{color:#43a2ff}
@@ -139,61 +135,53 @@ tbody td{
 .a .rank-dot{background:linear-gradient(#ffe75e,#ffbc00)}
 .s .rank-dot{background:linear-gradient(#ff666b,#cb0710)}
 .state-cell{
-  width:var(--table-col);min-width:var(--table-col);max-width:var(--table-col);padding:0
+  width:var(--table-col);min-width:var(--table-col);
+  max-width:var(--table-col);padding:0
 }
 .state-btn{
-  position:relative;
   width:100%;height:58px;border:0;background:transparent;color:#fff;
   font-size:26px;line-height:1
 }
-.state-btn:active{background:#2a2a2d}
-.state-btn.empty{color:#f3f3f3}
+.state-btn:active{filter:brightness(1.25)}
+.state-btn.empty{color:#fff}
 .state-btn.selected{
-  background:#173f5a;
-  color:#67b8ff;
-  box-shadow:inset 0 0 0 2px #368fd1
+  background:var(--blue-dark);color:#8dccff;
+  box-shadow:inset 0 0 0 2px var(--blue)
 }
 .state-btn.checked{
-  background:#123a26;
-  color:#59f08c;
+  background:var(--green-dark);color:#75ff9e;
+  box-shadow:inset 0 0 0 2px #2bc96b
 }
 .state-btn.blocked{
-  background:#3a1719;
-  color:#ff696f;
-  font-size:21px
+  background:#35191b;color:#ff777c;font-size:21px
 }
-.order-badge{
-  position:absolute;
-  right:5px;
-  top:5px;
-  min-width:20px;
-  height:20px;
-  padding:0 5px;
-  border-radius:999px;
-  background:#57ef8b;
-  color:#0a2515;
-  font-size:11px;
-  line-height:20px;
-  font-weight:900;
-  box-shadow:0 0 0 2px rgba(0,0,0,.35)
+.seat-order{
+  display:flex;align-items:center;justify-content:center;gap:3px;
+  font-variant-numeric:tabular-nums
 }
+.order-number{font-size:23px;font-weight:1000;line-height:1}
+.order-check{font-size:14px;font-weight:1000}
 .bottom{
-  position:sticky;bottom:0;z-index:40;display:grid;grid-template-columns:74px 74px 1fr;gap:7px;
+  position:sticky;bottom:0;z-index:40;
+  display:grid;grid-template-columns:74px 74px 1fr;gap:7px;
   padding:7px 8px calc(7px + env(safe-area-inset-bottom));
   background:rgba(20,20,21,.98);border-top:1px solid var(--line)
 }
 .primary,.secondary{
-  min-height:42px;border-radius:10px;border:1px solid #555;color:#fff;font-weight:900
+  min-height:42px;border-radius:10px;border:1px solid #555;
+  color:#fff;font-weight:900
 }
 .primary{background:#176b3b;border-color:#2b9a59}
 .primary:disabled{opacity:.4}
 .secondary{background:#303034;font-size:11px}
 .sheet-backdrop{
-  position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.62);display:none
+  position:fixed;inset:0;z-index:90;
+  background:rgba(0,0,0,.62);display:none
 }
 .sheet{
   position:fixed;left:0;right:0;bottom:0;z-index:100;
-  max-height:90vh;overflow:auto;padding:12px 14px calc(18px + env(safe-area-inset-bottom));
+  max-height:90vh;overflow:auto;
+  padding:12px 14px calc(18px + env(safe-area-inset-bottom));
   background:#222225;border-radius:18px 18px 0 0;
   transform:translateY(110%);transition:.2s ease
 }
@@ -217,38 +205,59 @@ input,select{
   color:#fff;font-weight:800
 }
 .save{background:#176b3b}
+.start-timer{background:#176b3b;border-color:#2b9a59!important}
 .danger{background:#6c2020}
 .cancel{background:#333338}
 .pause{background:#66520f}
 .reason{
-  padding:10px;border:1px solid #555;border-radius:10px;background:#171719;
-  color:#eee;font-size:14px;line-height:1.5
+  padding:10px;border:1px solid #555;border-radius:10px;
+  background:#171719;color:#eee;font-size:14px;line-height:1.5
 }
 .small-note{margin-top:8px;color:#aaa;font-size:11px;line-height:1.45}
 .history-list{display:flex;flex-direction:column;gap:8px}
 .history-item{
-  padding:10px;border:1px solid #45454a;border-radius:11px;background:#171719
+  padding:10px;border:1px solid #45454a;
+  border-radius:11px;background:#171719
 }
 .history-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .history-table{font-size:16px;font-weight:900}
 .history-time{color:#aaa;font-size:11px}
 .history-casts{margin-top:5px;font-size:14px;line-height:1.45}
 .history-meta{margin-top:4px;color:#aaa;font-size:11px}
+.round-badge{
+  display:inline-block;min-width:25px;padding:2px 6px;margin-right:5px;
+  border-radius:999px;background:#174529;color:#79ffa5;
+  text-align:center;font-size:11px;font-weight:900
+}
 .empty-history{padding:25px 5px;text-align:center;color:#aaa}
 .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .menu-grid button{
-  min-height:48px;border:1px solid #555;border-radius:10px;background:#303034;color:#fff;font-weight:800
+  min-height:48px;border:1px solid #555;border-radius:10px;
+  background:#303034;color:#fff;font-weight:800
 }
 .quick-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
 .quick-row button{
-  min-height:40px;border:1px solid #555;border-radius:9px;background:#303034;color:#fff;font-weight:800
+  min-height:40px;border:1px solid #555;border-radius:9px;
+  background:#303034;color:#fff;font-weight:800
 }
+.timer-panel{
+  padding:12px;border:1px solid #4b4b50;border-radius:12px;
+  background:#171719;text-align:center
+}
+.timer-panel-value{
+  margin:7px 0;font-size:34px;font-weight:1000;
+  font-variant-numeric:tabular-nums
+}
+
+.rank{color:#a9a9ad!important}
+.name{font-weight:900}
+.state-btn.planned{background:var(--yellow-dark);color:#ffe270;box-shadow:inset 0 0 0 2px var(--yellow)}
+.plan-mark{font-size:23px;font-weight:1000}
+.order-label{font-size:10px;font-weight:1000}
+.timer-panel-value.over{color:var(--red)}
+.plan-btn{background:#66520f}
+
 .hidden-input{display:none}
-@supports (-webkit-touch-callout:none){
-  .board-wrap{overflow-x:auto;overflow-y:visible}
-  thead th{position:relative;top:auto}
-  thead th:first-child{position:sticky;left:0}
-}
 @media(max-width:390px){
   :root{--name-col:84px;--table-col:76px}
   .topbar{grid-template-columns:68px 1fr 68px}
@@ -259,14 +268,14 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.7.2</h1>
+  <h1>SWAMP-FOG 初回回し Ver.7.3</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
 <div class="statusbar">
   <div class="status-main" id="activeLabel">卓を選択してください</div>
   <div class="status-count" id="selectedCount">0名</div>
-  <button class="timer-start-btn" id="timerStartBtn">開始</button><button class="add-table" id="addTableBtn">＋卓</button>
+  <button class="add-table" id="addTableBtn">＋卓</button>
 </div>
 
 <div class="board-wrap">
@@ -284,615 +293,121 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v7_complete_1";
-const MIGRATION_KEYS=[
-  "swamp_fog_v7_gamma_1",
-  "swamp_fog_v7_beta_1"
-];
-
+const STORAGE_KEY="swamp_fog_v7_3_complete";
+const MIGRATION_KEYS=["swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
-  settings:{
-    editMode:false,
-    warnMinutes:15,
-    overMinutes:20
-  },
+  settings:{editMode:false},
   casts:[
-    {id:"c1",name:"さや",rank:"C",sends:0,penalty:false,ngTables:[]},
-    {id:"c2",name:"あい",rank:"C",sends:1,penalty:false,ngTables:[]},
-    {id:"c3",name:"みく",rank:"B",sends:2,penalty:false,ngTables:["t2"]},
-    {id:"c4",name:"りな",rank:"A",sends:2,penalty:false,ngTables:[]},
-    {id:"c5",name:"ゆい",rank:"S",sends:0,penalty:false,ngTables:[]}
+    {id:"c1",name:"さや",rank:"C",nameColor:"#4cff5a",sends:0,penalty:false,ngTables:[]},
+    {id:"c2",name:"あい",rank:"C",nameColor:"#4cff5a",sends:1,penalty:false,ngTables:[]},
+    {id:"c3",name:"みく",rank:"B",nameColor:"#43a2ff",sends:2,penalty:false,ngTables:["t2"]},
+    {id:"c4",name:"りな",rank:"A",nameColor:"#ffd54a",sends:2,penalty:false,ngTables:[]},
+    {id:"c5",name:"ゆい",rank:"S",nameColor:"#ff5a5f",sends:0,penalty:false,ngTables:[]}
   ],
   tables:[
-    {id:"t1",number:"S1",start:"21:05",people:2,plan:"A",startedAt:null,pausedAt:null,totalPaused:0},
-    {id:"t2",number:"VIP1",start:"21:12",people:3,plan:"VIP",startedAt:null,pausedAt:null,totalPaused:0},
-    {id:"t3",number:"A2",start:"21:18",people:1,plan:"B",startedAt:null,pausedAt:null,totalPaused:0}
+    {id:"t1",number:"S1",start:"21:05",people:2,plan:"A",durationSec:900,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0},
+    {id:"t2",number:"VIP1",start:"21:12",people:3,plan:"VIP",durationSec:900,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0},
+    {id:"t3",number:"A2",start:"21:18",people:1,plan:"お連れ様",durationSec:600,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0}
   ],
-  seated:{"c2:t1":true,"c1:t2":true,"c4:t3":true},
-  selected:{},
-  history:[]
+  seated:{},selected:{},planned:{},planningTableId:null,history:[]
 };
-
 let data=load();
 let activeTableId=data.tables[0]?.id||null;
-
 function cloneDefault(){return JSON.parse(JSON.stringify(defaultData))}
 function normalize(d){
-  d.settings=d.settings||{};
-  d.settings.editMode=!!d.settings.editMode;
-  d.settings.warnMinutes=Number(d.settings.warnMinutes)||15;
-  d.settings.overMinutes=Number(d.settings.overMinutes)||20;
-  d.history=Array.isArray(d.history)?d.history:[];
-  d.seated=d.seated||{};
-  d.selected={};
-  d.casts=Array.isArray(d.casts)?d.casts:[];
-  d.tables=Array.isArray(d.tables)?d.tables:[];
-  d.casts.forEach(c=>{
-    c.ngTables=Array.isArray(c.ngTables)?c.ngTables:[];
-    c.sends=Number(c.sends)||0;
-    c.penalty=!!c.penalty;
-  });
-  d.tables.forEach(t=>{
-    if(!("pausedAt" in t))t.pausedAt=null;
-    if(!("totalPaused" in t))t.totalPaused=0;
-    if(!("startedAt" in t))t.startedAt=null;
-  });
+  d.settings=d.settings||{}; d.settings.editMode=!!d.settings.editMode;
+  d.history=Array.isArray(d.history)?d.history:[]; d.seated=d.seated||{}; d.selected={}; d.planned=d.planned||{}; d.planningTableId=null;
+  d.casts=Array.isArray(d.casts)?d.casts:[]; d.tables=Array.isArray(d.tables)?d.tables:[];
+  d.casts.forEach(c=>{c.ngTables=Array.isArray(c.ngTables)?c.ngTables:[];c.sends=Number(c.sends)||0;c.penalty=!!c.penalty;if(!c.nameColor)c.nameColor={C:"#4cff5a",B:"#43a2ff",A:"#ffd54a",S:"#ff5a5f"}[c.rank]||"#ffffff"});
+  d.tables.forEach(t=>{if(!("pausedAt" in t))t.pausedAt=null;if(!("totalPaused" in t))t.totalPaused=0;if(!("turnCounter" in t))t.turnCounter=Number(t.roundCounter)||0;if(!("startedAt" in t))t.startedAt=null;if(!("durationSec" in t))t.durationSec=900});
+  const counters={};
+  Object.keys(d.seated).forEach(k=>{if(!d.seated[k]){delete d.seated[k];return}const tid=k.split(":")[1];counters[tid]=(counters[tid]||0)+1;if(typeof d.seated[k]!=="object")d.seated[k]={turn:counters[tid],at:Date.now()};else{d.seated[k].turn=Number(d.seated[k].turn||d.seated[k].order)||counters[tid];d.seated[k].at=Number(d.seated[k].at)||Date.now();delete d.seated[k].order}});
+  d.tables.forEach(t=>{const max=Math.max(0,...Object.entries(d.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0));t.turnCounter=Math.max(Number(t.turnCounter)||0,max)});
   return d;
 }
-function load(){
-  try{
-    const current=JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if(current?.casts&&current?.tables)return normalize(current);
-    for(const key of MIGRATION_KEYS){
-      const old=JSON.parse(localStorage.getItem(key));
-      if(old?.casts&&old?.tables)return normalize(old);
-    }
-  }catch(e){}
-  return cloneDefault();
-}
+function load(){try{const c=JSON.parse(localStorage.getItem(STORAGE_KEY));if(c?.casts&&c?.tables)return normalize(c);for(const k of MIGRATION_KEYS){const o=JSON.parse(localStorage.getItem(k));if(o?.casts&&o?.tables)return normalize(o)}}catch(e){}return cloneDefault()}
 function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
-function esc(s){
-  return String(s).replace(/[&<>"']/g,m=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
-  }[m]));
-}
-function pairKey(castId,tableId){return castId+":"+tableId}
-function rankIndex(rank){return["C","B","A","S"].indexOf(rank)}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function pairKey(c,t){return c+":"+t}
+function rankIndex(r){return["C","B","A","S"].indexOf(r)}
 function sortCasts(){data.casts.sort((a,b)=>rankIndex(a.rank)-rankIndex(b.rank))}
-function timeText(ts=Date.now()){
-  return new Intl.DateTimeFormat("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date(ts));
-}
-function dateTimeText(ts){
-  return new Intl.DateTimeFormat("ja-JP",{
-    month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false
-  }).format(new Date(ts));
-}
-function timerSeconds(t){
-  if(!t.startedAt)return 0;
-  const end=t.pausedAt||Date.now();
-  return Math.max(0,Math.floor((end-t.startedAt-(t.totalPaused||0))/1000));
-}
-function formatElapsed(t){
-  if(!t.startedAt)return "--:--";
-  const sec=timerSeconds(t);
-  const m=Math.floor(sec/60).toString().padStart(2,"0");
-  const s=(sec%60).toString().padStart(2,"0");
-  return m+":"+s;
-}
-function timerClass(t){
-  if(!t.startedAt)return"paused";
-  if(t.pausedAt)return"paused";
-  const min=timerSeconds(t)/60;
-  if(min>=data.settings.overMinutes)return"over";
-  if(min>=data.settings.warnMinutes)return"warn";
-  return"";
-}
-function eligibility(cast,table){
+function dateTimeText(ts){return new Intl.DateTimeFormat("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date(ts))}
+function elapsedSeconds(t){if(!t.startedAt)return 0;const end=t.pausedAt||Date.now();return Math.max(0,Math.floor((end-t.startedAt-(t.totalPaused||0))/1000))}
+function remainingSeconds(t){return Math.max(0,(Number(t.durationSec)||0)-elapsedSeconds(t))}
+function overtimeSeconds(t){return Math.max(0,elapsedSeconds(t)-(Number(t.durationSec)||0))}
+function mmss(sec){sec=Math.max(0,Math.floor(sec));return String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0")}
+function formatTimer(t){if(!t.startedAt)return"未開始";const over=overtimeSeconds(t);return over>0?"超過 "+mmss(over):mmss(remainingSeconds(t))}
+function timerClass(t){if(!t.startedAt)return"not-started";if(t.pausedAt)return"paused";return overtimeSeconds(t)>0||remainingSeconds(t)===0?"over":""}
+function startTimer(t){t.startedAt=Date.now();t.pausedAt=null;t.totalPaused=0}
+function isCompanion(t){return t.plan==="お連れ様"}
+function eligibility(c,t){
   const reasons=[];
-  if(cast.penalty)reasons.push("勤怠ペナルティ中");
-  if((cast.ngTables||[]).includes(table.id))reasons.push("この卓はNG");
-  if(cast.sends>=2&&["A","B","VIP"].includes(table.plan)&&!["S","A"].includes(cast.rank)){
-    reasons.push("2送り：このプランはS・Aランクのみ");
+  if(!isCompanion(t)&&c.penalty)reasons.push("勤怠ペナルティ中（初回のみ）");
+  if((c.ngTables||[]).includes(t.id))reasons.push("この卓はNG");
+  if(!isCompanion(t)&&c.sends>=2){
+    if(c.rank==="S"&&t.plan==="VIP"){} else if(!["S","A"].includes(c.rank))reasons.push("2送り：初回A・B・VIPはA・Sランクのみ");
   }
   return{ok:reasons.length===0,reasons};
 }
-function stateFor(cast,table){
-  if(data.seated[pairKey(cast.id,table.id)])return"checked";
-  if(!eligibility(cast,table).ok)return"blocked";
-  if(data.selected[pairKey(cast.id,table.id)])return"selected";
-  return"empty";
-}
-function stateIcon(state){
-  return state==="checked"?"☑":state==="blocked"?"🚫":state==="selected"?"●":"□";
-}
+function seatRecord(c,t){return data.seated[pairKey(c,t)]||null}
+function isPlanned(c,t){return!!data.planned[pairKey(c,t)]}
+function stateFor(c,t){if(seatRecord(c.id,t.id))return"checked";if(data.planningTableId===t.id&&isCompanion(t))return isPlanned(c.id,t.id)?"planned":"empty";if(!eligibility(c,t).ok)return"blocked";if(data.selected[pairKey(c.id,t.id)])return"selected";if(isCompanion(t)&&isPlanned(c.id,t.id))return"planned";return"empty"}
+function stateContent(st,rec){if(st==="checked")return`<span class="seat-order"><span class="order-number">${Number(rec?.turn)||"✓"}</span><span class="order-label">T✓</span></span>`;if(st==="blocked")return"🚫";if(st==="selected")return"●";if(st==="planned")return'<span class="plan-mark">★</span>';return"□"}
 function activeTable(){return data.tables.find(t=>t.id===activeTableId)}
-function selectedForActive(){
-  if(!activeTableId)return[];
-  return data.casts.filter(c=>data.selected[pairKey(c.id,activeTableId)]);
-}
+function selectedForActive(){if(!activeTableId)return[];return data.casts.filter(c=>data.selected[pairKey(c.id,activeTableId)])}
 function clearSelections(){data.selected={}}
-function setActiveTable(id){
-  if(activeTableId!==id){
-    activeTableId=id;
-    clearSelections();
-  }
-}
-function nextCastSuggestion(table){
-  const available=data.casts.filter(c=>{
-    const st=stateFor(c,table);
-    return st==="empty";
-  });
-  return available[0]||null;
-}
-function seatOrder(castId,tableId){
-  const relevant=data.history
-    .filter(h=>h.type==="seat"&&h.tableId===tableId&&(h.castIds||[]).includes(castId))
-    .sort((a,b)=>a.at-b.at);
-  if(!relevant.length)return null;
-  const all=data.history
-    .filter(h=>h.type==="seat"&&h.tableId===tableId)
-    .sort((a,b)=>a.at-b.at);
-  let count=0;
-  for(const h of all){
-    for(const id of (h.castIds||[])){
-      count++;
-      if(id===castId)return count;
-    }
-  }
-  return null;
-}
-
+function setActiveTable(id){if(activeTableId!==id){activeTableId=id;clearSelections();data.planningTableId=null}}
+function nextCastSuggestion(t){const p=isCompanion(t)?data.casts.find(c=>isPlanned(c.id,t.id)&&stateFor(c,t)!=="checked"):null;return p||data.casts.find(c=>stateFor(c,t)==="empty")||null}
 function render(){
   if(!data.tables.some(t=>t.id===activeTableId))activeTableId=data.tables[0]?.id||null;
   const board=document.getElementById("board");
-  const head=`
-    <thead><tr>
-      <th>キャスト</th>
-      ${data.tables.map(t=>`
-        <th class="table-head ${t.id===activeTableId?"active":""}" data-table="${t.id}">
-          <div class="table-no">${esc(t.number)}</div>
-          <div class="start">${esc(t.start)}</div>
-          <div class="meta">${t.people}名・${esc(t.plan)}</div>
-          <div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatElapsed(t)}</div>
-        </th>`).join("")}
-    </tr></thead>`;
-  const body=`
-    <tbody>${data.casts.map(c=>`
-      <tr>
-        <td class="cast ${c.rank.toLowerCase()} ${data.settings.editMode?"editable":""}" data-cast="${c.id}">
-          <div class="cast-line">
-            <span class="rank-dot"></span>
-            <span class="rank">${c.rank}</span>
-            <span class="name">${esc(c.name)}</span>
-          </div>
-          <div class="cast-sub">送り${c.sends}${c.penalty?"・停止":""}</div>
-        </td>
-        ${data.tables.map(t=>{
-          const st=stateFor(c,t);
-          const order=st==="checked"?seatOrder(c.id,t.id):null;
-          return `<td class="state-cell">
-            <button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}" aria-label="${esc(c.name)} ${esc(t.number)}">
-              ${stateIcon(st)}${order?`<span class="order-badge">${order}</span>`:""}
-            </button>
-          </td>`;
-        }).join("")}
-      </tr>`).join("")}</tbody>`;
-  board.innerHTML=head+body;
-
-  board.querySelectorAll(".table-head").forEach(el=>{
-    el.addEventListener("click",()=>{
-      const id=el.dataset.table;
-      if(activeTableId===id&&data.settings.editMode)openTable(id);
-      else{setActiveTable(id);save();render()}
-    });
-  });
-  board.querySelectorAll(".state-btn").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      const cast=data.casts.find(c=>c.id===btn.dataset.cast);
-      const table=data.tables.find(t=>t.id===btn.dataset.table);
-      setActiveTable(table.id);
-      const st=stateFor(cast,table);
-      if(st==="blocked"){showReason(cast,table);return}
-      const k=pairKey(cast.id,table.id);
-      if(st==="checked"){showSeatDetail(cast,table);return}
-      if(st==="selected")delete data.selected[k];
-      else data.selected[k]=true;
-      save();render();
-    });
-  });
-  board.querySelectorAll(".cast").forEach(el=>{
-    el.addEventListener("click",()=>{
-      if(data.settings.editMode)openCast(el.dataset.cast);
-    });
-  });
+  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>`<tr><td class="cast ${data.settings.editMode?"editable":""}" data-cast="${c.id}"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name" style="color:${esc(c.nameColor)}">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${c.penalty?"・初回停止":""}</div></td>${data.tables.map(t=>{const st=stateFor(c,t),rec=seatRecord(c.id,t.id);return`<td class="state-cell"><button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec)}</button></td>`}).join("")}</tr>`).join("")}</tbody>`;
+  board.querySelectorAll(".table-head").forEach(el=>el.onclick=()=>{const id=el.dataset.table;if(activeTableId===id)openTableQuick(id);else{setActiveTable(id);save();render()}});
+  board.querySelectorAll(".state-btn").forEach(btn=>btn.onclick=()=>{const c=data.casts.find(x=>x.id===btn.dataset.cast),t=data.tables.find(x=>x.id===btn.dataset.table);setActiveTable(t.id);const k=pairKey(c.id,t.id);if(data.planningTableId===t.id&&isCompanion(t)){data.planned[k]?delete data.planned[k]:data.planned[k]=true;save();render();return}const st=stateFor(c,t);if(st==="blocked"){showReason(c,t);return}if(st==="checked"){showSeatDetail(c,t);return}data.selected[k]?delete data.selected[k]:data.selected[k]=true;save();render()});
+  board.querySelectorAll(".cast").forEach(el=>el.onclick=()=>{if(data.settings.editMode)openCast(el.dataset.cast)});
   updateStatus();
 }
-function updateStatus(){
-  const t=activeTable();
-  const count=selectedForActive().length;
-  const suggestion=t?nextCastSuggestion(t):null;
-  document.getElementById("activeLabel").textContent=t
-    ? `${t.number}（${t.people}名・${t.plan}）${suggestion?"／次候補："+suggestion.name:""}`
-    :"卓を追加してください";
-  document.getElementById("selectedCount").textContent=count+"名";
-  const seatBtn=document.getElementById("seatBtn");
-  seatBtn.disabled=!t||count===0;
-  seatBtn.textContent=count?`${count}名を着席`:"次を着席";
-  document.getElementById("undoBtn").disabled=data.history.length===0;
-  const modeBtn=document.getElementById("modeBtn");
-  modeBtn.textContent=data.settings.editMode?"編集モード":"営業モード";
-  modeBtn.classList.toggle("active",data.settings.editMode);
-  document.getElementById("addTableBtn").style.visibility=data.settings.editMode?"visible":"hidden";
-  const timerBtn=document.getElementById("timerStartBtn");
-  if(!t){
-    timerBtn.disabled=true;
-    timerBtn.textContent="開始";
-    timerBtn.classList.remove("running");
-  }else if(!t.startedAt){
-    timerBtn.disabled=false;
-    timerBtn.textContent="開始";
-    timerBtn.classList.remove("running");
-  }else{
-    timerBtn.disabled=false;
-    timerBtn.textContent=t.pausedAt?"再開":"再開始";
-    timerBtn.classList.add("running");
-  }
-}
-
-function openSheet(html){
-  const sheet=document.getElementById("sheet");
-  sheet.innerHTML=html;
-  document.getElementById("backdrop").classList.add("open");
-  requestAnimationFrame(()=>sheet.classList.add("open"));
-}
-function closeSheet(){
-  const sheet=document.getElementById("sheet");
-  sheet.classList.remove("open");
-  setTimeout(()=>document.getElementById("backdrop").classList.remove("open"),180);
-}
-document.getElementById("backdrop").addEventListener("click",closeSheet);
-
+function updateStatus(){const t=activeTable(),count=selectedForActive().length,planning=t&&data.planningTableId===t.id,s=t?nextCastSuggestion(t):null;document.getElementById("activeLabel").textContent=t?(planning?`${t.number}／予定者チェック中`:`${t.number}（${t.people}名・${t.plan}）${s?"／次候補："+s.name:""}`):"卓を追加してください";document.getElementById("selectedCount").textContent=planning?"予定":count+"名";const b=document.getElementById("seatBtn");b.disabled=!t||count===0||planning;b.textContent=count?`${count}名を着席`:"次を着席";document.getElementById("undoBtn").disabled=data.history.length===0;const m=document.getElementById("modeBtn");m.textContent=data.settings.editMode?"編集モード":"営業モード";m.classList.toggle("active",data.settings.editMode);document.getElementById("addTableBtn").style.visibility=data.settings.editMode?"visible":"hidden"}
+function openSheet(h){const s=document.getElementById("sheet");s.innerHTML=h;document.getElementById("backdrop").classList.add("open");requestAnimationFrame(()=>s.classList.add("open"))}
+function closeSheet(){const s=document.getElementById("sheet");s.classList.remove("open");setTimeout(()=>document.getElementById("backdrop").classList.remove("open"),180)}
+document.getElementById("backdrop").onclick=closeSheet;
 function openCast(id){
-  const isNew=!id;
-  const c=isNew
-    ?{id:"c"+Date.now(),name:"",rank:"C",sends:0,penalty:false,ngTables:[]}
-    :data.casts.find(x=>x.id===id);
-  openSheet(`
-    <h2>${isNew?"キャスト追加":"キャスト設定"}</h2>
-    <div class="form-grid">
-      <div class="field full"><label>名前</label><input id="castName" value="${esc(c.name)}" maxlength="12"></div>
-      <div class="field"><label>ランク</label>
-        <select id="castRank">${["C","B","A","S"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select>
-      </div>
-      <div class="field"><label>送り数</label><input id="castSends" type="number" min="0" max="9" value="${c.sends}"></div>
-      <div class="field full checkrow">
-        <input id="castPenalty" type="checkbox" ${c.penalty?"checked":""}>
-        <label for="castPenalty">勤怠ペナルティで回し停止</label>
-      </div>
-      <div class="field full"><label>卓別NG</label>
-        ${data.tables.length?data.tables.map(t=>`
-          <div class="checkrow">
-            <input type="checkbox" class="ngTable" value="${t.id}" ${(c.ngTables||[]).includes(t.id)?"checked":""}>
-            <span>${esc(t.number)}（${esc(t.plan)}）</span>
-          </div>`).join(""):"卓がありません"}
-      </div>
-    </div>
-    ${isNew?"":`
-      <h3>送り数クイック変更</h3>
-      <div class="quick-row">
-        <button id="sendMinus">－1</button>
-        <button id="sendReset">0に戻す</button>
-        <button id="sendPlus">＋1</button>
-      </div>`}
-    <div class="small-note">2送りのB・Cランクは、A／B／VIPで自動的に🚫。お連れ様は全ランク対象です。</div>
-    <div class="sheet-actions">
-      ${isNew?"":'<button class="danger" id="deleteCast">削除</button>'}
-      <button class="cancel" id="cancelSheet">閉じる</button>
-      <button class="save" id="saveCast">保存</button>
-    </div>`);
+  const isNew=!id,c=isNew?{id:"c"+Date.now(),name:"",rank:"C",nameColor:"#ffffff",sends:0,penalty:false,ngTables:[]}:data.casts.find(x=>x.id===id);
+  openSheet(`<h2>${isNew?"キャスト追加":"キャスト設定"}</h2><div class="form-grid"><div class="field full"><label>名前</label><input id="castName" value="${esc(c.name)}"></div><div class="field"><label>ランク（色なし）</label><select id="castRank">${["C","B","A","S"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select></div><div class="field"><label>名前の色</label><input id="castColor" type="color" value="${esc(c.nameColor)}"></div><div class="field"><label>送り数（初回のみ）</label><input id="castSends" type="number" min="0" value="${c.sends}"></div><div class="field full checkrow"><input id="castPenalty" type="checkbox" ${c.penalty?"checked":""}><label>勤怠ペナルティ（初回のみ）</label></div><div class="field full"><label>卓別NG</label>${data.tables.map(t=>`<div class="checkrow"><input type="checkbox" class="ngTable" value="${t.id}" ${(c.ngTables||[]).includes(t.id)?"checked":""}><span>${esc(t.number)}（${esc(t.plan)}）</span></div>`).join("")||"卓がありません"}</div></div><div class="small-note">送り数・勤怠ペナルティは初回だけに適用され、お連れ様には反映されません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteCast">削除</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCast">保存</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
-  document.getElementById("saveCast").onclick=()=>{
-    const name=document.getElementById("castName").value.trim();
-    if(!name){alert("名前を入力してください");return}
-    c.name=name;
-    c.rank=document.getElementById("castRank").value;
-    c.sends=Math.max(0,Number(document.getElementById("castSends").value)||0);
-    c.penalty=document.getElementById("castPenalty").checked;
-    c.ngTables=[...document.querySelectorAll(".ngTable:checked")].map(x=>x.value);
-    if(isNew)data.casts.push(c);
-    sortCasts();save();closeSheet();render();
-  };
-  if(!isNew){
-    document.getElementById("sendMinus").onclick=()=>{
-      document.getElementById("castSends").value=Math.max(0,Number(document.getElementById("castSends").value||0)-1);
-    };
-    document.getElementById("sendReset").onclick=()=>document.getElementById("castSends").value=0;
-    document.getElementById("sendPlus").onclick=()=>{
-      document.getElementById("castSends").value=Number(document.getElementById("castSends").value||0)+1;
-    };
-    document.getElementById("deleteCast").onclick=()=>{
-      if(confirm(c.name+"を削除しますか？")){
-        data.casts=data.casts.filter(x=>x.id!==c.id);
-        Object.keys(data.seated).forEach(k=>{if(k.startsWith(c.id+":"))delete data.seated[k]});
-        Object.keys(data.selected).forEach(k=>{if(k.startsWith(c.id+":"))delete data.selected[k]});
-        save();closeSheet();render();
-      }
-    };
-  }
+  document.getElementById("saveCast").onclick=()=>{const n=document.getElementById("castName").value.trim();if(!n){alert("名前を入力してください");return}c.name=n;c.rank=document.getElementById("castRank").value;c.nameColor=document.getElementById("castColor").value;c.sends=Math.max(0,Number(document.getElementById("castSends").value)||0);c.penalty=document.getElementById("castPenalty").checked;c.ngTables=[...document.querySelectorAll(".ngTable:checked")].map(x=>x.value);if(isNew)data.casts.push(c);sortCasts();save();closeSheet();render()};
+  if(!isNew)document.getElementById("deleteCast").onclick=()=>{if(confirm(c.name+"を削除しますか？")){data.casts=data.casts.filter(x=>x.id!==c.id);[data.seated,data.selected,data.planned].forEach(o=>Object.keys(o).forEach(k=>{if(k.startsWith(c.id+":"))delete o[k]}));save();closeSheet();render()}};
 }
-
-function moveTable(id,dir){
-  const i=data.tables.findIndex(t=>t.id===id);
-  const j=i+dir;
-  if(i<0||j<0||j>=data.tables.length)return;
-  [data.tables[i],data.tables[j]]=[data.tables[j],data.tables[i]];
-  save();closeSheet();render();
-}
+function moveTable(id,dir){const i=data.tables.findIndex(t=>t.id===id),j=i+dir;if(i<0||j<0||j>=data.tables.length)return;[data.tables[i],data.tables[j]]=[data.tables[j],data.tables[i]];save();closeSheet();render()}
 function openTable(id){
-  const isNew=!id;
-  const now=new Date();
-  const hh=String(now.getHours()).padStart(2,"0");
-  const mm=String(now.getMinutes()).padStart(2,"0");
-  const t=isNew
-    ?{id:"t"+Date.now(),number:"",start:hh+":"+mm,people:1,plan:"A",startedAt:null,pausedAt:null,totalPaused:0}
-    :data.tables.find(x=>x.id===id);
-  const paused=!!t.pausedAt;
-  openSheet(`
-    <h2>${isNew?"卓追加":"卓設定"}</h2>
-    <div class="form-grid">
-      <div class="field"><label>卓番</label><input id="tableNumber" value="${esc(t.number)}" maxlength="8"></div>
-      <div class="field"><label>開始時刻</label><input id="tableStart" type="time" value="${esc(t.start)}"></div>
-      <div class="field"><label>人数</label><input id="tablePeople" type="number" min="1" max="20" value="${t.people}"></div>
-      <div class="field"><label>プラン</label>
-        <select id="tablePlan">${["A","B","VIP","お連れ様"].map(p=>`<option ${t.plan===p?"selected":""}>${p}</option>`).join("")}</select>
-      </div>
-    </div>
-    ${isNew?"":`
-      <div class="small-note">現在のタイマー：${formatElapsed(t)}${paused?"（一時停止中）":""}</div>
-      <div class="quick-row">
-        <button id="moveLeft">← 左へ</button>
-        <button id="pauseTimer">${!t.startedAt?"開始":paused?"再開":"一時停止"}</button>
-        <button id="moveRight">右へ →</button>
-      </div>
-      <div class="sheet-actions">
-        <button class="cancel" id="resetTimer">タイマー停止・リセット</button>
-      </div>`}
-    <div class="sheet-actions">
-      ${isNew?"":'<button class="danger" id="deleteTable">卓終了</button>'}
-      <button class="cancel" id="cancelSheet">閉じる</button>
-      <button class="save" id="saveTable">保存</button>
-    </div>`);
+  const isNew=!id,now=new Date(),hh=String(now.getHours()).padStart(2,"0"),mm=String(now.getMinutes()).padStart(2,"0"),t=isNew?{id:"t"+Date.now(),number:"",start:hh+":"+mm,people:1,plan:"A",durationSec:900,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0}:data.tables.find(x=>x.id===id),dm=Math.floor(t.durationSec/60),ds=t.durationSec%60;
+  openSheet(`<h2>${isNew?"卓追加":"卓設定"}</h2><div class="form-grid"><div class="field"><label>卓番</label><input id="tableNumber" value="${esc(t.number)}"></div><div class="field"><label>案内時刻</label><input id="tableStart" type="time" value="${esc(t.start)}"></div><div class="field"><label>人数</label><input id="tablePeople" type="number" min="1" value="${t.people}"></div><div class="field"><label>プラン</label><select id="tablePlan">${["A","B","VIP","お連れ様"].map(p=>`<option ${t.plan===p?"selected":""}>${p}</option>`).join("")}</select></div><div class="field"><label>タイマー 分</label><input id="durationMin" type="number" min="0" value="${dm}"></div><div class="field"><label>タイマー 秒</label><input id="durationSec" type="number" min="0" max="59" value="${ds}"></div></div><div class="small-note">保存してもタイマーは始まりません。卓ヘッダーから開始してください。</div>${isNew?"":'<div class="quick-row"><button id="moveLeft">← 左へ</button><button id="openTimer">タイマー操作</button><button id="moveRight">右へ →</button></div>'}<div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteTable">卓終了</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveTable">保存</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
-  document.getElementById("saveTable").onclick=()=>{
-    const number=document.getElementById("tableNumber").value.trim();
-    if(!number){alert("卓番を入力してください");return}
-    t.number=number;
-    t.start=document.getElementById("tableStart").value;
-    t.people=Math.max(1,Number(document.getElementById("tablePeople").value)||1);
-    t.plan=document.getElementById("tablePlan").value;
-    if(isNew)data.tables.push(t);
-    activeTableId=t.id;clearSelections();save();closeSheet();render();
-  };
-  if(!isNew){
-    document.getElementById("moveLeft").onclick=()=>moveTable(t.id,-1);
-    document.getElementById("moveRight").onclick=()=>moveTable(t.id,1);
-    document.getElementById("pauseTimer").onclick=()=>{
-      if(!t.startedAt){
-        t.startedAt=Date.now();t.pausedAt=null;t.totalPaused=0;
-      }else if(t.pausedAt){
-        t.totalPaused=(t.totalPaused||0)+(Date.now()-t.pausedAt);
-        t.pausedAt=null;
-      }else{
-        t.pausedAt=Date.now();
-      }
-      save();closeSheet();render();
-    };
-    document.getElementById("resetTimer").onclick=()=>{
-      if(confirm("タイマーを停止してリセットしますか？")){
-        t.startedAt=null;t.pausedAt=null;t.totalPaused=0;
-        save();closeSheet();render();
-      }
-    };
-    document.getElementById("deleteTable").onclick=()=>{
-      if(confirm(t.number+"を終了してボードから外しますか？")){
-        const castNames=data.casts.filter(c=>data.seated[pairKey(c.id,t.id)]).map(c=>c.name);
-        data.history.unshift({
-          id:"h"+Date.now(),type:"table-close",at:Date.now(),
-          tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,
-          castIds:[],castNames,note:"卓終了"
-        });
-        data.tables=data.tables.filter(x=>x.id!==t.id);
-        data.casts.forEach(c=>c.ngTables=(c.ngTables||[]).filter(x=>x!==t.id));
-        Object.keys(data.seated).forEach(k=>{if(k.endsWith(":"+t.id))delete data.seated[k]});
-        clearSelections();activeTableId=data.tables[0]?.id||null;
-        save();closeSheet();render();
-      }
-    };
-  }
+  document.getElementById("saveTable").onclick=()=>{const n=document.getElementById("tableNumber").value.trim(),mins=Math.max(0,Number(document.getElementById("durationMin").value)||0),secs=Math.min(59,Math.max(0,Number(document.getElementById("durationSec").value)||0));if(!n){alert("卓番を入力してください");return}if(mins===0&&secs===0){alert("タイマー時間を入力してください");return}t.number=n;t.start=document.getElementById("tableStart").value;t.people=Math.max(1,Number(document.getElementById("tablePeople").value)||1);t.plan=document.getElementById("tablePlan").value;t.durationSec=mins*60+secs;if(isNew)data.tables.push(t);activeTableId=t.id;clearSelections();data.planningTableId=null;save();closeSheet();render()};
+  if(!isNew){document.getElementById("moveLeft").onclick=()=>moveTable(t.id,-1);document.getElementById("moveRight").onclick=()=>moveTable(t.id,1);document.getElementById("openTimer").onclick=()=>openTableQuick(t.id);document.getElementById("deleteTable").onclick=()=>{if(confirm(t.number+"を終了しますか？")){data.history.unshift({id:"h"+Date.now(),type:"table-close",at:Date.now(),tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:[],castNames:[],note:"卓終了"});data.tables=data.tables.filter(x=>x.id!==t.id);[data.seated,data.planned].forEach(o=>Object.keys(o).forEach(k=>{if(k.endsWith(":"+t.id))delete o[k]}));data.casts.forEach(c=>c.ngTables=(c.ngTables||[]).filter(x=>x!==t.id));clearSelections();data.planningTableId=null;activeTableId=data.tables[0]?.id||null;save();closeSheet();render()}}}
 }
-
-function showReason(cast,table){
-  const e=eligibility(cast,table);
-  openSheet(`
-    <h2>${esc(cast.name)} → ${esc(table.number)}</h2>
-    <div class="reason">🚫 ${e.reasons.map(esc).join("<br>")}</div>
-    <div class="sheet-actions">
-      <button class="cancel" id="cancelSheet">閉じる</button>
-      ${data.settings.editMode?'<button class="save" id="editCast">キャスト設定</button>':""}
-    </div>`);
+function openTableQuick(id){
+  const t=data.tables.find(x=>x.id===id);if(!t)return;const st=!t.startedAt?"未開始":t.pausedAt?"一時停止中":"計測中";
+  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${st}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">未開始に戻す</button></div>${isCompanion(t)?`<div class="sheet-actions"><button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェックを終了":"予定者をチェック"}</button></div><div class="small-note">予定者チェック中にセルを押すと★が付きます。</div>`:""}<div class="small-note">「次を着席」で次のターン番号を付け、設定時間から自動再スタートします。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button>${data.settings.editMode?'<button class="save" id="editTableBtn">卓情報を編集</button>':""}</div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
-  if(data.settings.editMode)document.getElementById("editCast").onclick=()=>openCast(cast.id);
+  if(!t.startedAt)document.getElementById("startTimerBtn").onclick=()=>{startTimer(t);save();closeSheet();render()};else if(t.pausedAt)document.getElementById("resumeTimerBtn").onclick=()=>{t.totalPaused+=(Date.now()-t.pausedAt);t.pausedAt=null;save();closeSheet();render()};else document.getElementById("pauseTimerBtn").onclick=()=>{t.pausedAt=Date.now();save();closeSheet();render()};
+  document.getElementById("resetTimerBtn").onclick=()=>{if(confirm("タイマーを未開始に戻しますか？")){t.startedAt=null;t.pausedAt=null;t.totalPaused=0;save();closeSheet();render()}};
+  if(isCompanion(t))document.getElementById("planningBtn").onclick=()=>{data.planningTableId=data.planningTableId===t.id?null:t.id;activeTableId=t.id;clearSelections();save();closeSheet();render()};
+  if(data.settings.editMode)document.getElementById("editTableBtn").onclick=()=>openTable(t.id);
 }
-function showSeatDetail(cast,table){
-  openSheet(`
-    <h2>${esc(cast.name)}・${esc(table.number)}</h2>
-    <div class="reason">この卓は着席済みです。解除しても過去の履歴は残ります。</div>
-    <div class="sheet-actions">
-      <button class="cancel" id="cancelSheet">閉じる</button>
-      <button class="danger" id="unseatBtn">着席を解除</button>
-    </div>`);
-  document.getElementById("cancelSheet").onclick=closeSheet;
-  document.getElementById("unseatBtn").onclick=()=>{
-    delete data.seated[pairKey(cast.id,table.id)];
-    save();closeSheet();render();
-  };
-}
-function showHistory(){
-  openSheet(`
-    <h2>着席履歴</h2>
-    <div class="history-list">
-      ${data.history.length?data.history.map(h=>`
-        <div class="history-item">
-          <div class="history-top">
-            <span class="history-table">${esc(h.tableNumber||"")}</span>
-            <span class="history-time">${dateTimeText(h.at)}</span>
-          </div>
-          <div class="history-casts">${h.type==="table-close"?"卓終了":esc((h.castNames||[]).join("・"))}</div>
-          <div class="history-meta">${h.people||""}名・${esc(h.plan||"")}${h.note?"／"+esc(h.note):""}</div>
-        </div>`).join(""):'<div class="empty-history">まだ履歴はありません</div>'}
-    </div>
-    <div class="sheet-actions">
-      <button class="danger" id="clearHistory">履歴削除</button>
-      <button class="cancel" id="cancelSheet">閉じる</button>
-    </div>`);
-  document.getElementById("cancelSheet").onclick=closeSheet;
-  document.getElementById("clearHistory").onclick=()=>{
-    if(confirm("着席履歴をすべて削除しますか？")){
-      data.history=[];save();closeSheet();render();
-    }
-  };
-}
-function downloadBackup(){
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;
-  a.download="SWAMP-FOG_Ver7_backup_"+new Date().toISOString().slice(0,10)+".json";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-function openSettings(){
-  openSheet(`
-    <h2>設定</h2>
-    <div class="form-grid">
-      <div class="field"><label>タイマー注意表示（分）</label><input id="warnMinutes" type="number" min="1" max="120" value="${data.settings.warnMinutes}"></div>
-      <div class="field"><label>タイマー超過表示（分）</label><input id="overMinutes" type="number" min="1" max="180" value="${data.settings.overMinutes}"></div>
-    </div>
-    <div class="sheet-actions">
-      <button class="cancel" id="cancelSheet">閉じる</button>
-      <button class="save" id="saveSettings">保存</button>
-    </div>`);
-  document.getElementById("cancelSheet").onclick=closeSheet;
-  document.getElementById("saveSettings").onclick=()=>{
-    const warn=Math.max(1,Number(document.getElementById("warnMinutes").value)||15);
-    const over=Math.max(warn,Number(document.getElementById("overMinutes").value)||20);
-    data.settings.warnMinutes=warn;data.settings.overMinutes=over;
-    save();closeSheet();render();
-  };
-}
-function openMenu(){
-  openSheet(`
-    <h2>メニュー</h2>
-    <div class="menu-grid">
-      <button id="historyMenu">履歴を見る</button>
-      <button id="addCastMenu">キャスト追加</button>
-      <button id="settingsMenu">表示設定</button>
-      <button id="backupMenu">バックアップ</button>
-      <button id="importMenu">復元</button>
-      <button id="endBusinessMenu">営業終了</button>
-    </div>
-    <div class="small-note">バックアップはJSONファイルとして保存されます。復元すると現在のデータが置き換わります。</div>
-    <div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);
-  document.getElementById("cancelSheet").onclick=closeSheet;
-  document.getElementById("historyMenu").onclick=showHistory;
-  document.getElementById("addCastMenu").onclick=()=>openCast();
-  document.getElementById("settingsMenu").onclick=openSettings;
-  document.getElementById("backupMenu").onclick=downloadBackup;
-  document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();
-  document.getElementById("endBusinessMenu").onclick=endBusiness;
-}
-function endBusiness(){
-  if(confirm("営業を終了しますか？\n着席状態と卓はリセットされ、履歴とキャスト設定は残ります。")){
-    data.seated={};clearSelections();data.tables=[];activeTableId=null;
-    save();closeSheet();render();
-  }
-}
-
-document.getElementById("modeBtn").onclick=()=>{
-  data.settings.editMode=!data.settings.editMode;
-  clearSelections();save();render();
-};
-document.getElementById("menuBtn").onclick=openMenu;
-document.getElementById("timerStartBtn").onclick=()=>{
-  const t=activeTable();
-  if(!t)return;
-  const message=t.startedAt
-    ? "タイマーを0:00から再スタートしますか？"
-    : "この卓のタイマーをスタートしますか？";
-  if(confirm(message)){
-    t.startedAt=Date.now();
-    t.pausedAt=null;
-    t.totalPaused=0;
-    save();render();
-  }
-};
-
-document.getElementById("addTableBtn").onclick=()=>openTable();
-document.getElementById("clearSelectBtn").onclick=()=>{clearSelections();save();render()};
-document.getElementById("seatBtn").onclick=()=>{
-  const t=activeTable();
-  const casts=selectedForActive();
-  if(!t||!casts.length)return;
-  const event={
-    id:"h"+Date.now(),type:"seat",at:Date.now(),
-    tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,
-    castIds:casts.map(c=>c.id),castNames:casts.map(c=>c.name),note:"着席"
-  };
-  casts.forEach(c=>{
-    data.seated[pairKey(c.id,t.id)]=true;
-    delete data.selected[pairKey(c.id,t.id)];
-  });
-  data.history.unshift(event);
-  t.startedAt=Date.now();
-  t.pausedAt=null;
-  t.totalPaused=0;
-  save();render();
-};
-document.getElementById("undoBtn").onclick=()=>{
-  const h=data.history[0];
-  if(!h)return;
-  if(h.type!=="seat"){alert("直前の操作は卓終了のため、自動では戻せません");return}
-  if(confirm(`${h.tableNumber}への「${h.castNames.join("・")}」の着席を戻しますか？`)){
-    (h.castIds||[]).forEach(id=>delete data.seated[pairKey(id,h.tableId)]);
-    data.history.shift();activeTableId=h.tableId;save();render();
-  }
-};
-document.getElementById("importInput").addEventListener("change",async e=>{
-  const file=e.target.files?.[0];
-  if(!file)return;
-  try{
-    const parsed=JSON.parse(await file.text());
-    if(!parsed?.casts||!parsed?.tables)throw new Error("形式不正");
-    if(confirm("バックアップから復元しますか？\n現在のデータは置き換わります。")){
-      data=normalize(parsed);activeTableId=data.tables[0]?.id||null;
-      save();closeSheet();render();
-    }
-  }catch(err){alert("このファイルは復元できません")}
-  e.target.value="";
-});
-
-setInterval(()=>{
-  data.tables.forEach(t=>{
-    const el=document.querySelector(`[data-table-timer="${t.id}"]`);
-    if(el){
-      el.textContent=formatElapsed(t);
-      el.className="timer "+timerClass(t);
-    }
-  });
-},1000);
-
-sortCasts();
-render();
+function showReason(c,t){const e=eligibility(c,t);openSheet(`<h2>${esc(c.name)} → ${esc(t.number)}</h2><div class="reason">🚫 ${e.reasons.map(esc).join("<br>")}</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet}
+function showSeatDetail(c,t){const r=seatRecord(c.id,t.id);openSheet(`<h2>${esc(c.name)}・${esc(t.number)}</h2><div class="reason">回った順番：<strong>${r?.turn||"-"}ターン目</strong><br>着席時刻：${r?.at?dateTimeText(r.at):"-"}</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="danger" id="unseatBtn">着席を解除</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("unseatBtn").onclick=()=>{delete data.seated[pairKey(c.id,t.id)];save();closeSheet();render()}}
+function showHistory(){openSheet(`<h2>着席履歴</h2><div class="history-list">${data.history.length?data.history.map(h=>`<div class="history-item"><div class="history-top"><span class="history-table">${esc(h.tableNumber||"")}</span><span class="history-time">${dateTimeText(h.at)}</span></div><div class="history-casts">${h.turn?`<span class="round-badge">${h.turn}ターン目</span>`:""}${h.type==="table-close"?"卓終了":esc((h.castNames||[]).join("・"))}</div><div class="history-meta">${h.people||""}名・${esc(h.plan||"")}${h.note?"／"+esc(h.note):""}</div></div>`).join(""):'<div class="empty-history">まだ履歴はありません</div>'}</div><div class="sheet-actions"><button class="danger" id="clearHistory">履歴削除</button><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("clearHistory").onclick=()=>{if(confirm("履歴を削除しますか？")){data.history=[];save();closeSheet();render()}}}
+function downloadBackup(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="SWAMP-FOG_Ver7.3_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url)}
+function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">名前の色は編集モードでキャスト名を押して変更できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
+function endBusiness(){if(confirm("営業を終了しますか？")){data.seated={};data.planned={};clearSelections();data.tables=[];data.planningTableId=null;activeTableId=null;save();closeSheet();render()}}
+document.getElementById("modeBtn").onclick=()=>{data.settings.editMode=!data.settings.editMode;clearSelections();data.planningTableId=null;save();render()};
+document.getElementById("menuBtn").onclick=openMenu;document.getElementById("addTableBtn").onclick=()=>openTable();document.getElementById("clearSelectBtn").onclick=()=>{clearSelections();data.planningTableId=null;save();render()};
+document.getElementById("seatBtn").onclick=()=>{const t=activeTable(),casts=selectedForActive();if(!t||!casts.length)return;t.turnCounter=(Number(t.turnCounter)||0)+1;const turn=t.turnCounter,at=Date.now();casts.forEach(c=>{data.seated[pairKey(c.id,t.id)]={turn,at};delete data.selected[pairKey(c.id,t.id)];if(isCompanion(t))delete data.planned[pairKey(c.id,t.id)]});data.history.unshift({id:"h"+at,type:"seat",at,tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:casts.map(c=>c.id),castNames:casts.map(c=>c.name),turn,note:"着席・カウントダウン再スタート"});startTimer(t);save();render()};
+document.getElementById("undoBtn").onclick=()=>{const h=data.history[0];if(!h)return;if(h.type!=="seat"){alert("直前は卓終了です");return}if(confirm(`${h.tableNumber}への着席を戻しますか？`)){(h.castIds||[]).forEach(id=>delete data.seated[pairKey(id,h.tableId)]);const t=data.tables.find(x=>x.id===h.tableId);if(t)t.turnCounter=Math.max(0,...Object.entries(data.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0));data.history.shift();activeTableId=h.tableId;save();render()}};
+document.getElementById("importInput").addEventListener("change",async e=>{const f=e.target.files?.[0];if(!f)return;try{const p=JSON.parse(await f.text());if(!p?.casts||!p?.tables)throw 0;if(confirm("復元しますか？")){data=normalize(p);activeTableId=data.tables[0]?.id||null;save();closeSheet();render()}}catch(err){alert("復元できません")}e.target.value=""});
+setInterval(()=>data.tables.forEach(t=>{const el=document.querySelector(`[data-table-timer="${t.id}"]`);if(el){el.textContent=formatTimer(t);el.className="timer "+timerClass(t)}}),1000);
+sortCasts();render();
 </script>
 </body>
 </html>
