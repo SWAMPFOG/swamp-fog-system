@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.8.2 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.8.3 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -312,7 +312,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.8.2</h1>
+  <h1>SWAMP-FOG 初回回し Ver.8.3</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
@@ -336,7 +336,7 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v8_2_complete";
+const STORAGE_KEY="swamp_fog_v8_3_complete";
 const MIGRATION_KEYS=["swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
   settings:{editMode:false},
@@ -709,8 +709,64 @@ function showSeatDetail(c,t){const r=seatRecord(c.id,t.id);openSheet(`<h2>${esc(
   recalculateAutoTimer(t,false);save();closeSheet();render()
 }}
 function showHistory(){openSheet(`<h2>着席履歴</h2><div class="history-list">${data.history.length?data.history.map(h=>`<div class="history-item"><div class="history-top"><span class="history-table">${esc(h.tableNumber||"")}</span><span class="history-time">${dateTimeText(h.at)}</span></div><div class="history-casts">${h.turn?`<span class="round-badge">${h.turn}ターン目</span>`:""}${h.type==="table-close"?"卓終了":h.type==="table-finish"?"回し終了（送り："+esc((h.castNames||[]).join("・")||"なし")+")":esc((h.castNames||[]).join("・"))}</div><div class="history-meta">${h.people||""}名・${esc(h.plan||"")}${h.note?"／"+esc(h.note):""}</div></div>`).join(""):'<div class="empty-history">まだ履歴はありません</div>'}</div><div class="sheet-actions"><button class="danger" id="clearHistory">履歴削除</button><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("clearHistory").onclick=()=>{if(confirm("履歴を削除しますか？")){data.history=[];save();closeSheet();render()}}}
-function downloadBackup(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="SWAMP-FOG_Ver8.2_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url)}
-function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャストは「まとめて追加」から一括登録できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
+function downloadBackup(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="SWAMP-FOG_Ver8.3_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url)}
+
+function openBulkCastColor(){
+  const castRows=data.casts.map(c=>`
+    <label class="checkrow" style="min-height:42px;padding:8px 4px;border-bottom:1px solid #333">
+      <input type="checkbox" class="bulkColorCast" value="${esc(c.id)}">
+      <span style="display:flex;align-items:center;gap:8px;min-width:0">
+        <span style="width:16px;height:16px;border-radius:50%;background:${esc(c.nameColor||"#ffffff")};border:1px solid #777;flex:0 0 auto"></span>
+        <span style="color:${esc(c.nameColor||"#ffffff")};font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</span>
+      </span>
+    </label>
+  `).join("");
+
+  openSheet(`
+    <h2>キャスト名一括色変更</h2>
+    <div class="small-note">同じチームのキャストを複数選択して、名前の色をまとめて変更できます。</div>
+    <div class="sheet-actions">
+      <button class="cancel" id="selectAllColor">すべて選択</button>
+      <button class="cancel" id="clearAllColor">すべて解除</button>
+    </div>
+    <div style="max-height:45vh;overflow:auto;border:1px solid #444;border-radius:10px;padding:2px 8px;background:#151516">
+      ${castRows||'<div class="empty-history">キャストが登録されていません</div>'}
+    </div>
+    <div class="field full" style="margin-top:14px">
+      <label>変更する色</label>
+      <input id="bulkCastColor" type="color" value="#ffffff" style="width:100%;height:50px;padding:4px">
+    </div>
+    <div class="small-note" id="bulkColorCount">0名選択中</div>
+    <div class="sheet-actions">
+      <button class="cancel" id="cancelSheet">閉じる</button>
+      <button class="save" id="applyBulkColor" ${data.casts.length?"":"disabled"}>選択したキャストに適用</button>
+    </div>
+  `);
+
+  const boxes=()=>[...document.querySelectorAll(".bulkColorCast")];
+  const updateCount=()=>{
+    const count=boxes().filter(x=>x.checked).length;
+    const countEl=document.getElementById("bulkColorCount");
+    const applyBtn=document.getElementById("applyBulkColor");
+    if(countEl)countEl.textContent=`${count}名選択中`;
+    if(applyBtn)applyBtn.disabled=count===0;
+  };
+
+  document.getElementById("cancelSheet").onclick=closeSheet;
+  document.getElementById("selectAllColor").onclick=()=>{boxes().forEach(x=>x.checked=true);updateCount()};
+  document.getElementById("clearAllColor").onclick=()=>{boxes().forEach(x=>x.checked=false);updateCount()};
+  boxes().forEach(x=>x.addEventListener("change",updateCount));
+  document.getElementById("applyBulkColor").onclick=()=>{
+    const ids=boxes().filter(x=>x.checked).map(x=>x.value);
+    if(!ids.length){alert("キャストを選択してください");return}
+    const color=document.getElementById("bulkCastColor").value||"#ffffff";
+    data.casts.forEach(c=>{if(ids.includes(c.id))c.nameColor=color});
+    save();closeSheet();render();
+  };
+  updateCount();
+}
+
+function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="bulkColorMenu">キャスト名一括色変更</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャスト名は複数選択してチーム単位でまとめて色変更できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("bulkColorMenu").onclick=openBulkCastColor;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
 function endBusiness(){
   if(confirm("営業を終了しますか？\n着席実績・送り数・初回停止・勤怠ペナルティ・場内中・卓NGをリセットします。")){
     data.seated={};data.planned={};data.sendNominees={};data.rejections={};data.history=[];
