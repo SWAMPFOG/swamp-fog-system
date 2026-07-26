@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.7.8 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.7.9 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -281,9 +281,15 @@ input,select{
 .table-head .collapsed-senders{display:none}
 .table-head.collapsed .auto-info{display:none}
 .table-head.collapsed .collapsed-senders{
-  display:block;writing-mode:vertical-rl;text-orientation:mixed;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
   margin:5px auto 0;color:#ffd24b;font-size:9px;font-weight:1000;
-  line-height:1.15;max-height:62px;overflow:hidden
+  line-height:1.1;max-height:70px;overflow:hidden;writing-mode:horizontal-tb
+}
+.table-head.collapsed .collapsed-senders .sender-title{
+  color:#fff;font-size:8px;letter-spacing:.04em
+}
+.table-head.collapsed .collapsed-senders .sender-name{
+  display:block;max-width:42px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
 }
 .end-estimate{margin-top:2px;font-size:9px;color:#8fd7ff;white-space:nowrap}
 
@@ -306,7 +312,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.7.8</h1>
+  <h1>SWAMP-FOG 初回回し Ver.7.9</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
@@ -331,8 +337,8 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v7_8_complete";
-const MIGRATION_KEYS=["swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
+const STORAGE_KEY="swamp_fog_v7_9_complete";
+const MIGRATION_KEYS=["swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
   settings:{editMode:false},
   casts:[
@@ -546,7 +552,7 @@ function render(){
   recalculateAllTimers();
   if(!data.tables.some(t=>t.id===activeTableId&&!t.collapsed))activeTableId=data.tables.find(t=>!t.collapsed)?.id||data.tables[0]?.id||null;
   const board=document.getElementById("board");
-  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)} → ${estimateEndTime(t)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?`原則2名・残${autoTimerPlan(t).remainingTurns}T／対象${autoTimerPlan(t).eligible}名${t.nextDurationSec?`・次${mmss(t.nextDurationSec)}`:""}`:"手動"}</div><div class="collapsed-senders">送:${esc(senderNames(t).join("・")||"未")}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""}" data-cast="${c.id}"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name" style="color:${esc(c.nameColor)}">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${(c.penalty||c.sends>=2)?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div></td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id);return`<td class="state-cell"><button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
+  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)} → ${estimateEndTime(t)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?`原則2名・残${autoTimerPlan(t).remainingTurns}T／対象${autoTimerPlan(t).eligible}名${t.nextDurationSec?`・次${mmss(t.nextDurationSec)}`:""}`:"手動"}</div><div class="collapsed-senders"><span class="sender-title">送り指名</span>${senderNames(t).length?senderNames(t).map(n=>`<span class="sender-name">${esc(n)}</span>`).join(""):`<span class="sender-name">未設定</span>`}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""}" data-cast="${c.id}"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name" style="color:${esc(c.nameColor)}">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${(c.penalty||c.sends>=2)?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div></td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id);return`<td class="state-cell"><button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
   board.querySelectorAll(".table-head").forEach(el=>el.onclick=()=>{const id=el.dataset.table,t=data.tables.find(x=>x.id===id);if(t.collapsed){t.collapsed=false;activeTableId=id;save();render();return}if(activeTableId===id)openTableQuick(id);else{setActiveTable(id);save();render()}});
   board.querySelectorAll(".state-btn").forEach(btn=>btn.onclick=()=>{const c=data.casts.find(x=>x.id===btn.dataset.cast),t=data.tables.find(x=>x.id===btn.dataset.table);setActiveTable(t.id);const k=pairKey(c.id,t.id);if(data.rejectionTableId===t.id){toggleRejection(c.id,t.id);save();render();return}if(data.senderTableId===t.id){toggleSendNominee(c.id,t.id);save();render();return}if(data.planningTableId===t.id&&isCompanion(t)){data.planned[k]?delete data.planned[k]:data.planned[k]=true;save();render();return}const st=stateFor(c,t);if(st==="blocked"||st==="rejected"){showReason(c,t);return}if(st==="checked"){showSeatDetail(c,t);return}data.selected[k]?delete data.selected[k]:data.selected[k]=true;save();render()});
   board.querySelectorAll(".cast").forEach(el=>el.onclick=()=>{if(data.settings.editMode)openCast(el.dataset.cast)});
@@ -578,6 +584,48 @@ function updateStatus(){
 function openSheet(h){const s=document.getElementById("sheet");s.innerHTML=h;document.getElementById("backdrop").classList.add("open");requestAnimationFrame(()=>s.classList.add("open"))}
 function closeSheet(){const s=document.getElementById("sheet");s.classList.remove("open");setTimeout(()=>document.getElementById("backdrop").classList.remove("open"),180)}
 document.getElementById("backdrop").onclick=closeSheet;
+
+function openBulkCastAdd(){
+  openSheet(`
+    <h2>キャストをまとめて追加</h2>
+    <div class="small-note">1行に1名入力してください。名前の後ろに「,ランク」を付けるとランクも指定できます。例：さや,A</div>
+    <div class="field full">
+      <label>キャスト一覧</label>
+      <textarea id="bulkCastText" rows="10" placeholder="さや,A&#10;あい,C&#10;みく,B" style="width:100%;box-sizing:border-box;background:#111;color:#fff;border:1px solid #555;border-radius:9px;padding:10px;font-size:16px;line-height:1.5"></textarea>
+    </div>
+    <div class="field full checkrow">
+      <input id="bulkWorking" type="checkbox" checked>
+      <label>追加したキャストを本日出勤にする</label>
+    </div>
+    <div class="sheet-actions">
+      <button class="cancel" id="cancelSheet">閉じる</button>
+      <button class="save" id="saveBulkCast">まとめて追加</button>
+    </div>
+  `);
+  document.getElementById("cancelSheet").onclick=closeSheet;
+  document.getElementById("saveBulkCast").onclick=()=>{
+    const raw=document.getElementById("bulkCastText").value;
+    const working=document.getElementById("bulkWorking").checked;
+    const lines=raw.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    if(!lines.length){alert("キャスト名を入力してください");return}
+    const validRanks=["C","B","A","S"];
+    let added=0,skipped=0;
+    lines.forEach(line=>{
+      const parts=line.split(",").map(s=>s.trim());
+      const name=parts[0];
+      const rank=validRanks.includes((parts[1]||"C").toUpperCase())?(parts[1]||"C").toUpperCase():"C";
+      if(!name||data.casts.some(c=>c.name===name)){skipped++;return}
+      data.casts.push({
+        id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),
+        name,rank,nameColor:"#ffffff",sends:0,penalty:false,inHouse:false,
+        working,ngTables:[]
+      });
+      added++;
+    });
+    sortCasts();recalculateAllTimers();save();closeSheet();render();
+    if(skipped)alert(`${added}名追加しました。${skipped}名は重複または入力不備でスキップしました。`);
+  };
+}
 function openCast(id){
   const isNew=!id,c=isNew?{id:"c"+Date.now(),name:"",rank:"C",nameColor:"#ffffff",sends:0,penalty:false,inHouse:false,working:true,ngTables:[]}:data.casts.find(x=>x.id===id);
   openSheet(`<h2>${isNew?"キャスト追加":"キャスト設定"}</h2><div class="form-grid"><div class="field full"><label>名前</label><input id="castName" value="${esc(c.name)}"></div><div class="field"><label>ランク（色なし）</label><select id="castRank">${["C","B","A","S"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select></div><div class="field"><label>名前の色</label><input id="castColor" type="color" value="${esc(c.nameColor)}"></div><div class="field"><label>送り数（初回のみ）</label><input id="castSends" type="number" min="0" value="${c.sends}"></div><div class="field full checkrow"><input id="castPenalty" type="checkbox" ${c.penalty?"checked":""}><label>勤怠ペナルティ（初回のみ）</label></div><div class="field full checkrow"><input id="castWorking" type="checkbox" ${c.working!==false?"checked":""}><label>本日出勤（自動タイマー人数に含める）</label></div><div class="field full"><label>場内状態</label><button type="button" id="inHouseBtn" class="${c.inHouse?"danger":"cancel"}" style="height:44px;border:1px solid #555;border-radius:9px;color:#fff;font-weight:900">${c.inHouse?"場内中・押して解除":"場内中にする"}</button><input type="hidden" id="castInHouse" value="${c.inHouse?"1":"0"}"></div><div class="field full"><label>卓別NG</label>${data.tables.map(t=>`<div class="checkrow"><input type="checkbox" class="ngTable" value="${t.id}" ${(c.ngTables||[]).includes(t.id)?"checked":""}><span>${esc(t.number)}（${esc(t.plan)}）</span></div>`).join("")||"卓がありません"}</div></div><div class="small-note">VIPはA・Sランクのみ。A・Sランクでも送り制限中はA・Bプランに着席できません。送り制限の適用外はVIPとお連れ様です。場内中は通常の初回卓だけ自動的に着席不可になり、お連れ様には影響しません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="resetCastStats">着席実績リセット</button><button class="danger" id="deleteCast">削除</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCast">保存</button></div>`);
@@ -651,17 +699,17 @@ function showSeatDetail(c,t){const r=seatRecord(c.id,t.id);openSheet(`<h2>${esc(
   recalculateAutoTimer(t,false);save();closeSheet();render()
 }}
 function showHistory(){openSheet(`<h2>着席履歴</h2><div class="history-list">${data.history.length?data.history.map(h=>`<div class="history-item"><div class="history-top"><span class="history-table">${esc(h.tableNumber||"")}</span><span class="history-time">${dateTimeText(h.at)}</span></div><div class="history-casts">${h.turn?`<span class="round-badge">${h.turn}ターン目</span>`:""}${h.type==="table-close"?"卓終了":h.type==="table-finish"?"回し終了（送り："+esc((h.castNames||[]).join("・")||"未設定")+")":esc((h.castNames||[]).join("・"))}</div><div class="history-meta">${h.people||""}名・${esc(h.plan||"")}${h.note?"／"+esc(h.note):""}</div></div>`).join(""):'<div class="empty-history">まだ履歴はありません</div>'}</div><div class="sheet-actions"><button class="danger" id="clearHistory">履歴削除</button><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("clearHistory").onclick=()=>{if(confirm("履歴を削除しますか？")){data.history=[];save();closeSheet();render()}}}
-function downloadBackup(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="SWAMP-FOG_Ver7.8_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url)}
-function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映し、原則2名ずつ回るターン数を算出。超過時も残り時間から再計算し、約50分終了を目指します。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
+function downloadBackup(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="SWAMP-FOG_Ver7.9_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url)}
+function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映し、原則2名ずつ回るターン数を算出。営業終了後もキャストは出勤状態を維持し、実績や制限情報だけをリセットします。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
 function endBusiness(){
-  if(confirm("営業を終了しますか？\n着席実績・送り数・初回停止・場内中・本日出勤をリセットします。")){
+  if(confirm("営業を終了しますか？\n着席実績・送り数・初回停止・勤怠ペナルティ・場内中・卓NGをリセットします。")){
     data.seated={};data.planned={};data.sendNominees={};data.rejections={};data.history=[];
     clearSelections();
     data.casts.forEach(c=>{
       c.sends=0;
       c.penalty=false;
       c.inHouse=false;
-      c.working=false;
+      c.working=true;
       c.ngTables=[];
     });
     data.tables=[];
