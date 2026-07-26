@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.8.1 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.8.2 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -163,7 +163,7 @@ tbody td{
 .order-check{font-size:14px;font-weight:1000}
 .bottom{
   position:sticky;bottom:0;z-index:40;
-  display:grid;grid-template-columns:74px 74px 1fr;gap:7px;
+  display:grid;grid-template-columns:88px 1fr;gap:7px;
   padding:7px 8px calc(7px + env(safe-area-inset-bottom));
   background:rgba(20,20,21,.98);border-top:1px solid var(--line)
 }
@@ -312,7 +312,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.8.1</h1>
+  <h1>SWAMP-FOG 初回回し Ver.8.2</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
@@ -327,7 +327,6 @@ input,select{
 </div>
 
 <div class="bottom">
-  <button class="secondary" id="undoBtn">一つ戻す</button>
   <button class="secondary" id="clearSelectBtn">選択解除</button>
   <button class="primary" id="seatBtn" disabled>次を着席</button>
 </div>
@@ -337,7 +336,7 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v8_1_complete";
+const STORAGE_KEY="swamp_fog_v8_2_complete";
 const MIGRATION_KEYS=["swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
   settings:{editMode:false},
@@ -575,7 +574,6 @@ function updateStatus(){
   const b=document.getElementById("seatBtn");
   b.disabled=!t||count===0||planning||sender||rejecting;
   b.textContent=count?`${count}名を着席`:"次を着席";
-  document.getElementById("undoBtn").disabled=data.history.length===0;
   const m=document.getElementById("modeBtn");
   m.textContent=data.settings.editMode?"編集モード":"営業モード";
   m.classList.toggle("active",data.settings.editMode);
@@ -685,8 +683,10 @@ activeTableId=data.tables.find(x=>!x.collapsed&&x.id!==t.id)?.id||null;
 save();closeSheet();render();
 }};
   if(isCompanion(t))document.getElementById("planningBtn").onclick=()=>{data.planningTableId=data.planningTableId===t.id?null:t.id;data.senderTableId=null;data.rejectionTableId=null;activeTableId=t.id;clearSelections();save();closeSheet();render()};
-  document.getElementById("finishTableBtn").onclick=()=>{if(confirm(`${t.number}の回しを終了して細く折りたたみますか？`)){t.collapsed=true;t.pausedAt=t.startedAt?Date.now():null;data.history.unshift({id:"h"+Date.now(),type:"table-finish",at:Date.now(),tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:[],castNames:senderNames(t),note:"回し終了・折りたたみ"});data.senderTableId=null;data.planningTableId=null;activeTableId=data.tables.find(x=>!x.collapsed&&x.id!==t.id)?.id||null;save();closeSheet();render()}};
-  if(data.settings.editMode)document.getElementById("editTableBtn").onclick=()=>openTable(t.id)
+  const finishTableBtn=document.getElementById("finishTableBtn");
+  if(finishTableBtn)finishTableBtn.onclick=()=>{if(confirm(`${t.number}の回しを終了して細く折りたたみますか？`)){t.collapsed=true;t.pausedAt=t.startedAt?Date.now():null;data.history.unshift({id:"h"+Date.now(),type:"table-finish",at:Date.now(),tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:[],castNames:senderNames(t),note:"回し終了・折りたたみ"});data.senderTableId=null;data.planningTableId=null;activeTableId=data.tables.find(x=>!x.collapsed&&x.id!==t.id)?.id||null;save();closeSheet();render()}};
+  const editTableBtn=document.getElementById("editTableBtn");
+  if(editTableBtn)editTableBtn.onclick=()=>openTable(t.id)
 }
 function showReason(c,t){
   const reasons=[];
@@ -709,7 +709,7 @@ function showSeatDetail(c,t){const r=seatRecord(c.id,t.id);openSheet(`<h2>${esc(
   recalculateAutoTimer(t,false);save();closeSheet();render()
 }}
 function showHistory(){openSheet(`<h2>着席履歴</h2><div class="history-list">${data.history.length?data.history.map(h=>`<div class="history-item"><div class="history-top"><span class="history-table">${esc(h.tableNumber||"")}</span><span class="history-time">${dateTimeText(h.at)}</span></div><div class="history-casts">${h.turn?`<span class="round-badge">${h.turn}ターン目</span>`:""}${h.type==="table-close"?"卓終了":h.type==="table-finish"?"回し終了（送り："+esc((h.castNames||[]).join("・")||"なし")+")":esc((h.castNames||[]).join("・"))}</div><div class="history-meta">${h.people||""}名・${esc(h.plan||"")}${h.note?"／"+esc(h.note):""}</div></div>`).join(""):'<div class="empty-history">まだ履歴はありません</div>'}</div><div class="sheet-actions"><button class="danger" id="clearHistory">履歴削除</button><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("clearHistory").onclick=()=>{if(confirm("履歴を削除しますか？")){data.history=[];save();closeSheet();render()}}}
-function downloadBackup(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="SWAMP-FOG_Ver8.1_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url)}
+function downloadBackup(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="SWAMP-FOG_Ver8.2_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url)}
 function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャストは「まとめて追加」から一括登録できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
 function endBusiness(){
   if(confirm("営業を終了しますか？\n着席実績・送り数・初回停止・勤怠ペナルティ・場内中・卓NGをリセットします。")){
@@ -730,7 +730,6 @@ function endBusiness(){
 document.getElementById("modeBtn").onclick=()=>{data.settings.editMode=!data.settings.editMode;clearSelections();data.planningTableId=null;data.senderTableId=null;data.rejectionTableId=null;save();render()};
 document.getElementById("menuBtn").onclick=openMenu;document.getElementById("addTableBtn").onclick=()=>openTable();document.getElementById("clearSelectBtn").onclick=()=>{clearSelections();data.planningTableId=null;data.senderTableId=null;data.rejectionTableId=null;save();render()};
 document.getElementById("seatBtn").onclick=()=>{const t=activeTable(),casts=selectedForActive();if(!t||!casts.length)return;t.turnCounter=(Number(t.turnCounter)||0)+1;const turn=t.turnCounter,at=Date.now();casts.forEach(c=>{data.seated[pairKey(c.id,t.id)]={turn,at};delete data.selected[pairKey(c.id,t.id)];if(isCompanion(t))delete data.planned[pairKey(c.id,t.id)]});data.history.unshift({id:"h"+at,type:"seat",at,tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:casts.map(c=>c.id),castNames:casts.map(c=>c.name),turn,note:"着席・自動再計算・カウントダウン再スタート"});recalculateAutoTimer(t,true);startTimer(t);save();render()};
-document.getElementById("undoBtn").onclick=()=>{const h=data.history[0];if(!h)return;if(h.type!=="seat"){alert("直前は卓終了です");return}if(confirm(`${h.tableNumber}への着席を戻しますか？`)){(h.castIds||[]).forEach(id=>delete data.seated[pairKey(id,h.tableId)]);const t=data.tables.find(x=>x.id===h.tableId);if(t)t.turnCounter=Math.max(0,...Object.entries(data.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0));data.history.shift();activeTableId=h.tableId;save();render()}};
 document.getElementById("importInput").addEventListener("change",async e=>{const f=e.target.files?.[0];if(!f)return;try{const p=JSON.parse(await f.text());if(!p?.casts||!p?.tables)throw 0;if(confirm("復元しますか？")){data=normalize(p);activeTableId=data.tables[0]?.id||null;save();closeSheet();render()}}catch(err){alert("復元できません")}e.target.value=""});
 setInterval(()=>{
   let changed=false;
