@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.7.7 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.7.8 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -278,6 +278,15 @@ input,select{
 .table-head.collapsed{width:34px!important;min-width:34px!important;max-width:34px!important;height:108px;padding:3px 0;background:#1c1c1e;box-shadow:inset 2px 0 0 #555}
 .table-head.collapsed .table-no{writing-mode:vertical-rl;text-orientation:upright;margin:auto;font-size:13px;letter-spacing:1px}
 .table-head.collapsed .start,.table-head.collapsed .meta,.table-head.collapsed .timer,.table-head.collapsed .duration{display:none}
+.table-head .collapsed-senders{display:none}
+.table-head.collapsed .auto-info{display:none}
+.table-head.collapsed .collapsed-senders{
+  display:block;writing-mode:vertical-rl;text-orientation:mixed;
+  margin:5px auto 0;color:#ffd24b;font-size:9px;font-weight:1000;
+  line-height:1.15;max-height:62px;overflow:hidden
+}
+.end-estimate{margin-top:2px;font-size:9px;color:#8fd7ff;white-space:nowrap}
+
 .state-cell.collapsed{width:34px!important;min-width:34px!important;max-width:34px!important;background:#171719}
 .state-cell.collapsed .state-btn{display:none}
 .cast-sub.stats{font-size:9px;color:#c5c5ca}
@@ -297,7 +306,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.7.7</h1>
+  <h1>SWAMP-FOG 初回回し Ver.7.8</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
@@ -322,8 +331,8 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v7_7_complete";
-const MIGRATION_KEYS=["swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
+const STORAGE_KEY="swamp_fog_v7_8_complete";
+const MIGRATION_KEYS=["swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
   settings:{editMode:false},
   casts:[
@@ -348,7 +357,7 @@ function normalize(d){
   d.history=Array.isArray(d.history)?d.history:[]; d.seated=d.seated||{}; d.selected={}; d.planned=d.planned||{}; d.planningTableId=null; d.sendNominees=d.sendNominees||{}; d.senderTableId=null; d.rejections=d.rejections||{}; d.rejectionTableId=null;
   d.casts=Array.isArray(d.casts)?d.casts:[]; d.tables=Array.isArray(d.tables)?d.tables:[];
   d.casts.forEach(c=>{c.ngTables=Array.isArray(c.ngTables)?c.ngTables:[];c.sends=Number(c.sends)||0;c.penalty=!!c.penalty;c.inHouse=!!c.inHouse;c.working=c.working!==false;if(!c.nameColor)c.nameColor={C:"#4cff5a",B:"#43a2ff",A:"#ffd54a",S:"#ff5a5f"}[c.rank]||"#ffffff"});
-  d.tables.forEach(t=>{if(!("pausedAt" in t))t.pausedAt=null;if(!("totalPaused" in t))t.totalPaused=0;if(!("turnCounter" in t))t.turnCounter=Number(t.roundCounter)||0;if(!("startedAt" in t))t.startedAt=null;if(!("durationSec" in t))t.durationSec=900;if(!("autoTimer" in t))t.autoTimer=true});
+  d.tables.forEach(t=>{if(!("pausedAt" in t))t.pausedAt=null;if(!("totalPaused" in t))t.totalPaused=0;if(!("turnCounter" in t))t.turnCounter=Number(t.roundCounter)||0;if(!("startedAt" in t))t.startedAt=null;if(!("durationSec" in t))t.durationSec=900;if(!("autoTimer" in t))t.autoTimer=true;if(!("rotationStartedAt" in t))t.rotationStartedAt=null;if(!("nextDurationSec" in t))t.nextDurationSec=null});
   const counters={};
   Object.keys(d.seated).forEach(k=>{if(!d.seated[k]){delete d.seated[k];return}const tid=k.split(":")[1];counters[tid]=(counters[tid]||0)+1;if(typeof d.seated[k]!=="object")d.seated[k]={turn:counters[tid],at:Date.now()};else{d.seated[k].turn=Number(d.seated[k].turn||d.seated[k].order)||counters[tid];d.seated[k].at=Number(d.seated[k].at)||Date.now();delete d.seated[k].order}});
   d.tables.forEach(t=>{const max=Math.max(0,...Object.entries(d.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0));t.turnCounter=Math.max(Number(t.turnCounter)||0,max)});
@@ -367,7 +376,14 @@ function overtimeSeconds(t){return Math.max(0,elapsedSeconds(t)-(Number(t.durati
 function mmss(sec){sec=Math.max(0,Math.floor(sec));return String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0")}
 function formatTimer(t){if(!t.startedAt)return"未開始";const over=overtimeSeconds(t);return over>0?"超過 "+mmss(over):mmss(remainingSeconds(t))}
 function timerClass(t){if(!t.startedAt)return"not-started";if(t.pausedAt)return"paused";return overtimeSeconds(t)>0||remainingSeconds(t)===0?"over":""}
-function startTimer(t){t.startedAt=Date.now();t.pausedAt=null;t.totalPaused=0}
+function startTimer(t){
+  if(t.autoTimer!==false&&t.nextDurationSec){
+    t.durationSec=t.nextDurationSec;
+    t.nextDurationSec=null;
+  }
+  if(!t.rotationStartedAt)t.rotationStartedAt=Date.now();
+  t.startedAt=Date.now();t.pausedAt=null;t.totalPaused=0
+}
 function isCompanion(t){return t.plan==="お連れ様"}
 function eligibility(c,t){
   const r=[];
@@ -412,9 +428,19 @@ function castStats(c){
   return{total:initial+branch,initial,branch}
 }
 function isSendNominee(c,t){return (data.sendNominees[t]||[]).includes(c)}
-function toggleSendNominee(c,t){
-  const arr=data.sendNominees[t]||[];
-  data.sendNominees[t]=arr.includes(c)?arr.filter(x=>x!==c):[...arr,c];
+function toggleSendNominee(castId,tableId){
+  const table=data.tables.find(x=>x.id===tableId);
+  const cast=data.casts.find(x=>x.id===castId);
+  if(!table||!cast)return;
+  const arr=data.sendNominees[tableId]||[];
+  const removing=arr.includes(castId);
+  data.sendNominees[tableId]=removing?arr.filter(x=>x!==castId):[...arr,castId];
+
+  // お連れ様の送りは送り数へ反映しない。初回卓の送りだけ反映。
+  if(!isCompanion(table)){
+    cast.sends=Math.max(0,(Number(cast.sends)||0)+(removing?-1:1));
+  }
+  recalculateAllTimers();
 }
 function senderNames(t){return (data.sendNominees[t.id]||[]).map(id=>data.casts.find(c=>c.id===id)?.name).filter(Boolean)}
 
@@ -428,23 +454,68 @@ function toggleRejection(c,t){
 function eligibleWorkingCasts(t){
   return data.casts.filter(c=>c.working!==false&&eligibility(c,t).ok&&!isRejected(c.id,t.id))
 }
-function autoTimerPlan(t){
-  const eligible=eligibleWorkingCasts(t).length;
-  const seats=Math.max(1,Number(t.people)||1);
-  const turns=Math.max(1,Math.ceil(eligible/seats));
-  const raw=3000/turns;
-  // 現場で見やすいよう5秒単位に丸め、極端な値を防ぐ
-  const duration=Math.max(60,Math.min(3000,Math.round(raw/5)*5));
-  return{eligible,seats,turns,duration,total:duration*turns}
+function rotationElapsedSeconds(t){
+  if(!t.rotationStartedAt)return 0;
+  const end=t.pausedAt||Date.now();
+  return Math.max(0,Math.floor((end-t.rotationStartedAt)/1000))
 }
-function recalculateAutoTimer(t){
+function autoTimerPlan(t){
+  const all=eligibleWorkingCasts(t);
+  const remaining=all.filter(c=>!seatRecord(c.id,t.id));
+
+  // お客様人数に関係なく、原則2名ずつ回す。
+  const seatsPerTurn=2;
+  const totalTurns=Math.max(1,Math.ceil(all.length/seatsPerTurn));
+  const remainingTurns=Math.max(1,Math.ceil(remaining.length/seatsPerTurn));
+
+  // 回し開始後は経過時間を差し引き、残りを約50分内に収め直す。
+  const elapsed=rotationElapsedSeconds(t);
+  const remainingBudget=t.rotationStartedAt
+    ?Math.max(60*remainingTurns,3000-elapsed)
+    :3000;
+
+  const raw=remainingBudget/remainingTurns;
+  const duration=Math.max(60,Math.min(3000,Math.round(raw/5)*5));
+
+  return{
+    eligible:all.length,
+    remaining:remaining.length,
+    seatsPerTurn,
+    turns:totalTurns,
+    remainingTurns,
+    elapsed,
+    duration,
+    remainingTotal:duration*remainingTurns,
+    projectedTotal:elapsed+duration*remainingTurns
+  }
+}
+function recalculateAutoTimer(t,applyNow=false){
   if(!t||t.autoTimer===false)return;
   const p=autoTimerPlan(t);
-  t.durationSec=p.duration;
+  if(applyNow||!t.startedAt){
+    t.durationSec=p.duration;
+    t.nextDurationSec=null;
+  }else{
+    t.nextDurationSec=p.duration;
+  }
   t.autoTurns=p.turns;
   t.autoEligible=p.eligible;
 }
-function recalculateAllTimers(){data.tables.forEach(recalculateAutoTimer)}
+function recalculateAllTimers(){data.tables.forEach(t=>recalculateAutoTimer(t,false))}
+function parseGuideTime(t){
+  if(!t.start||!/^\d{2}:\d{2}$/.test(t.start))return null;
+  const [h,m]=t.start.split(":").map(Number);
+  const d=new Date();d.setHours(h,m,0,0);return d
+}
+function hm(ts){
+  return new Intl.DateTimeFormat("ja-JP",{hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(ts))
+}
+function estimateEndTime(t){
+  const p=autoTimerPlan(t);
+  if(t.rotationStartedAt)return hm(Date.now()+p.remainingTotal*1000);
+  const guide=parseGuideTime(t);
+  return guide?hm(guide.getTime()+p.remainingTotal*1000):"--:--"
+}
 function stateFor(c,t){
   if(seatRecord(c.id,t.id))return"checked";
   if(data.rejectionTableId===t.id)return isRejected(c.id,t.id)?"rejected":"empty";
@@ -475,7 +546,7 @@ function render(){
   recalculateAllTimers();
   if(!data.tables.some(t=>t.id===activeTableId&&!t.collapsed))activeTableId=data.tables.find(t=>!t.collapsed)?.id||data.tables[0]?.id||null;
   const board=document.getElementById("board");
-  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?`自動 ${autoTimerPlan(t).turns}T／対象${autoTimerPlan(t).eligible}名`:"手動"}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""}" data-cast="${c.id}"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name" style="color:${esc(c.nameColor)}">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${c.penalty?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div></td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id);return`<td class="state-cell"><button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
+  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)} → ${estimateEndTime(t)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?`原則2名・残${autoTimerPlan(t).remainingTurns}T／対象${autoTimerPlan(t).eligible}名${t.nextDurationSec?`・次${mmss(t.nextDurationSec)}`:""}`:"手動"}</div><div class="collapsed-senders">送:${esc(senderNames(t).join("・")||"未")}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""}" data-cast="${c.id}"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name" style="color:${esc(c.nameColor)}">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${(c.penalty||c.sends>=2)?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div></td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id);return`<td class="state-cell"><button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
   board.querySelectorAll(".table-head").forEach(el=>el.onclick=()=>{const id=el.dataset.table,t=data.tables.find(x=>x.id===id);if(t.collapsed){t.collapsed=false;activeTableId=id;save();render();return}if(activeTableId===id)openTableQuick(id);else{setActiveTable(id);save();render()}});
   board.querySelectorAll(".state-btn").forEach(btn=>btn.onclick=()=>{const c=data.casts.find(x=>x.id===btn.dataset.cast),t=data.tables.find(x=>x.id===btn.dataset.table);setActiveTable(t.id);const k=pairKey(c.id,t.id);if(data.rejectionTableId===t.id){toggleRejection(c.id,t.id);save();render();return}if(data.senderTableId===t.id){toggleSendNominee(c.id,t.id);save();render();return}if(data.planningTableId===t.id&&isCompanion(t)){data.planned[k]?delete data.planned[k]:data.planned[k]=true;save();render();return}const st=stateFor(c,t);if(st==="blocked"||st==="rejected"){showReason(c,t);return}if(st==="checked"){showSeatDetail(c,t);return}data.selected[k]?delete data.selected[k]:data.selected[k]=true;save();render()});
   board.querySelectorAll(".cast").forEach(el=>el.onclick=()=>{if(data.settings.editMode)openCast(el.dataset.cast)});
@@ -509,7 +580,7 @@ function closeSheet(){const s=document.getElementById("sheet");s.classList.remov
 document.getElementById("backdrop").onclick=closeSheet;
 function openCast(id){
   const isNew=!id,c=isNew?{id:"c"+Date.now(),name:"",rank:"C",nameColor:"#ffffff",sends:0,penalty:false,inHouse:false,working:true,ngTables:[]}:data.casts.find(x=>x.id===id);
-  openSheet(`<h2>${isNew?"キャスト追加":"キャスト設定"}</h2><div class="form-grid"><div class="field full"><label>名前</label><input id="castName" value="${esc(c.name)}"></div><div class="field"><label>ランク（色なし）</label><select id="castRank">${["C","B","A","S"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select></div><div class="field"><label>名前の色</label><input id="castColor" type="color" value="${esc(c.nameColor)}"></div><div class="field"><label>送り数（初回のみ）</label><input id="castSends" type="number" min="0" value="${c.sends}"></div><div class="field full checkrow"><input id="castPenalty" type="checkbox" ${c.penalty?"checked":""}><label>勤怠ペナルティ（初回のみ）</label></div><div class="field full checkrow"><input id="castWorking" type="checkbox" ${c.working!==false?"checked":""}><label>本日出勤（自動タイマー人数に含める）</label></div><div class="field full"><label>場内状態</label><button type="button" id="inHouseBtn" class="${c.inHouse?"danger":"cancel"}" style="height:44px;border:1px solid #555;border-radius:9px;color:#fff;font-weight:900">${c.inHouse?"場内中・押して解除":"場内中にする"}</button><input type="hidden" id="castInHouse" value="${c.inHouse?"1":"0"}"></div><div class="field full"><label>卓別NG</label>${data.tables.map(t=>`<div class="checkrow"><input type="checkbox" class="ngTable" value="${t.id}" ${(c.ngTables||[]).includes(t.id)?"checked":""}><span>${esc(t.number)}（${esc(t.plan)}）</span></div>`).join("")||"卓がありません"}</div></div><div class="small-note">VIPはA・Sランクのみ。A・Sランクでも送り制限中はA・Bプランに着席できません。送り制限の適用外はVIPとお連れ様です。場内中は通常の初回卓だけ自動的に着席不可になり、お連れ様には影響しません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteCast">削除</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCast">保存</button></div>`);
+  openSheet(`<h2>${isNew?"キャスト追加":"キャスト設定"}</h2><div class="form-grid"><div class="field full"><label>名前</label><input id="castName" value="${esc(c.name)}"></div><div class="field"><label>ランク（色なし）</label><select id="castRank">${["C","B","A","S"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select></div><div class="field"><label>名前の色</label><input id="castColor" type="color" value="${esc(c.nameColor)}"></div><div class="field"><label>送り数（初回のみ）</label><input id="castSends" type="number" min="0" value="${c.sends}"></div><div class="field full checkrow"><input id="castPenalty" type="checkbox" ${c.penalty?"checked":""}><label>勤怠ペナルティ（初回のみ）</label></div><div class="field full checkrow"><input id="castWorking" type="checkbox" ${c.working!==false?"checked":""}><label>本日出勤（自動タイマー人数に含める）</label></div><div class="field full"><label>場内状態</label><button type="button" id="inHouseBtn" class="${c.inHouse?"danger":"cancel"}" style="height:44px;border:1px solid #555;border-radius:9px;color:#fff;font-weight:900">${c.inHouse?"場内中・押して解除":"場内中にする"}</button><input type="hidden" id="castInHouse" value="${c.inHouse?"1":"0"}"></div><div class="field full"><label>卓別NG</label>${data.tables.map(t=>`<div class="checkrow"><input type="checkbox" class="ngTable" value="${t.id}" ${(c.ngTables||[]).includes(t.id)?"checked":""}><span>${esc(t.number)}（${esc(t.plan)}）</span></div>`).join("")||"卓がありません"}</div></div><div class="small-note">VIPはA・Sランクのみ。A・Sランクでも送り制限中はA・Bプランに着席できません。送り制限の適用外はVIPとお連れ様です。場内中は通常の初回卓だけ自動的に着席不可になり、お連れ様には影響しません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="resetCastStats">着席実績リセット</button><button class="danger" id="deleteCast">削除</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCast">保存</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
   document.getElementById("inHouseBtn").onclick=()=>{
     const hidden=document.getElementById("castInHouse");
@@ -520,23 +591,39 @@ function openCast(id){
     btn.className=active?"cancel":"danger";
   };
   document.getElementById("saveCast").onclick=()=>{const n=document.getElementById("castName").value.trim();if(!n){alert("名前を入力してください");return}c.name=n;c.rank=document.getElementById("castRank").value;c.nameColor=document.getElementById("castColor").value;c.sends=Math.max(0,Number(document.getElementById("castSends").value)||0);c.penalty=document.getElementById("castPenalty").checked;c.working=document.getElementById("castWorking").checked;c.inHouse=document.getElementById("castInHouse").value==="1";c.ngTables=[...document.querySelectorAll(".ngTable:checked")].map(x=>x.value);if(isNew)data.casts.push(c);sortCasts();recalculateAllTimers();save();closeSheet();render()};
+  if(!isNew)document.getElementById("resetCastStats").onclick=()=>{
+    if(confirm(c.name+"の着席実績を0に戻しますか？")){
+      data.history=data.history.flatMap(h=>{
+        if(h.type!=="seat"||!(h.castIds||[]).includes(c.id))return[h];
+        const idx=(h.castIds||[]).indexOf(c.id);
+        h.castIds=(h.castIds||[]).filter(id=>id!==c.id);
+        h.castNames=(h.castNames||[]).filter((_,i)=>i!==idx);
+        return h.castIds.length?[h]:[];
+      });
+      Object.keys(data.seated).forEach(k=>{if(k.startsWith(c.id+":"))delete data.seated[k]});
+      data.tables.forEach(t=>{
+        t.turnCounter=Math.max(0,...Object.entries(data.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0));
+      });
+      recalculateAllTimers();save();closeSheet();render()
+    }
+  };
   if(!isNew)document.getElementById("deleteCast").onclick=()=>{if(confirm(c.name+"を削除しますか？")){data.casts=data.casts.filter(x=>x.id!==c.id);[data.seated,data.selected,data.planned].forEach(o=>Object.keys(o).forEach(k=>{if(k.startsWith(c.id+":"))delete o[k]}));Object.keys(data.rejections).forEach(tid=>data.rejections[tid]=(data.rejections[tid]||[]).filter(id=>id!==c.id));recalculateAllTimers();save();closeSheet();render()}};
 }
 function moveTable(id,dir){const i=data.tables.findIndex(t=>t.id===id),j=i+dir;if(i<0||j<0||j>=data.tables.length)return;[data.tables[i],data.tables[j]]=[data.tables[j],data.tables[i]];save();closeSheet();render()}
 function openTable(id){
-  const isNew=!id,now=new Date(),hh=String(now.getHours()).padStart(2,"0"),mm=String(now.getMinutes()).padStart(2,"0"),t=isNew?{id:"t"+Date.now(),number:"",start:hh+":"+mm,people:1,plan:"A",durationSec:900,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false,autoTimer:true}:data.tables.find(x=>x.id===id),dm=Math.floor(t.durationSec/60),ds=t.durationSec%60;
+  const isNew=!id,now=new Date(),hh=String(now.getHours()).padStart(2,"0"),mm=String(now.getMinutes()).padStart(2,"0"),t=isNew?{id:"t"+Date.now(),number:"",start:hh+":"+mm,people:1,plan:"A",durationSec:900,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false,autoTimer:true,rotationStartedAt:null,nextDurationSec:null}:data.tables.find(x=>x.id===id),dm=Math.floor(t.durationSec/60),ds=t.durationSec%60;
   openSheet(`<h2>${isNew?"卓追加":"卓設定"}</h2><div class="form-grid"><div class="field"><label>卓番</label><input id="tableNumber" value="${esc(t.number)}"></div><div class="field"><label>案内時刻</label><input id="tableStart" type="time" value="${esc(t.start)}"></div><div class="field"><label>人数</label><input id="tablePeople" type="number" min="1" value="${t.people}"></div><div class="field"><label>プラン</label><select id="tablePlan">${["A","B","VIP","お連れ様"].map(p=>`<option ${t.plan===p?"selected":""}>${p}</option>`).join("")}</select></div><div class="field full checkrow"><input id="autoTimer" type="checkbox" ${t.autoTimer!==false?"checked":""}><label>50分前後で終わるよう自動設定</label></div><div class="field full"><label>手動タイマー（自動OFF時・スクロール選択）</label><div class="wheel-row"><select id="durationMin">${Array.from({length:121},(_,i)=>`<option value="${i}" ${i===dm?"selected":""}>${i}</option>`).join("")}</select><span class="wheel-unit">分</span><select id="durationSec">${Array.from({length:60},(_,i)=>`<option value="${i}" ${i===ds?"selected":""}>${String(i).padStart(2,"0")}</option>`).join("")}</select><span class="wheel-unit">秒</span></div></div></div><div class="small-note">保存してもタイマーは始まりません。卓ヘッダーから開始してください。</div>${isNew?"":'<div class="quick-row"><button id="moveLeft">← 左へ</button><button id="openTimer">タイマー操作</button><button id="moveRight">右へ →</button></div>'}<div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteTable">卓終了</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveTable">保存</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
-  document.getElementById("saveTable").onclick=()=>{const n=document.getElementById("tableNumber").value.trim(),mins=Math.max(0,Number(document.getElementById("durationMin").value)||0),secs=Math.min(59,Math.max(0,Number(document.getElementById("durationSec").value)||0));if(!n){alert("卓番を入力してください");return}if(!document.getElementById("autoTimer").checked&&mins===0&&secs===0){alert("タイマー時間を入力してください");return}t.number=n;t.start=document.getElementById("tableStart").value;t.people=Math.max(1,Number(document.getElementById("tablePeople").value)||1);t.plan=document.getElementById("tablePlan").value;t.autoTimer=document.getElementById("autoTimer").checked;if(t.autoTimer)recalculateAutoTimer(t);else t.durationSec=mins*60+secs;if(isNew)data.tables.push(t);activeTableId=t.id;clearSelections();data.planningTableId=null;save();closeSheet();render()};
+  document.getElementById("saveTable").onclick=()=>{const n=document.getElementById("tableNumber").value.trim(),mins=Math.max(0,Number(document.getElementById("durationMin").value)||0),secs=Math.min(59,Math.max(0,Number(document.getElementById("durationSec").value)||0));if(!n){alert("卓番を入力してください");return}if(!document.getElementById("autoTimer").checked&&mins===0&&secs===0){alert("タイマー時間を入力してください");return}t.number=n;t.start=document.getElementById("tableStart").value;t.people=Math.max(1,Number(document.getElementById("tablePeople").value)||1);t.plan=document.getElementById("tablePlan").value;t.autoTimer=document.getElementById("autoTimer").checked;if(t.autoTimer)recalculateAutoTimer(t,true);else{t.durationSec=mins*60+secs;t.nextDurationSec=null;}if(isNew)data.tables.push(t);activeTableId=t.id;clearSelections();data.planningTableId=null;save();closeSheet();render()};
   if(!isNew){document.getElementById("moveLeft").onclick=()=>moveTable(t.id,-1);document.getElementById("moveRight").onclick=()=>moveTable(t.id,1);document.getElementById("openTimer").onclick=()=>openTableQuick(t.id);document.getElementById("deleteTable").onclick=()=>{if(confirm(t.number+"を終了しますか？")){data.history.unshift({id:"h"+Date.now(),type:"table-close",at:Date.now(),tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:[],castNames:[],note:"卓終了"});data.tables=data.tables.filter(x=>x.id!==t.id);[data.seated,data.planned].forEach(o=>Object.keys(o).forEach(k=>{if(k.endsWith(":"+t.id))delete o[k]}));delete data.rejections[t.id];delete data.sendNominees[t.id];data.casts.forEach(c=>c.ngTables=(c.ngTables||[]).filter(x=>x!==t.id));clearSelections();data.planningTableId=null;activeTableId=data.tables[0]?.id||null;save();closeSheet();render()}}}
 }
 function openTableQuick(id){
   const t=data.tables.find(x=>x.id===id);if(!t)return;
   recalculateAutoTimer(t);const state=!t.startedAt?"未開始":t.pausedAt?"一時停止中":"計測中",senders=senderNames(t),ap=autoTimerPlan(t),rejects=(data.rejections[t.id]||[]).map(id=>data.casts.find(c=>c.id===id)?.name).filter(Boolean);
-  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">出勤・制限・拒否を反映：対象${ap.eligible}名 → ${ap.turns}ターン／予想終了 約${Math.round(ap.total/60)}分</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">未開始に戻す</button></div><div class="sheet-actions"><button class="danger" id="rejectBtn">${data.rejectionTableId===t.id?"着席拒否チェック終了":"着席拒否を設定"}</button><button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名を設定"}</button>${isCompanion(t)?`<button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェック終了":"予定者をチェック"}</button>`:""}</div><div class="sender-list">着席拒否：${rejects.length?rejects.map(esc).join("・"):"なし"}</div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"未設定"}</div><div class="small-note">着席拒否チェック中はセルをタップすると🙅になります。対象人数とターン数を再計算し、約50分で終わるタイマーへ自動変更します。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="pause" id="finishTableBtn">回し終了・折りたたむ</button>${data.settings.editMode?'<button class="save" id="editTableBtn">卓情報を編集</button>':""}</div>`);
+  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">出勤・制限・拒否を反映：対象${ap.eligible}名・残${ap.remaining}名 → 原則2名ずつ、残${ap.remainingTurns}ターン／終了目安 ${estimateEndTime(t)}${t.nextDurationSec?`／次回${mmss(t.nextDurationSec)}`:""}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">未開始に戻す</button></div><div class="sheet-actions"><button class="danger" id="rejectBtn">${data.rejectionTableId===t.id?"着席拒否チェック終了":"着席拒否を設定"}</button><button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名を設定"}</button>${isCompanion(t)?`<button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェック終了":"予定者をチェック"}</button>`:""}</div><div class="sender-list">着席拒否：${rejects.length?rejects.map(esc).join("・"):"なし"}</div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"未設定"}</div><div class="small-note">着席拒否チェック中はセルをタップすると🙅になります。対象人数とターン数を再計算し、約50分で終わるタイマーへ自動変更します。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="pause" id="finishTableBtn">回し終了・折りたたむ</button>${data.settings.editMode?'<button class="save" id="editTableBtn">卓情報を編集</button>':""}</div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
-  if(!t.startedAt)document.getElementById("startTimerBtn").onclick=()=>{recalculateAutoTimer(t);startTimer(t,true);save();closeSheet();render()};else if(t.pausedAt)document.getElementById("resumeTimerBtn").onclick=()=>{t.totalPaused=(t.totalPaused||0)+(Date.now()-t.pausedAt);t.pausedAt=null;save();closeSheet();render()};else document.getElementById("pauseTimerBtn").onclick=()=>{t.pausedAt=Date.now();save();closeSheet();render()};
-  document.getElementById("resetTimerBtn").onclick=()=>{if(confirm("タイマーを未開始に戻しますか？")){t.startedAt=null;t.pausedAt=null;t.totalPaused=0;save();closeSheet();render()}};
+  if(!t.startedAt)document.getElementById("startTimerBtn").onclick=()=>{recalculateAutoTimer(t,true);startTimer(t);save();closeSheet();render()};else if(t.pausedAt)document.getElementById("resumeTimerBtn").onclick=()=>{t.totalPaused=(t.totalPaused||0)+(Date.now()-t.pausedAt);t.pausedAt=null;save();closeSheet();render()};else document.getElementById("pauseTimerBtn").onclick=()=>{t.pausedAt=Date.now();save();closeSheet();render()};
+  document.getElementById("resetTimerBtn").onclick=()=>{if(confirm("タイマーを未開始に戻しますか？")){t.startedAt=null;t.pausedAt=null;t.totalPaused=0;t.rotationStartedAt=null;t.nextDurationSec=null;save();closeSheet();render()}};
   document.getElementById("rejectBtn").onclick=()=>{data.rejectionTableId=data.rejectionTableId===t.id?null:t.id;data.senderTableId=null;data.planningTableId=null;activeTableId=t.id;clearSelections();save();closeSheet();render()};
   document.getElementById("senderBtn").onclick=()=>{data.senderTableId=data.senderTableId===t.id?null:t.id;data.planningTableId=null;data.rejectionTableId=null;activeTableId=t.id;clearSelections();save();closeSheet();render()};
   if(isCompanion(t))document.getElementById("planningBtn").onclick=()=>{data.planningTableId=data.planningTableId===t.id?null:t.id;data.senderTableId=null;data.rejectionTableId=null;activeTableId=t.id;clearSelections();save();closeSheet();render()};
@@ -551,17 +638,55 @@ function showReason(c,t){
   openSheet(`<h2>${esc(c.name)} → ${esc(t.number)}</h2><div class="reason">🚫 ${reasons.map(esc).join("<br>")}</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet
 }
-function showSeatDetail(c,t){const r=seatRecord(c.id,t.id);openSheet(`<h2>${esc(c.name)}・${esc(t.number)}</h2><div class="reason">回った順番：<strong>${r?.turn||"-"}ターン目</strong><br>着席時刻：${r?.at?dateTimeText(r.at):"-"}</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="danger" id="unseatBtn">着席を解除</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("unseatBtn").onclick=()=>{delete data.seated[pairKey(c.id,t.id)];save();closeSheet();render()}}
+function showSeatDetail(c,t){const r=seatRecord(c.id,t.id);openSheet(`<h2>${esc(c.name)}・${esc(t.number)}</h2><div class="reason">回った順番：<strong>${r?.turn||"-"}ターン目</strong><br>着席時刻：${r?.at?dateTimeText(r.at):"-"}</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="danger" id="unseatBtn">着席を解除</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("unseatBtn").onclick=()=>{
+  const rec=seatRecord(c.id,t.id);
+  delete data.seated[pairKey(c.id,t.id)];
+  const h=data.history.find(x=>x.type==="seat"&&x.tableId===t.id&&x.turn===rec?.turn&&(x.castIds||[]).includes(c.id));
+  if(h){
+    const idx=h.castIds.indexOf(c.id);
+    h.castIds=h.castIds.filter(id=>id!==c.id);
+    h.castNames=(h.castNames||[]).filter((_,i)=>i!==idx);
+    if(!h.castIds.length)data.history=data.history.filter(x=>x.id!==h.id);
+  }
+  recalculateAutoTimer(t,false);save();closeSheet();render()
+}}
 function showHistory(){openSheet(`<h2>着席履歴</h2><div class="history-list">${data.history.length?data.history.map(h=>`<div class="history-item"><div class="history-top"><span class="history-table">${esc(h.tableNumber||"")}</span><span class="history-time">${dateTimeText(h.at)}</span></div><div class="history-casts">${h.turn?`<span class="round-badge">${h.turn}ターン目</span>`:""}${h.type==="table-close"?"卓終了":h.type==="table-finish"?"回し終了（送り："+esc((h.castNames||[]).join("・")||"未設定")+")":esc((h.castNames||[]).join("・"))}</div><div class="history-meta">${h.people||""}名・${esc(h.plan||"")}${h.note?"／"+esc(h.note):""}</div></div>`).join(""):'<div class="empty-history">まだ履歴はありません</div>'}</div><div class="sheet-actions"><button class="danger" id="clearHistory">履歴削除</button><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("clearHistory").onclick=()=>{if(confirm("履歴を削除しますか？")){data.history=[];save();closeSheet();render()}}}
-function downloadBackup(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="SWAMP-FOG_Ver7.7_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url)}
-function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤人数・卓人数・着席制限・着席拒否からターン数を算出し、約50分で終了するタイマーを自動設定します。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
-function endBusiness(){if(confirm("営業を終了しますか？")){data.seated={};data.planned={};data.sendNominees={};clearSelections();data.tables=[];data.planningTableId=null;data.senderTableId=null;data.rejectionTableId=null;activeTableId=null;save();closeSheet();render()}}
+function downloadBackup(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="SWAMP-FOG_Ver7.8_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url)}
+function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映し、原則2名ずつ回るターン数を算出。超過時も残り時間から再計算し、約50分終了を目指します。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
+function endBusiness(){
+  if(confirm("営業を終了しますか？\n着席実績・送り数・初回停止・場内中・本日出勤をリセットします。")){
+    data.seated={};data.planned={};data.sendNominees={};data.rejections={};data.history=[];
+    clearSelections();
+    data.casts.forEach(c=>{
+      c.sends=0;
+      c.penalty=false;
+      c.inHouse=false;
+      c.working=false;
+      c.ngTables=[];
+    });
+    data.tables=[];
+    data.planningTableId=null;data.senderTableId=null;data.rejectionTableId=null;
+    activeTableId=null;save();closeSheet();render()
+  }
+}
 document.getElementById("modeBtn").onclick=()=>{data.settings.editMode=!data.settings.editMode;clearSelections();data.planningTableId=null;data.senderTableId=null;data.rejectionTableId=null;save();render()};
 document.getElementById("menuBtn").onclick=openMenu;document.getElementById("addTableBtn").onclick=()=>openTable();document.getElementById("clearSelectBtn").onclick=()=>{clearSelections();data.planningTableId=null;data.senderTableId=null;data.rejectionTableId=null;save();render()};
-document.getElementById("seatBtn").onclick=()=>{const t=activeTable(),casts=selectedForActive();if(!t||!casts.length)return;t.turnCounter=(Number(t.turnCounter)||0)+1;const turn=t.turnCounter,at=Date.now();casts.forEach(c=>{data.seated[pairKey(c.id,t.id)]={turn,at};delete data.selected[pairKey(c.id,t.id)];if(isCompanion(t))delete data.planned[pairKey(c.id,t.id)]});data.history.unshift({id:"h"+at,type:"seat",at,tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:casts.map(c=>c.id),castNames:casts.map(c=>c.name),turn,note:"着席・自動再計算・カウントダウン再スタート"});recalculateAutoTimer(t);startTimer(t);save();render()};
+document.getElementById("seatBtn").onclick=()=>{const t=activeTable(),casts=selectedForActive();if(!t||!casts.length)return;t.turnCounter=(Number(t.turnCounter)||0)+1;const turn=t.turnCounter,at=Date.now();casts.forEach(c=>{data.seated[pairKey(c.id,t.id)]={turn,at};delete data.selected[pairKey(c.id,t.id)];if(isCompanion(t))delete data.planned[pairKey(c.id,t.id)]});data.history.unshift({id:"h"+at,type:"seat",at,tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:casts.map(c=>c.id),castNames:casts.map(c=>c.name),turn,note:"着席・自動再計算・カウントダウン再スタート"});recalculateAutoTimer(t,true);startTimer(t);save();render()};
 document.getElementById("undoBtn").onclick=()=>{const h=data.history[0];if(!h)return;if(h.type!=="seat"){alert("直前は卓終了です");return}if(confirm(`${h.tableNumber}への着席を戻しますか？`)){(h.castIds||[]).forEach(id=>delete data.seated[pairKey(id,h.tableId)]);const t=data.tables.find(x=>x.id===h.tableId);if(t)t.turnCounter=Math.max(0,...Object.entries(data.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0));data.history.shift();activeTableId=h.tableId;save();render()}};
 document.getElementById("importInput").addEventListener("change",async e=>{const f=e.target.files?.[0];if(!f)return;try{const p=JSON.parse(await f.text());if(!p?.casts||!p?.tables)throw 0;if(confirm("復元しますか？")){data=normalize(p);activeTableId=data.tables[0]?.id||null;save();closeSheet();render()}}catch(err){alert("復元できません")}e.target.value=""});
-setInterval(()=>data.tables.forEach(t=>{const el=document.querySelector(`[data-table-timer="${t.id}"]`);if(el){el.textContent=formatTimer(t);el.className="timer "+timerClass(t)}}),1000);
+setInterval(()=>{
+  let changed=false;
+  data.tables.forEach(t=>{
+    if(t.autoTimer!==false&&t.startedAt&&overtimeSeconds(t)>0){
+      const before=t.nextDurationSec;
+      recalculateAutoTimer(t,false);
+      if(before!==t.nextDurationSec)changed=true;
+    }
+    const el=document.querySelector(`[data-table-timer="${t.id}"]`);
+    if(el){el.textContent=formatTimer(t);el.className="timer "+timerClass(t)}
+  });
+  if(changed){save();render()}
+},1000);
 sortCasts();recalculateAllTimers();render();
 </script>
 </body>
