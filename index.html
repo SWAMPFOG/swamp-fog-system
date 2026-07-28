@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.8.10 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.8.13 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -136,8 +136,21 @@ tbody td{
 .s .rank-dot{background:linear-gradient(#ff666b,#cb0710)}
 .state-cell{
   width:var(--table-col);min-width:var(--table-col);
-  max-width:var(--table-col);padding:0
+  max-width:var(--table-col);padding:0;position:relative
 }
+.state-cell:nth-child(even){background:#171719}
+.state-cell.active-column{background:#18231d;box-shadow:inset 2px 0 0 rgba(82,239,135,.28),inset -2px 0 0 rgba(82,239,135,.28)}
+tr.cell-focus-row .cast{box-shadow:inset 0 0 0 2px var(--blue)}
+.state-cell.cell-focus{z-index:6;box-shadow:inset 0 0 0 3px var(--blue)!important}
+.table-head.cell-focus-head{background:#173d55!important;box-shadow:inset 0 -3px 0 var(--blue)!important}
+.cell-guide{
+  position:fixed;left:50%;top:87px;z-index:75;transform:translateX(-50%);
+  max-width:92vw;padding:7px 13px;border:1px solid #63b7ff;border-radius:999px;
+  background:rgba(12,40,61,.96);color:#fff;font-size:13px;font-weight:900;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;
+  opacity:0;transition:opacity .1s ease
+}
+.cell-guide.show{opacity:1}
 .state-btn{
   width:100%;height:46px;border:0;background:transparent;color:#fff;
   font-size:26px;line-height:1
@@ -320,6 +333,15 @@ input,select{
 .cast-order-dragging,.cast-order-dragging *{cursor:grabbing!important}
 .cast-order-dragging .cast-order-list{overflow:hidden}
 .cast-order-dragging .order-item{touch-action:none}
+
+.cast.ai-enabled{cursor:pointer}
+.cast.ai-disabled{opacity:.38;filter:grayscale(.35);cursor:not-allowed}
+.cast.ai-pending{box-shadow:inset 0 0 0 3px #7db7ff}
+.cast-ai-status{margin-top:2px;font-size:10px;font-weight:1000;color:#8fd7ff}
+.cast.ai-disabled .cast-ai-status{color:#999}
+.cast.ai-pending .cast-ai-status{color:#cde4ff}
+.ai-mode-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:999px;background:#173d55;color:#8fd7ff;font-size:9px;font-weight:1000}
+
 @media(max-width:390px){
   :root{--name-col:84px;--table-col:76px}
   .topbar{grid-template-columns:68px 1fr 68px}
@@ -330,7 +352,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.8.7</h1>
+  <h1>SWAMP-FOG 初回回し Ver.8.14</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
@@ -340,6 +362,7 @@ input,select{
   <button class="add-table" id="addTableBtn">＋卓</button>
 </div>
 
+<div id="cellGuide" class="cell-guide"></div>
 <div class="board-wrap">
   <table id="board" aria-label="初回回しボード"></table>
 </div>
@@ -354,10 +377,10 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v8_8_complete";
-const MIGRATION_KEYS=["swamp_fog_v8_7_complete","swamp_fog_v8_6_complete","swamp_fog_v8_5_complete","swamp_fog_v8_4_complete","swamp_fog_v8_3_complete","swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
+const STORAGE_KEY="swamp_fog_v8_14_complete";
+const MIGRATION_KEYS=["swamp_fog_v8_8_complete","swamp_fog_v8_7_complete","swamp_fog_v8_6_complete","swamp_fog_v8_5_complete","swamp_fog_v8_4_complete","swamp_fog_v8_3_complete","swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
-  settings:{editMode:false,castOrderInitialized:true},
+  settings:{editMode:false,castOrderInitialized:true,castCentricMode:true},
   casts:[
     {id:"c5",name:"ゆい",rank:"S",nameColor:"#ff5a5f",sends:0,penalty:false,inHouse:false,working:true,ngTables:[]},
     {id:"c4",name:"りな",rank:"A",nameColor:"#ffd54a",sends:2,penalty:false,inHouse:false,working:true,ngTables:[]},
@@ -377,11 +400,11 @@ let activeTableId=data.tables[0]?.id||null;
 data.tables.filter(isCompanion).forEach(t=>{if(t.companionCastId)applyCompanionTeamPlans(t)});
 function cloneDefault(){return JSON.parse(JSON.stringify(defaultData))}
 function normalize(d){
-  d.settings=d.settings||{}; d.settings.editMode=!!d.settings.editMode;
+  d.settings=d.settings||{}; d.settings.editMode=!!d.settings.editMode; if(!("castCentricMode" in d.settings))d.settings.castCentricMode=true;
   d.history=Array.isArray(d.history)?d.history:[]; d.seated=d.seated||{}; d.selected={}; d.planned=d.planned||{}; d.senderPending=d.senderPending||{}; Object.keys(d.planned).forEach(k=>{if(d.planned[k]===true)d.planned[k]={turn:null,at:Date.now()}}); d.planningTableId=null; d.sendNominees=d.sendNominees||{}; d.senderTableId=null; d.rejections=d.rejections||{}; d.rejectionTableId=null;
   d.casts=Array.isArray(d.casts)?d.casts:[]; d.tables=Array.isArray(d.tables)?d.tables:[];
   d.casts.forEach(c=>{c.ngTables=Array.isArray(c.ngTables)?c.ngTables:[];c.sends=Number(c.sends)||0;c.penalty=!!c.penalty;c.inHouse=!!c.inHouse;c.working=c.working!==false;if(!c.nameColor)c.nameColor={C:"#4cff5a",B:"#43a2ff",A:"#ffd54a",S:"#ff5a5f"}[c.rank]||"#ffffff"});
-  d.tables.forEach(t=>{if(!("pausedAt" in t))t.pausedAt=null;if(!("totalPaused" in t))t.totalPaused=0;if(!("turnCounter" in t))t.turnCounter=Number(t.roundCounter)||0;if(!("startedAt" in t))t.startedAt=null;if(!("durationSec" in t))t.durationSec=isCompanion(t)?300:180;if(!("targetMinutes" in t))t.targetMinutes=isCompanion(t)?45:50;if(!("autoTimer" in t))t.autoTimer=true;if(!("rotationStartedAt" in t))t.rotationStartedAt=null;if(!("nextDurationSec" in t))t.nextDurationSec=null;if(!("companionCastId" in t))t.companionCastId="";if(!("companionTargetTurns" in t))t.companionTargetTurns=9;if(isCompanion(t)){t.durationSec=300;t.targetMinutes=45;t.companionTargetTurns=9}});
+  d.tables.forEach(t=>{if(!("pausedAt" in t))t.pausedAt=null;if(!("totalPaused" in t))t.totalPaused=0;if(!("turnCounter" in t))t.turnCounter=Number(t.roundCounter)||0;if(!("startedAt" in t))t.startedAt=null;if(!("durationSec" in t))t.durationSec=isCompanion(t)?300:180;if(!("targetMinutes" in t))t.targetMinutes=isCompanion(t)?45:50;if(!("autoTimer" in t))t.autoTimer=true;if(!("rotationStartedAt" in t))t.rotationStartedAt=null;if(!("nextDurationSec" in t))t.nextDurationSec=null;if(!("companionCastId" in t))t.companionCastId="";if(!("companionTargetTurns" in t))t.companionTargetTurns=9;if(!("finished" in t))t.finished=false;if(isCompanion(t)){t.durationSec=300;t.targetMinutes=45;t.companionTargetTurns=9}});
   const counters={};
   Object.keys(d.seated).forEach(k=>{if(!d.seated[k]){delete d.seated[k];return}const tid=k.split(":")[1];counters[tid]=(counters[tid]||0)+1;if(typeof d.seated[k]!=="object")d.seated[k]={turn:counters[tid],at:Date.now()};else{d.seated[k].turn=Number(d.seated[k].turn||d.seated[k].order)||counters[tid];d.seated[k].at=Number(d.seated[k].at)||Date.now();delete d.seated[k].order}});
   d.tables.forEach(t=>{const max=Math.max(0,...Object.entries(d.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0));t.turnCounter=Math.max(Number(t.turnCounter)||0,max)});
@@ -486,18 +509,34 @@ function eligibility(c,t){
 function seatRecord(c,t){return data.seated[pairKey(c,t)]||null}
 function plannedRecord(c,t){return data.planned[pairKey(c,t)]||null}
 function isPlanned(c,t){return!!plannedRecord(c,t)}
-function nextTurnForTable(t){
-  const pending=Object.entries(data.planned).filter(([k,v])=>k.endsWith(":"+t.id)&&v&&v.turn);
-  if(pending.length){
-    const turns=[...new Set(pending.map(([,v])=>Number(v.turn)))].sort((a,b)=>a-b);
-    for(const turn of turns){
-      const occupied=Object.entries(data.seated).filter(([k,v])=>k.endsWith(":"+t.id)&&Number(v.turn)===turn).length+pending.filter(([,v])=>Number(v.turn)===turn).length;
-      if(occupied<2)return turn;
+function tableTurnEntries(t){
+  const entries=[];
+  Object.entries(data.seated).forEach(([k,v])=>{if(k.endsWith(":"+t.id)&&v?.turn)entries.push({kind:"seated",key:k,record:v,turn:Number(v.turn)||0})});
+  Object.entries(data.planned).forEach(([k,v])=>{if(k.endsWith(":"+t.id)&&v?.turn)entries.push({kind:"planned",key:k,record:v,turn:Number(v.turn)||0})});
+  return entries;
+}
+function compactTableTurns(t){
+  const entries=tableTurnEntries(t);
+  const usedTurns=[...new Set(entries.map(x=>x.turn).filter(Boolean))].sort((a,b)=>a-b);
+  const turnMap=new Map(usedTurns.map((oldTurn,index)=>[oldTurn,index+1]));
+  entries.forEach(x=>{x.record.turn=turnMap.get(x.turn)||x.turn});
+  data.history.forEach(h=>{
+    if(h.type==="seat"&&h.tableId===t.id&&h.turn){
+      const mapped=turnMap.get(Number(h.turn));
+      if(mapped)h.turn=mapped;
     }
+  });
+  const maxTurn=Math.max(0,...tableTurnEntries(t).map(x=>Number(x.record.turn)||0));
+  t.turnCounter=maxTurn;
+}
+function nextTurnForTable(t){
+  const entries=tableTurnEntries(t);
+  const maxTurn=Math.max(0,...entries.map(x=>x.turn),Number(t.turnCounter)||0);
+  for(let turn=1;turn<=maxTurn;turn++){
+    const occupied=entries.filter(x=>x.turn===turn).length;
+    if(occupied<2)return turn;
   }
-  const maxSeated=Math.max(0,...Object.entries(data.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0));
-  const maxPlanned=Math.max(0,...pending.map(([,v])=>Number(v.turn)||0));
-  return Math.max(Number(t.turnCounter)||0,maxSeated,maxPlanned)+1;
+  return maxTurn+1;
 }
 function queueCast(c,t){data.planned[pairKey(c.id,t.id)]={turn:nextTurnForTable(t),at:Date.now()}}
 function cancelQueuedCast(c,t){
@@ -539,9 +578,18 @@ function toggleSendNominee(castId,tableId){
   recalculateAllTimers();
 }
 function senderNames(t){return (data.sendNominees[t.id]||[]).map(id=>data.casts.find(c=>c.id===id)?.name).filter(Boolean)}
-function finishTableBySenders(t){
+function collapseTableManually(t){
   if(!t||t.collapsed)return;
-  t.collapsed=true;if(t.startedAt&&!t.pausedAt)t.pausedAt=Date.now();
+  // 手動の折りたたみは表示だけを閉じ、タイマーは止めない。
+  t.collapsed=true;
+  data.senderTableId=null;
+  data.planningTableId=null;
+  data.rejectionTableId=null;
+  activeTableId=data.tables.find(x=>!x.collapsed&&x.id!==t.id)?.id||null;
+}
+function finishTableBySenders(t){
+  if(!t||t.finished)return;
+  t.finished=true;t.collapsed=true;if(t.startedAt&&!t.pausedAt)t.pausedAt=Date.now();
   data.history.unshift({id:"h"+Date.now(),type:"table-finish",at:Date.now(),tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:[...(data.sendNominees[t.id]||[])],castNames:senderNames(t),note:"送り人数一致・自動終了"});
   data.senderTableId=null;data.planningTableId=null;data.rejectionTableId=null;data.senderPending[t.id]=[];
   activeTableId=data.tables.find(x=>!x.collapsed&&x.id!==t.id)?.id||null;
@@ -665,11 +713,78 @@ function selectedForActive(){if(!activeTableId)return[];return data.casts.filter
 function clearSelections(){data.selected={}}
 function setActiveTable(id){if(activeTableId!==id){activeTableId=id;clearSelections();data.planningTableId=null;data.senderTableId=null;data.rejectionTableId=null}}
 function nextCastSuggestion(t){const p=isCompanion(t)?data.casts.find(c=>isPlanned(c.id,t.id)&&stateFor(c,t)!=="checked"):null;return p||data.casts.find(c=>stateFor(c,t)==="empty")||null}
+function tableCapacityOpen(t){
+  if(t.finished)return false;
+  if(isCompanion(t)){
+    const cp=companionSelectionPlan(t);
+    return cp.selected<cp.maxPeople&&cp.remainingTurns>0;
+  }
+  return autoTimerPlan(t).remaining>0;
+}
+function candidateTablesForCast(c){
+  if(!c||c.working===false)return[];
+  return data.tables.filter(t=>!t.finished&&tableCapacityOpen(t)&&!seatRecord(c.id,t.id)&&eligibility(c,t).ok&&!isRejected(c.id,t.id));
+}
+function tableScarcity(t){
+  return data.casts.filter(c=>c.working!==false&&!seatRecord(c.id,t.id)&&eligibility(c,t).ok&&!isRejected(c.id,t.id)).length;
+}
+function aiTableScore(c,t){
+  let score=0;
+  if(t.startedAt&&remainingSeconds(t)===0)score+=100000;
+  if(t.startedAt)score+=50000-Math.min(49000,remainingSeconds(t)*10);
+  const guide=parseGuideTime(t);if(guide)score+=Math.max(0,20000-Math.max(0,Date.now()-guide.getTime())/1000);
+  score+=Math.max(0,10000-tableScarcity(t)*500);
+  score+=autoTimerPlan(t).remainingTurns*50;
+  if(isPlanned(c.id,t.id))score+=200000;
+  return score;
+}
+function bestTableForCast(c){
+  const existing=data.tables.find(t=>plannedRecord(c.id,t.id)?.turn&&!t.finished);
+  if(existing)return existing;
+  return candidateTablesForCast(c).sort((a,b)=>aiTableScore(c,b)-aiTableScore(c,a))[0]||null;
+}
+function castAiState(c){
+  const plannedTable=data.tables.find(t=>plannedRecord(c.id,t.id)?.turn&&!t.finished);
+  if(plannedTable)return{kind:"pending",text:`${plannedTable.number} ${plannedRecord(c.id,plannedTable.id).turn}？`,count:candidateTablesForCast(c).length,table:plannedTable};
+  const candidates=candidateTablesForCast(c);
+  if(c.working===false)return{kind:"disabled",text:"休み",count:0};
+  if(!candidates.length){
+    const unfinished=data.tables.filter(t=>!t.finished&&!seatRecord(c.id,t.id));
+    return{kind:"disabled",text:unfinished.length?"現在対象なし":"完走",count:0};
+  }
+  return{kind:"enabled",text:`残${candidates.length}卓`,count:candidates.length,table:bestTableForCast(c)};
+}
+function aiReasonText(c,t){
+  const reasons=[];
+  if(t.startedAt&&remainingSeconds(t)===0)reasons.push("タイマー終了");
+  else if(t.startedAt)reasons.push(`残${mmss(remainingSeconds(t))}`);
+  else reasons.push(`開始${t.start||"未設定"}`);
+  reasons.push("未着席");
+  const scarcity=tableScarcity(t);if(scarcity<=2)reasons.push(`候補${scarcity}名`);
+  return reasons.join("・");
+}
+function flashAiGuide(c,t,confirmed=false){
+  const g=document.getElementById("cellGuide");if(!g)return;
+  const turn=plannedRecord(c.id,t.id)?.turn||seatRecord(c.id,t.id)?.turn||nextTurnForTable(t);
+  g.textContent=`${c.name} → ${t.number} ${turn}${confirmed?" 着席確定":"？ 仮予定"}｜${aiReasonText(c,t)}`;g.classList.add("show");
+  setTimeout(()=>g.classList.remove("show"),1600);
+}
+function handleCastAiTap(c){
+  const existing=data.tables.find(t=>plannedRecord(c.id,t.id)?.turn&&!t.finished);
+  if(existing){confirmQueuedCast(c,existing);activeTableId=existing.id;flashAiGuide(c,existing,true);save();render();return}
+  const t=bestTableForCast(c);
+  if(!t){const g=document.getElementById("cellGuide");if(g){g.textContent=`${c.name}：回せる卓がありません`;g.classList.add("show");setTimeout(()=>g.classList.remove("show"),1300)}return}
+  activeTableId=t.id;queueCast(c,t);flashAiGuide(c,t,false);save();render();
+}
+function cancelCastAiPlan(c){
+  const t=data.tables.find(t=>plannedRecord(c.id,t.id)?.turn&&!t.finished);
+  if(!t)return false;cancelQueuedCast(c,t);save();render();return true;
+}
 function render(){
   recalculateAllTimers();
   if(!data.tables.some(t=>t.id===activeTableId&&!t.collapsed))activeTableId=data.tables.find(t=>!t.collapsed)?.id||data.tables[0]?.id||null;
   const board=document.getElementById("board");
-  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)} → ${estimateEndTime(t)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?(isCompanion(t)?(()=>{const cp=companionSelectionPlan(t);return `予定込${cp.selected}名・残選択${cp.remainingMin}〜${cp.remainingMax}名／残${cp.remainingTurns}T`})():`原則2名・残${autoTimerPlan(t).remainingTurns}T／残${autoTimerPlan(t).remaining}名`):"手動"}</div><div class="collapsed-senders"><span class="sender-title">送り指名</span>${senderNames(t).length?senderNames(t).map(n=>`<span class="sender-name">${esc(n)}</span>`).join(""):`<span class="sender-name">なし</span>`}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""}" data-cast="${c.id}" style="border-left-color:${esc(c.nameColor||"#ffffff")};background:linear-gradient(90deg,${esc(c.nameColor||"#ffffff")}66 0%,#181819 72%)"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${(c.penalty||c.sends>=2)?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div></td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id),senderPending=isSenderPending(c.id,t.id);const pr=plannedRecord(c.id,t.id);const current=rec&&Number(rec.turn)===currentTurnForTable(t)&&!t.collapsed;return`<td class="state-cell"><button class="state-btn ${st} ${current?"current-seat":""}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender,pr,senderPending)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
+  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)} → ${estimateEndTime(t)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?(isCompanion(t)?(()=>{const cp=companionSelectionPlan(t);return `予定込${cp.selected}名・残選択${cp.remainingMin}〜${cp.remainingMax}名／残${cp.remainingTurns}T`})():`原則2名・残${autoTimerPlan(t).remainingTurns}T／残${autoTimerPlan(t).remaining}名`):"手動"}</div><div class="collapsed-senders"><span class="sender-title">送り指名</span>${senderNames(t).length?senderNames(t).map(n=>`<span class="sender-name">${esc(n)}</span>`).join(""):`<span class="sender-name">なし</span>`}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""} ${(()=>{const ai=castAiState(c);return data.settings.castCentricMode&&!data.settings.editMode?`ai-${ai.kind}`:""})()}" data-cast="${c.id}" style="border-left-color:${esc(c.nameColor||"#ffffff")};background:linear-gradient(90deg,${esc(c.nameColor||"#ffffff")}66 0%,#181819 72%)"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${(c.penalty||c.sends>=2)?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div>${(()=>{const ai=castAiState(c);return data.settings.castCentricMode&&!data.settings.editMode?`<div class="cast-ai-status">${ai.kind==="pending"?"仮 ":""}${esc(ai.text)}</div>`:""})()}</td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id),senderPending=isSenderPending(c.id,t.id);const pr=plannedRecord(c.id,t.id);const current=rec&&Number(rec.turn)===currentTurnForTable(t)&&!t.collapsed;return`<td class="state-cell ${t.id===activeTableId?"active-column":""}" data-table-cell="${t.id}"><button class="state-btn ${st} ${current?"current-seat":""}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender,pr,senderPending)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
   board.querySelectorAll(".table-head").forEach(el=>{
     let tapTimer=null;
     el.onclick=()=>{
@@ -682,8 +797,8 @@ function render(){
   board.querySelectorAll(".state-btn").forEach(btn=>{
     let holdTimer=null,held=false;
     const get=()=>({c:data.casts.find(x=>x.id===btn.dataset.cast),t:data.tables.find(x=>x.id===btn.dataset.table)});
-    const begin=()=>{const {c,t}=get();held=false;holdTimer=setTimeout(()=>{const st=stateFor(c,t);if(data.senderTableId===t.id){held=true;removeSender(c.id,t.id);save();render()}else if(st==="queued"){held=true;cancelQueuedCast(c,t);save();render()}},650)};
-    const end=()=>{if(holdTimer){clearTimeout(holdTimer);holdTimer=null}};
+    const begin=()=>{const {c,t}=get();showCellGuide(c,t,btn);held=false;holdTimer=setTimeout(()=>{const st=stateFor(c,t);if(data.senderTableId===t.id){held=true;removeSender(c.id,t.id);save();render()}else if(st==="queued"){held=true;cancelQueuedCast(c,t);save();render()}},650)};
+    const end=()=>{if(holdTimer){clearTimeout(holdTimer);holdTimer=null}hideCellGuideLater()};
     btn.addEventListener("touchstart",begin,{passive:true});btn.addEventListener("touchend",end);btn.addEventListener("touchcancel",end);
     btn.addEventListener("mousedown",begin);btn.addEventListener("mouseup",end);btn.addEventListener("mouseleave",end);
     btn.onclick=()=>{
@@ -700,8 +815,34 @@ function render(){
       queueCast(c,t);save();render()
     };
   });
-  board.querySelectorAll(".cast").forEach(el=>el.onclick=()=>{if(data.settings.editMode)openCast(el.dataset.cast)});
+  board.querySelectorAll(".cast").forEach(el=>{
+    let holdTimer=null,held=false;
+    const cast=()=>data.casts.find(x=>x.id===el.dataset.cast);
+    const begin=()=>{if(data.settings.editMode||!data.settings.castCentricMode)return;held=false;holdTimer=setTimeout(()=>{held=cancelCastAiPlan(cast())},650)};
+    const end=()=>{if(holdTimer){clearTimeout(holdTimer);holdTimer=null}};
+    el.addEventListener("touchstart",begin,{passive:true});el.addEventListener("touchend",end);el.addEventListener("touchcancel",end);
+    el.addEventListener("mousedown",begin);el.addEventListener("mouseup",end);el.addEventListener("mouseleave",end);
+    el.onclick=()=>{if(held){held=false;return}if(data.settings.editMode)openCast(el.dataset.cast);else if(data.settings.castCentricMode)handleCastAiTap(cast())};
+  });
   updateStatus();
+}
+function showCellGuide(c,t,btn){
+  document.querySelectorAll(".cell-focus-row").forEach(x=>x.classList.remove("cell-focus-row"));
+  document.querySelectorAll(".cell-focus").forEach(x=>x.classList.remove("cell-focus"));
+  document.querySelectorAll(".cell-focus-head").forEach(x=>x.classList.remove("cell-focus-head"));
+  btn.closest("tr")?.classList.add("cell-focus-row");
+  btn.closest("td")?.classList.add("cell-focus");
+  document.querySelector(`.table-head[data-table="${t.id}"]`)?.classList.add("cell-focus-head");
+  const g=document.getElementById("cellGuide");
+  if(g){g.textContent=`${t.number} × ${c.rank} ${c.name}`;g.classList.add("show")}
+}
+function hideCellGuideLater(){
+  setTimeout(()=>{
+    document.querySelectorAll(".cell-focus-row").forEach(x=>x.classList.remove("cell-focus-row"));
+    document.querySelectorAll(".cell-focus").forEach(x=>x.classList.remove("cell-focus"));
+    document.querySelectorAll(".cell-focus-head").forEach(x=>x.classList.remove("cell-focus-head"));
+    document.getElementById("cellGuide")?.classList.remove("show");
+  },420)
 }
 function updateStatus(){
   const t=activeTable(),count=t?Object.keys(data.planned).filter(k=>k.endsWith(":"+t.id)).length:0,
@@ -716,10 +857,10 @@ function updateStatus(){
     :planning?`${t.number}／予定者チェック中`
     :isCompanion(t)?(()=>{const cp=companionSelectionPlan(t),owner=companionOwner(t);return `${t.number}（お連れ様：${owner?owner.name:"未選択"}）／9T×05:00・予定込${cp.selected}名・残選択${cp.remainingMin}〜${cp.remainingMax}名`})():`${t.number}（${t.people}名・${t.plan}）${s?"／次候補："+s.name:""}／自動${p.turns}T×${mmss(t.durationSec)}`
     :"卓を追加してください";
-  document.getElementById("selectedCount").textContent=rejecting?"拒否":sender?"送り":count?`予定${count}`:"待機";
+  document.getElementById("selectedCount").textContent=data.settings.castCentricMode&&!data.settings.editMode?"AI配席":rejecting?"拒否":sender?"送り":count?`予定${count}`:"待機";
   const b=document.getElementById("seatBtn");
   b.disabled=true;
-  b.textContent="セルを2回タップで着席";
+  b.textContent=data.settings.castCentricMode?"キャスト名を2回タップで着席":"セルを2回タップで着席";
   const m=document.getElementById("modeBtn");
   m.textContent=data.settings.editMode?"編集モード":"営業モード";
   m.classList.toggle("active",data.settings.editMode);
@@ -830,8 +971,9 @@ function openTable(id){
 function openTableQuick(id){
   const t=data.tables.find(x=>x.id===id);if(!t)return;
   recalculateAutoTimer(t);const state=!t.startedAt?"未開始":t.pausedAt?"一時停止中":"計測中",senders=senderNames(t),ap=autoTimerPlan(t);
-  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">${isCompanion(t)?(()=>{const cp=companionSelectionPlan(t),owner=companionOwner(t);return `担当 ${owner?esc(owner.name):"未選択"}／9ターン×5分／予定込${cp.selected}名／残り選択${cp.remainingMin}〜${cp.remainingMax}名／残${cp.remainingTurns}ターン`})():`残${ap.remaining}名・残${ap.remainingTurns}ターン／完走目標 ${t.targetMinutes||50}分／終了目安 ${estimateEndTime(t)}`}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">タイマーリセット</button></div><div class="sheet-actions">${isCompanion(t)?`<button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェック終了":"予定者をチェック"}</button>`:""}<button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名"}</button></div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"なし"}</div><div class="small-note">予定者チェック：セルをタップで★、もう一度タップで解除。通常操作では★を1回タップで仮チェック、同じセルを2回目にタップで着席確定。1人回しも同じセルの2回タップで確定できます。送り指名：セルを1回タップで「送り?」、2回目で決定。決定人数がお客様人数に達すると卓・タイマーを自動終了して折りたたみます。長押しで解除できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="editTableBtn">卓設定</button></div>`);
+  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">${isCompanion(t)?(()=>{const cp=companionSelectionPlan(t),owner=companionOwner(t);return `担当 ${owner?esc(owner.name):"未選択"}／9ターン×5分／予定込${cp.selected}名／残り選択${cp.remainingMin}〜${cp.remainingMax}名／残${cp.remainingTurns}ターン`})():`残${ap.remaining}名・残${ap.remainingTurns}ターン／完走目標 ${t.targetMinutes||50}分／終了目安 ${estimateEndTime(t)}`}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">タイマーリセット</button></div><div class="sheet-actions">${isCompanion(t)?`<button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェック終了":"予定者をチェック"}</button>`:""}<button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名"}</button></div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"なし"}</div><div class="small-note">予定者チェック：セルをタップで★、もう一度タップで解除。通常操作では★を1回タップで仮チェック、同じセルを2回目にタップで着席確定。1人回しも同じセルの2回タップで確定できます。送り指名：セルを1回タップで「送り?」、2回目で決定。決定人数がお客様人数に達すると卓・タイマーを自動終了して折りたたみます。長押しで解除できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="cancel" id="collapseTableBtn">折りたたむ</button><button class="save" id="editTableBtn">卓設定</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
+  document.getElementById("collapseTableBtn").onclick=()=>{collapseTableManually(t);save();closeSheet();render()};
   if(!t.startedAt)document.getElementById("startTimerBtn").onclick=()=>{recalculateAutoTimer(t,true);startTimer(t);save();closeSheet();render()};else if(t.pausedAt)document.getElementById("resumeTimerBtn").onclick=()=>{t.totalPaused=(t.totalPaused||0)+(Date.now()-t.pausedAt);t.pausedAt=null;save();closeSheet();render()};else document.getElementById("pauseTimerBtn").onclick=()=>{t.pausedAt=Date.now();save();closeSheet();render()};
   document.getElementById("resetTimerBtn").onclick=()=>{if(confirm("タイマーをリセットしますか？")){t.startedAt=null;t.pausedAt=null;t.totalPaused=0;t.rotationStartedAt=null;t.nextDurationSec=null;recalculateAutoTimer(t,true);save();closeSheet();render()}};
   document.getElementById("senderBtn").onclick=()=>{data.senderTableId=data.senderTableId===t.id?null:t.id;data.planningTableId=null;activeTableId=t.id;clearSelections();save();closeSheet();render()};
@@ -846,16 +988,18 @@ function showReason(c,t){
   openSheet(`<h2>${esc(c.name)} → ${esc(t.number)}</h2><div class="reason">🚫 ${reasons.map(esc).join("<br>")}</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet
 }
-function showSeatDetail(c,t){const r=seatRecord(c.id,t.id);openSheet(`<h2>${esc(c.name)}・${esc(t.number)}</h2><div class="reason">回った順番：<strong>${r?.turn||"-"}ターン目</strong><br>着席時刻：${r?.at?dateTimeText(r.at):"-"}</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="danger" id="unseatBtn">着席を解除</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("unseatBtn").onclick=()=>{
-  const rec=seatRecord(c.id,t.id);
+function showSeatDetail(c,t){const r=seatRecord(c.id,t.id);openSheet(`<h2>${esc(c.name)}・${esc(t.number)}</h2><div class="reason">回った順番：<strong>${r?.turn||"-"}ターン目</strong><br>着席時刻：${r?.at?dateTimeText(r.at):"-"}</div><div class="small-note">解除すると、この着席は履歴・個人着席数・残り人数・残りターンから完全に削除されます。空いたターン番号は自動で詰め直します。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="danger" id="unseatBtn">着席を完全解除</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("unseatBtn").onclick=()=>{
+  const rec=seatRecord(c.id,t.id);if(!rec)return;
+  const removedTurn=Number(rec.turn)||0;
   delete data.seated[pairKey(c.id,t.id)];
-  const h=data.history.find(x=>x.type==="seat"&&x.tableId===t.id&&x.turn===rec?.turn&&(x.castIds||[]).includes(c.id));
-  if(h){
-    const idx=h.castIds.indexOf(c.id);
-    h.castIds=h.castIds.filter(id=>id!==c.id);
+  data.history=[...data.history].filter(h=>{
+    if(h.type!=="seat"||h.tableId!==t.id||Number(h.turn)!==removedTurn||!(h.castIds||[]).includes(c.id))return true;
+    const idx=(h.castIds||[]).indexOf(c.id);
+    h.castIds=(h.castIds||[]).filter(id=>id!==c.id);
     h.castNames=(h.castNames||[]).filter((_,i)=>i!==idx);
-    if(!h.castIds.length)data.history=data.history.filter(x=>x.id!==h.id);
-  }
+    return h.castIds.length>0;
+  });
+  compactTableTurns(t);
   recalculateAutoTimer(t,false);save();closeSheet();render()
 }}
 function showHistory(){openSheet(`<h2>着席履歴</h2><div class="history-list">${data.history.length?data.history.map(h=>`<div class="history-item"><div class="history-top"><span class="history-table">${esc(h.tableNumber||"")}</span><span class="history-time">${dateTimeText(h.at)}</span></div><div class="history-casts">${h.turn?`<span class="round-badge">${h.turn}ターン目</span>`:""}${h.type==="table-close"?"卓終了":h.type==="table-finish"?"回し終了（送り："+esc((h.castNames||[]).join("・")||"なし")+")":esc((h.castNames||[]).join("・"))}</div><div class="history-meta">${h.people||""}名・${esc(h.plan||"")}${h.note?"／"+esc(h.note):""}</div></div>`).join(""):'<div class="empty-history">まだ履歴はありません</div>'}</div><div class="sheet-actions"><button class="danger" id="clearHistory">履歴削除</button><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("clearHistory").onclick=()=>{if(confirm("履歴を削除しますか？")){data.history=[];save();closeSheet();render()}}}
@@ -983,7 +1127,7 @@ function openBulkCastDelete(){
     recalculateAllTimers();save();closeSheet();render();
   };
 }
-function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="bulkColorMenu">チーム枠色一括変更</button><button id="castOrderMenu">キャスト並び順変更</button><button id="bulkDeleteCastMenu">キャスト一括削除</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャスト欄はチームごとに背景・左枠の色をまとめて変更できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("bulkColorMenu").onclick=openBulkCastColor;document.getElementById("castOrderMenu").onclick=openCastOrder;document.getElementById("bulkDeleteCastMenu").onclick=openBulkCastDelete;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
+function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="castCentricMenu">${data.settings.castCentricMode?"キャスト中心操作：ON":"キャスト中心操作：OFF"}</button><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="bulkColorMenu">チーム枠色一括変更</button><button id="castOrderMenu">キャスト並び順変更</button><button id="bulkDeleteCastMenu">キャスト一括削除</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャスト欄はチームごとに背景・左枠の色をまとめて変更できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("castCentricMenu").onclick=()=>{data.settings.castCentricMode=!data.settings.castCentricMode;save();closeSheet();render()};document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("bulkColorMenu").onclick=openBulkCastColor;document.getElementById("castOrderMenu").onclick=openCastOrder;document.getElementById("bulkDeleteCastMenu").onclick=openBulkCastDelete;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
 function endBusiness(){
   if(confirm("営業を終了しますか？\n着席実績・送り数・初回停止・勤怠ペナルティ・場内中・卓NGをリセットします。")){
     data.seated={};data.planned={};data.sendNominees={};data.senderPending={};data.rejections={};data.history=[];
