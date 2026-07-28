@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.8.6 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.8.7 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -305,6 +305,7 @@ input,select{
 .cast{border-left:5px solid transparent}
 .name{color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.75)}
 .state-btn.queued{background:#263246;color:#fff;box-shadow:inset 0 0 0 2px #7db7ff}
+.state-btn.current-seat{background:#0f5a38!important;color:#fff;box-shadow:inset 0 0 0 3px #52ef87!important}
 .turn-number{display:inline-flex;align-items:center;justify-content:center;width:31px;height:31px;font-size:23px;font-weight:1000;line-height:1}
 .turn-number.confirmed{border:2px solid currentColor;border-radius:50%;font-size:19px}
 
@@ -329,7 +330,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.8.6</h1>
+  <h1>SWAMP-FOG 初回回し Ver.8.7</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
@@ -353,8 +354,8 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v8_6_complete";
-const MIGRATION_KEYS=["swamp_fog_v8_5_complete","swamp_fog_v8_4_complete","swamp_fog_v8_3_complete","swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
+const STORAGE_KEY="swamp_fog_v8_7_complete";
+const MIGRATION_KEYS=["swamp_fog_v8_6_complete","swamp_fog_v8_5_complete","swamp_fog_v8_4_complete","swamp_fog_v8_3_complete","swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
   settings:{editMode:false,castOrderInitialized:true},
   casts:[
@@ -462,6 +463,13 @@ function nextTurnForTable(t){
   return Math.max(Number(t.turnCounter)||0,maxSeated,maxPlanned)+1;
 }
 function queueCast(c,t){data.planned[pairKey(c.id,t.id)]={turn:nextTurnForTable(t),at:Date.now()}}
+function cancelQueuedCast(c,t){
+  const k=pairKey(c.id,t.id),pr=data.planned[k];if(!pr)return;
+  const cancelledTurn=Number(pr.turn)||0;delete data.planned[k];
+  const used=Object.entries(data.planned).some(([key,v])=>key.endsWith(":"+t.id)&&Number(v?.turn)===cancelledTurn)||Object.entries(data.seated).some(([key,v])=>key.endsWith(":"+t.id)&&Number(v?.turn)===cancelledTurn);
+  if(!used&&cancelledTurn>0){Object.entries(data.planned).forEach(([key,v])=>{if(key.endsWith(":"+t.id)&&Number(v?.turn)>cancelledTurn)v.turn=Number(v.turn)-1})}
+  recalculateAutoTimer(t,false);
+}
 function confirmQueuedCast(c,t){
   const k=pairKey(c.id,t.id),pr=data.planned[k];if(!pr)return;
   const turn=Number(pr.turn)||nextTurnForTable(t),at=Date.now();
@@ -494,6 +502,14 @@ function toggleSendNominee(castId,tableId){
   recalculateAllTimers();
 }
 function senderNames(t){return (data.sendNominees[t.id]||[]).map(id=>data.casts.find(c=>c.id===id)?.name).filter(Boolean)}
+function finishTableBySenders(t){
+  if(!t||t.collapsed)return;
+  t.collapsed=true;if(t.startedAt&&!t.pausedAt)t.pausedAt=Date.now();
+  data.history.unshift({id:"h"+Date.now(),type:"table-finish",at:Date.now(),tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:[...(data.sendNominees[t.id]||[])],castNames:senderNames(t),note:"送り人数一致・自動終了"});
+  data.senderTableId=null;data.planningTableId=null;data.rejectionTableId=null;data.senderPending[t.id]=[];
+  activeTableId=data.tables.find(x=>!x.collapsed&&x.id!==t.id)?.id||null;
+}
+function maybeFinishBySenders(t){if((data.sendNominees[t.id]||[]).length>=Number(t.people||1))finishTableBySenders(t)}
 function isSenderPending(c,t){return (data.senderPending[t]||[]).includes(c)}
 function tapSender(castId,tableId){
   const pending=data.senderPending[tableId]||[];
@@ -501,6 +517,7 @@ function tapSender(castId,tableId){
   if(pending.includes(castId)){
     data.senderPending[tableId]=pending.filter(id=>id!==castId);
     toggleSendNominee(castId,tableId);
+    maybeFinishBySenders(data.tables.find(x=>x.id===tableId));
   }else data.senderPending[tableId]=[...pending,castId];
 }
 function removeSender(castId,tableId){
@@ -596,13 +613,14 @@ function circledTurn(turn,confirmed=false){return `<span class="turn-number ${co
 function stateContent(st,rec,sender,planned,senderPending){
   let base;
   if(st==="checked")base=circledTurn(rec?.turn,true);
-  else if(st==="queued")base=circledTurn(planned?.turn,false);
+  else if(st==="queued")base=`<span class="turn-number">${Number(planned?.turn)||"?"}<small style="font-size:11px;margin-left:1px">?</small></span>`;
   else if(st==="planned")base='<span class="plan-mark">★</span>';
   else if(st==="blocked")base="🚫";
   else if(st==="rejected")base='<span>🙅</span><span class="reject-badge">拒否</span>';
   else base="□";
   return base+(sender?'<span class="sender-badge">送り</span>':senderPending?'<span class="sender-badge" style="background:#66520f">送り?</span>':"")
 }
+function currentTurnForTable(t){return Math.max(0,...Object.entries(data.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0))}
 function activeTable(){return data.tables.find(t=>t.id===activeTableId)}
 function selectedForActive(){if(!activeTableId)return[];return data.casts.filter(c=>data.selected[pairKey(c.id,activeTableId)])}
 function clearSelections(){data.selected={}}
@@ -612,7 +630,7 @@ function render(){
   recalculateAllTimers();
   if(!data.tables.some(t=>t.id===activeTableId&&!t.collapsed))activeTableId=data.tables.find(t=>!t.collapsed)?.id||data.tables[0]?.id||null;
   const board=document.getElementById("board");
-  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)} → ${estimateEndTime(t)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?`原則2名・残${autoTimerPlan(t).remainingTurns}T／残${autoTimerPlan(t).remaining}名`:"手動"}</div><div class="collapsed-senders"><span class="sender-title">送り指名</span>${senderNames(t).length?senderNames(t).map(n=>`<span class="sender-name">${esc(n)}</span>`).join(""):`<span class="sender-name">なし</span>`}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""}" data-cast="${c.id}" style="border-left-color:${esc(c.nameColor||"#ffffff")};background:linear-gradient(90deg,${esc(c.nameColor||"#ffffff")}66 0%,#181819 72%)"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${(c.penalty||c.sends>=2)?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div></td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id),senderPending=isSenderPending(c.id,t.id);const pr=plannedRecord(c.id,t.id);return`<td class="state-cell"><button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender,pr,senderPending)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
+  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)} → ${estimateEndTime(t)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?`原則2名・残${autoTimerPlan(t).remainingTurns}T／残${autoTimerPlan(t).remaining}名`:"手動"}</div><div class="collapsed-senders"><span class="sender-title">送り指名</span>${senderNames(t).length?senderNames(t).map(n=>`<span class="sender-name">${esc(n)}</span>`).join(""):`<span class="sender-name">なし</span>`}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""}" data-cast="${c.id}" style="border-left-color:${esc(c.nameColor||"#ffffff")};background:linear-gradient(90deg,${esc(c.nameColor||"#ffffff")}66 0%,#181819 72%)"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${(c.penalty||c.sends>=2)?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div></td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id),senderPending=isSenderPending(c.id,t.id);const pr=plannedRecord(c.id,t.id);const current=rec&&Number(rec.turn)===currentTurnForTable(t)&&!t.collapsed;return`<td class="state-cell"><button class="state-btn ${st} ${current?"current-seat":""}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender,pr,senderPending)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
   board.querySelectorAll(".table-head").forEach(el=>{
     let tapTimer=null;
     el.onclick=()=>{
@@ -625,7 +643,7 @@ function render(){
   board.querySelectorAll(".state-btn").forEach(btn=>{
     let holdTimer=null,held=false;
     const get=()=>({c:data.casts.find(x=>x.id===btn.dataset.cast),t:data.tables.find(x=>x.id===btn.dataset.table)});
-    const begin=()=>{const {c,t}=get();held=false;if(data.senderTableId===t.id)holdTimer=setTimeout(()=>{held=true;removeSender(c.id,t.id);save();render()},650)};
+    const begin=()=>{const {c,t}=get();held=false;holdTimer=setTimeout(()=>{const st=stateFor(c,t);if(data.senderTableId===t.id){held=true;removeSender(c.id,t.id);save();render()}else if(st==="queued"){held=true;cancelQueuedCast(c,t);save();render()}},650)};
     const end=()=>{if(holdTimer){clearTimeout(holdTimer);holdTimer=null}};
     btn.addEventListener("touchstart",begin,{passive:true});btn.addEventListener("touchend",end);btn.addEventListener("touchcancel",end);
     btn.addEventListener("mousedown",begin);btn.addEventListener("mouseup",end);btn.addEventListener("mouseleave",end);
@@ -754,7 +772,7 @@ function openTable(id){
 function openTableQuick(id){
   const t=data.tables.find(x=>x.id===id);if(!t)return;
   recalculateAutoTimer(t);const state=!t.startedAt?"未開始":t.pausedAt?"一時停止中":"計測中",senders=senderNames(t),ap=autoTimerPlan(t);
-  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">残${ap.remaining}名・残${ap.remainingTurns}ターン／完走目標 ${t.targetMinutes||(isCompanion(t)?45:50)}分／終了目安 ${estimateEndTime(t)}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">タイマーリセット</button></div><div class="sheet-actions">${isCompanion(t)?`<button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェック終了":"予定者をチェック"}</button>`:""}<button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名"}</button></div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"なし"}</div><div class="small-note">予定者チェック：セルをタップで★、もう一度タップで解除。送り指名：セルを1回タップで「送り?」、2回目で決定。決定済みの送りはセルを長押しで解除できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="editTableBtn">卓設定</button></div>`);
+  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">残${ap.remaining}名・残${ap.remainingTurns}ターン／完走目標 ${t.targetMinutes||(isCompanion(t)?45:50)}分／終了目安 ${estimateEndTime(t)}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">タイマーリセット</button></div><div class="sheet-actions">${isCompanion(t)?`<button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェック終了":"予定者をチェック"}</button>`:""}<button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名"}</button></div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"なし"}</div><div class="small-note">予定者チェック：セルをタップで★、もう一度タップで解除。送り指名：セルを1回タップで「送り?」、2回目で決定。決定人数がお客様人数に達すると卓・タイマーを自動終了して折りたたみます。長押しで解除できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="editTableBtn">卓設定</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
   if(!t.startedAt)document.getElementById("startTimerBtn").onclick=()=>{recalculateAutoTimer(t,true);startTimer(t);save();closeSheet();render()};else if(t.pausedAt)document.getElementById("resumeTimerBtn").onclick=()=>{t.totalPaused=(t.totalPaused||0)+(Date.now()-t.pausedAt);t.pausedAt=null;save();closeSheet();render()};else document.getElementById("pauseTimerBtn").onclick=()=>{t.pausedAt=Date.now();save();closeSheet();render()};
   document.getElementById("resetTimerBtn").onclick=()=>{if(confirm("タイマーをリセットしますか？")){t.startedAt=null;t.pausedAt=null;t.totalPaused=0;t.rotationStartedAt=null;t.nextDurationSec=null;recalculateAutoTimer(t,true);save();closeSheet();render()}};
@@ -888,7 +906,26 @@ function openCastOrder(){
   document.getElementById("cancelSheet").onclick=closeSheet;
   document.getElementById("saveCastOrder").onclick=()=>{const map=new Map(data.casts.map(c=>[c.id,c]));data.casts=order.map(id=>map.get(id)).filter(Boolean);data.settings.castOrderInitialized=true;save();closeSheet();render()};
 }
-function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="bulkColorMenu">チーム枠色一括変更</button><button id="castOrderMenu">キャスト並び順変更</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャスト欄はチームごとに背景・左枠の色をまとめて変更できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("bulkColorMenu").onclick=openBulkCastColor;document.getElementById("castOrderMenu").onclick=openCastOrder;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
+function openBulkCastDelete(){
+  const rows=data.casts.map(c=>`<label class="checkrow" style="padding:7px;border-bottom:1px solid #333"><input type="checkbox" class="bulkDeleteCast" value="${esc(c.id)}"><span><strong>${esc(c.rank)}</strong> ${esc(c.name)}</span></label>`).join("");
+  openSheet(`<h2>キャスト一括削除</h2><div class="small-note">削除するキャストを選択してください。着席履歴・予定・送り・拒否設定からも削除されます。</div><div style="max-height:52vh;overflow:auto;border:1px solid #444;border-radius:10px;padding:3px 8px;background:#151516">${rows||'<div class="empty-history">キャストがいません</div>'}</div><div class="sheet-actions"><button class="cancel" id="selectAllDelete">すべて選択</button><button class="cancel" id="clearAllDelete">解除</button></div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="danger" id="applyBulkDelete">選択したキャストを削除</button></div>`);
+  const boxes=()=>[...document.querySelectorAll(".bulkDeleteCast")];
+  document.getElementById("cancelSheet").onclick=closeSheet;
+  document.getElementById("selectAllDelete").onclick=()=>boxes().forEach(x=>x.checked=true);
+  document.getElementById("clearAllDelete").onclick=()=>boxes().forEach(x=>x.checked=false);
+  document.getElementById("applyBulkDelete").onclick=()=>{
+    const ids=boxes().filter(x=>x.checked).map(x=>x.value);if(!ids.length){alert("削除するキャストを選択してください");return}
+    if(!confirm(`${ids.length}名を削除しますか？`))return;
+    const set=new Set(ids);data.casts=data.casts.filter(c=>!set.has(c.id));
+    [data.seated,data.selected,data.planned].forEach(o=>Object.keys(o).forEach(k=>{if(set.has(k.split(":")[0]))delete o[k]}));
+    Object.keys(data.rejections).forEach(tid=>data.rejections[tid]=(data.rejections[tid]||[]).filter(id=>!set.has(id)));
+    Object.keys(data.sendNominees).forEach(tid=>data.sendNominees[tid]=(data.sendNominees[tid]||[]).filter(id=>!set.has(id)));
+    Object.keys(data.senderPending).forEach(tid=>data.senderPending[tid]=(data.senderPending[tid]||[]).filter(id=>!set.has(id)));
+    data.history=data.history.map(h=>{const keep=(h.castIds||[]).map((id,i)=>({id,name:(h.castNames||[])[i]})).filter(x=>!set.has(x.id));h.castIds=keep.map(x=>x.id);h.castNames=keep.map(x=>x.name);return h}).filter(h=>h.type!=="seat"||(h.castIds||[]).length);
+    recalculateAllTimers();save();closeSheet();render();
+  };
+}
+function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="bulkColorMenu">チーム枠色一括変更</button><button id="castOrderMenu">キャスト並び順変更</button><button id="bulkDeleteCastMenu">キャスト一括削除</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャスト欄はチームごとに背景・左枠の色をまとめて変更できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("bulkColorMenu").onclick=openBulkCastColor;document.getElementById("castOrderMenu").onclick=openCastOrder;document.getElementById("bulkDeleteCastMenu").onclick=openBulkCastDelete;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
 function endBusiness(){
   if(confirm("営業を終了しますか？\n着席実績・送り数・初回停止・勤怠ペナルティ・場内中・卓NGをリセットします。")){
     data.seated={};data.planned={};data.sendNominees={};data.senderPending={};data.rejections={};data.history=[];
