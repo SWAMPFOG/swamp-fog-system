@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.8.8 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.8.9 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -418,7 +418,7 @@ function isCompanion(t){return t.plan==="お連れ様"}
 function companionOwner(t){return data.casts.find(c=>c.id===t.companionCastId)||null}
 function sameTeamCasts(t){
   const owner=companionOwner(t);if(!owner)return[];
-  return data.casts.filter(c=>c.working!==false&&c.nameColor===owner.nameColor&&eligibility(c,t).ok&&!isRejected(c.id,t.id));
+  return data.casts.filter(c=>c.id!==owner.id&&c.working!==false&&c.nameColor===owner.nameColor&&eligibility(c,t).ok&&!isRejected(c.id,t.id));
 }
 function applyCompanionTeamPlans(t){
   if(!isCompanion(t))return;
@@ -452,6 +452,9 @@ function eligibility(c,t){
   const r=[];
   const companion=isCompanion(t);
   const vip=t.plan==="VIP";
+
+  // お連れ様の担当キャスト本人は、その卓には回さない
+  if(companion&&t.companionCastId===c.id)r.push("この卓のお連れ様担当キャスト");
 
   // 卓別NGはすべての卓で適用
   if((c.ngTables||[]).includes(t.id))r.push("この卓はNG");
@@ -792,7 +795,7 @@ function openCast(id){
 function moveTable(id,dir){const i=data.tables.findIndex(t=>t.id===id),j=i+dir;if(i<0||j<0||j>=data.tables.length)return;[data.tables[i],data.tables[j]]=[data.tables[j],data.tables[i]];save();closeSheet();render()}
 function openTable(id){
   const isNew=!id,now=new Date(),hh=String(now.getHours()).padStart(2,"0"),mm=String(now.getMinutes()).padStart(2,"0"),t=isNew?{id:"t"+Date.now(),number:"",start:hh+":"+mm,people:1,plan:"A",durationSec:180,targetMinutes:50,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false,autoTimer:true,rotationStartedAt:null,nextDurationSec:null,companionCastId:"",companionTargetTurns:9}:data.tables.find(x=>x.id===id),dm=Math.floor(t.durationSec/60),ds=t.durationSec%60;
-  openSheet(`<h2>${isNew?"卓追加":"卓設定"}</h2><div class="form-grid"><div class="field"><label>卓番</label><input id="tableNumber" value="${esc(t.number)}"></div><div class="field"><label>案内時刻</label><input id="tableStart" type="time" value="${esc(t.start)}"></div><div class="field"><label>人数</label><input id="tablePeople" type="number" min="1" value="${t.people}"></div><div class="field"><label>プラン</label><select id="tablePlan">${["A","B","VIP","お連れ様"].map(p=>`<option ${t.plan===p?"selected":""}>${p}</option>`).join("")}</select></div><div class="field full" id="companionOwnerField" style="display:${isCompanion(t)?"flex":"none"}"><label>どのキャストのお連れ様か</label><select id="companionCastId"><option value="">選択してください</option>${data.casts.filter(c=>c.working!==false).map(c=>`<option value="${c.id}" ${t.companionCastId===c.id?"selected":""}>${esc(c.name)}（${c.rank}・チーム色）</option>`).join("")}</select><div class="small-note">選択したキャストと同じチーム色の出勤キャストを、自動で着席予定にします。</div></div><div class="field"><label>完走目標</label><select id="targetMinutes">${[30,35,40,45,50].map(v=>`<option value="${v}" ${Number(t.targetMinutes||(isCompanion(t)?45:50))===v?"selected":""}>${v}分</option>`).join("")}</select></div><div class="field full checkrow"><input id="autoTimer" type="checkbox" ${t.autoTimer!==false?"checked":""}><label>設定した30〜50分で終わるよう自動計算</label></div><div class="field full"><label>手動タイマー（自動OFF時・スクロール選択）</label><div class="wheel-row"><select id="durationMin">${Array.from({length:121},(_,i)=>`<option value="${i}" ${i===dm?"selected":""}>${i}</option>`).join("")}</select><span class="wheel-unit">分</span><select id="durationSec">${Array.from({length:60},(_,i)=>`<option value="${i}" ${i===ds?"selected":""}>${String(i).padStart(2,"0")}</option>`).join("")}</select><span class="wheel-unit">秒</span></div></div></div><div class="small-note">お連れ様卓は9ターン×5分を固定し、選択した担当キャストと同じチーム色を着席予定にします。保存してもタイマーは始まりません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteTable">卓終了</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveTable">保存</button></div>`);
+  openSheet(`<h2>${isNew?"卓追加":"卓設定"}</h2><div class="form-grid"><div class="field"><label>卓番</label><input id="tableNumber" value="${esc(t.number)}"></div><div class="field"><label>案内時刻</label><input id="tableStart" type="time" value="${esc(t.start)}"></div><div class="field"><label>人数</label><input id="tablePeople" type="number" min="1" value="${t.people}"></div><div class="field"><label>プラン</label><select id="tablePlan">${["A","B","VIP","お連れ様"].map(p=>`<option ${t.plan===p?"selected":""}>${p}</option>`).join("")}</select></div><div class="field full" id="companionOwnerField" style="display:${isCompanion(t)?"flex":"none"}"><label>どのキャストのお連れ様か</label><select id="companionCastId"><option value="">選択してください</option>${data.casts.filter(c=>c.working!==false).map(c=>`<option value="${c.id}" ${t.companionCastId===c.id?"selected":""}>${esc(c.name)}（${c.rank}・チーム色）</option>`).join("")}</select><div class="small-note">選択した担当キャスト本人は自動停止し、同じチーム色の出勤キャストを自動で着席予定にします。</div></div><div class="field"><label>完走目標</label><select id="targetMinutes">${[30,35,40,45,50].map(v=>`<option value="${v}" ${Number(t.targetMinutes||(isCompanion(t)?45:50))===v?"selected":""}>${v}分</option>`).join("")}</select></div><div class="field full checkrow"><input id="autoTimer" type="checkbox" ${t.autoTimer!==false?"checked":""}><label>設定した30〜50分で終わるよう自動計算</label></div><div class="field full"><label>手動タイマー（自動OFF時・スクロール選択）</label><div class="wheel-row"><select id="durationMin">${Array.from({length:121},(_,i)=>`<option value="${i}" ${i===dm?"selected":""}>${i}</option>`).join("")}</select><span class="wheel-unit">分</span><select id="durationSec">${Array.from({length:60},(_,i)=>`<option value="${i}" ${i===ds?"selected":""}>${String(i).padStart(2,"0")}</option>`).join("")}</select><span class="wheel-unit">秒</span></div></div></div><div class="small-note">お連れ様卓は9ターン×5分を固定します。選択した担当キャスト本人はその卓で自動停止し、同じチーム色の他キャストを着席予定にします。保存してもタイマーは始まりません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteTable">卓終了</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveTable">保存</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
   document.getElementById("tablePlan").addEventListener("change",e=>{
     const companion=e.target.value==="お連れ様",total=companion?300:180;
