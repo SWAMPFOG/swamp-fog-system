@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.8.7 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.8.8 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -354,8 +354,8 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v8_7_complete";
-const MIGRATION_KEYS=["swamp_fog_v8_6_complete","swamp_fog_v8_5_complete","swamp_fog_v8_4_complete","swamp_fog_v8_3_complete","swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
+const STORAGE_KEY="swamp_fog_v8_8_complete";
+const MIGRATION_KEYS=["swamp_fog_v8_7_complete","swamp_fog_v8_6_complete","swamp_fog_v8_5_complete","swamp_fog_v8_4_complete","swamp_fog_v8_3_complete","swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
   settings:{editMode:false,castOrderInitialized:true},
   casts:[
@@ -368,19 +368,20 @@ const defaultData={
   tables:[
     {id:"t1",number:"S1",start:"21:05",people:2,plan:"A",durationSec:180,targetMinutes:50,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false},
     {id:"t2",number:"VIP1",start:"21:12",people:3,plan:"VIP",durationSec:180,targetMinutes:50,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false},
-    {id:"t3",number:"A2",start:"21:18",people:1,plan:"お連れ様",durationSec:300,targetMinutes:45,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false}
+    {id:"t3",number:"A2",start:"21:18",people:1,plan:"お連れ様",durationSec:300,targetMinutes:45,companionCastId:"c5",companionTargetTurns:9,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false}
   ],
   seated:{},selected:{},planned:{},planningTableId:null,sendNominees:{},senderPending:{},senderTableId:null,rejections:{},rejectionTableId:null,history:[]
 };
 let data=load();
 let activeTableId=data.tables[0]?.id||null;
+data.tables.filter(isCompanion).forEach(t=>{if(t.companionCastId)applyCompanionTeamPlans(t)});
 function cloneDefault(){return JSON.parse(JSON.stringify(defaultData))}
 function normalize(d){
   d.settings=d.settings||{}; d.settings.editMode=!!d.settings.editMode;
   d.history=Array.isArray(d.history)?d.history:[]; d.seated=d.seated||{}; d.selected={}; d.planned=d.planned||{}; d.senderPending=d.senderPending||{}; Object.keys(d.planned).forEach(k=>{if(d.planned[k]===true)d.planned[k]={turn:null,at:Date.now()}}); d.planningTableId=null; d.sendNominees=d.sendNominees||{}; d.senderTableId=null; d.rejections=d.rejections||{}; d.rejectionTableId=null;
   d.casts=Array.isArray(d.casts)?d.casts:[]; d.tables=Array.isArray(d.tables)?d.tables:[];
   d.casts.forEach(c=>{c.ngTables=Array.isArray(c.ngTables)?c.ngTables:[];c.sends=Number(c.sends)||0;c.penalty=!!c.penalty;c.inHouse=!!c.inHouse;c.working=c.working!==false;if(!c.nameColor)c.nameColor={C:"#4cff5a",B:"#43a2ff",A:"#ffd54a",S:"#ff5a5f"}[c.rank]||"#ffffff"});
-  d.tables.forEach(t=>{if(!("pausedAt" in t))t.pausedAt=null;if(!("totalPaused" in t))t.totalPaused=0;if(!("turnCounter" in t))t.turnCounter=Number(t.roundCounter)||0;if(!("startedAt" in t))t.startedAt=null;if(!("durationSec" in t))t.durationSec=isCompanion(t)?300:180;if(!("targetMinutes" in t))t.targetMinutes=isCompanion(t)?45:50;if(!("autoTimer" in t))t.autoTimer=true;if(!("rotationStartedAt" in t))t.rotationStartedAt=null;if(!("nextDurationSec" in t))t.nextDurationSec=null});
+  d.tables.forEach(t=>{if(!("pausedAt" in t))t.pausedAt=null;if(!("totalPaused" in t))t.totalPaused=0;if(!("turnCounter" in t))t.turnCounter=Number(t.roundCounter)||0;if(!("startedAt" in t))t.startedAt=null;if(!("durationSec" in t))t.durationSec=isCompanion(t)?300:180;if(!("targetMinutes" in t))t.targetMinutes=isCompanion(t)?45:50;if(!("autoTimer" in t))t.autoTimer=true;if(!("rotationStartedAt" in t))t.rotationStartedAt=null;if(!("nextDurationSec" in t))t.nextDurationSec=null;if(!("companionCastId" in t))t.companionCastId="";if(!("companionTargetTurns" in t))t.companionTargetTurns=9;if(isCompanion(t)){t.durationSec=300;t.targetMinutes=45;t.companionTargetTurns=9}});
   const counters={};
   Object.keys(d.seated).forEach(k=>{if(!d.seated[k]){delete d.seated[k];return}const tid=k.split(":")[1];counters[tid]=(counters[tid]||0)+1;if(typeof d.seated[k]!=="object")d.seated[k]={turn:counters[tid],at:Date.now()};else{d.seated[k].turn=Number(d.seated[k].turn||d.seated[k].order)||counters[tid];d.seated[k].at=Number(d.seated[k].at)||Date.now();delete d.seated[k].order}});
   d.tables.forEach(t=>{const max=Math.max(0,...Object.entries(d.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0));t.turnCounter=Math.max(Number(t.turnCounter)||0,max)});
@@ -414,6 +415,39 @@ function startTimer(t){
   t.startedAt=Date.now();t.pausedAt=null;t.totalPaused=0
 }
 function isCompanion(t){return t.plan==="お連れ様"}
+function companionOwner(t){return data.casts.find(c=>c.id===t.companionCastId)||null}
+function sameTeamCasts(t){
+  const owner=companionOwner(t);if(!owner)return[];
+  return data.casts.filter(c=>c.working!==false&&c.nameColor===owner.nameColor&&eligibility(c,t).ok&&!isRejected(c.id,t.id));
+}
+function applyCompanionTeamPlans(t){
+  if(!isCompanion(t))return;
+  const teamIds=new Set(sameTeamCasts(t).map(c=>c.id));
+  Object.keys(data.planned).forEach(k=>{
+    if(!k.endsWith(":"+t.id))return;
+    const castId=k.split(":")[0],rec=data.planned[k];
+    if(rec&&rec.autoTeam&&!teamIds.has(castId))delete data.planned[k];
+  });
+  teamIds.forEach(castId=>{
+    const k=pairKey(castId,t.id);
+    if(!seatRecord(castId,t.id)&&!data.planned[k])data.planned[k]={turn:null,at:Date.now(),autoTeam:true};
+  });
+}
+function companionSelectionPlan(t){
+  const plannedCount=Object.entries(data.planned).filter(([k])=>k.endsWith(":"+t.id)).length;
+  const seatedCount=Object.entries(data.seated).filter(([k])=>k.endsWith(":"+t.id)).length;
+  const selected=plannedCount+seatedCount;
+  const targetTurns=Number(t.companionTargetTurns)||9;
+  const maxPeople=targetTurns*2;
+  const minPeople=targetTurns;
+  const remainingMin=Math.max(0,minPeople-selected);
+  const remainingMax=Math.max(0,maxPeople-selected);
+  const usedTurns=new Set([
+    ...Object.entries(data.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0).filter(Boolean),
+    ...Object.entries(data.planned).filter(([k,v])=>k.endsWith(":"+t.id)&&v?.turn).map(([,v])=>Number(v.turn)||0).filter(Boolean)
+  ]).size;
+  return{plannedCount,seatedCount,selected,targetTurns,maxPeople,minPeople,remainingMin,remainingMax,remainingTurns:Math.max(0,targetTurns-usedTurns)};
+}
 function eligibility(c,t){
   const r=[];
   const companion=isCompanion(t);
@@ -541,40 +575,39 @@ function rotationElapsedSeconds(t){
   return Math.max(0,Math.floor((end-t.rotationStartedAt)/1000))
 }
 function autoTimerPlan(t){
+  if(isCompanion(t)){
+    const cp=companionSelectionPlan(t);
+    const remainingCandidates=data.casts.filter(c=>c.working!==false&&eligibility(c,t).ok&&!isRejected(c.id,t.id)&&!seatRecord(c.id,t.id)&&!isPlanned(c.id,t.id)).length;
+    return{
+      eligible:cp.maxPeople,
+      remaining:remainingCandidates,
+      seatsPerTurn:2,
+      turns:cp.targetTurns,
+      remainingTurns:cp.remainingTurns,
+      elapsed:rotationElapsedSeconds(t),
+      duration:300,
+      remainingTotal:300*cp.remainingTurns,
+      projectedTotal:rotationElapsedSeconds(t)+300*cp.remainingTurns,
+      targetSec:2700,
+      companion:cp
+    }
+  }
   const all=eligibleWorkingCasts(t);
   const remaining=all.filter(c=>!seatRecord(c.id,t.id));
-
-  // お客様人数に関係なく、原則2名ずつ回す。
   const seatsPerTurn=2;
   const totalTurns=Math.max(1,Math.ceil(all.length/seatsPerTurn));
   const remainingTurns=Math.max(1,Math.ceil(remaining.length/seatsPerTurn));
-
-  // 回し開始後は経過時間を差し引き、残りを約50分内に収め直す。
   const elapsed=rotationElapsedSeconds(t);
-  const targetSec=Math.max(1800,Math.min(3000,(Number(t.targetMinutes)||(isCompanion(t)?45:50))*60));
-  const remainingBudget=t.rotationStartedAt
-    ?Math.max(60*remainingTurns,targetSec-elapsed)
-    :targetSec;
-
+  const targetSec=Math.max(1800,Math.min(3000,(Number(t.targetMinutes)||50)*60));
+  const remainingBudget=t.rotationStartedAt?Math.max(60*remainingTurns,targetSec-elapsed):targetSec;
   const raw=remainingBudget/remainingTurns;
   const duration=Math.max(60,Math.min(3000,Math.round(raw/5)*5));
-
-  return{
-    eligible:all.length,
-    remaining:remaining.length,
-    seatsPerTurn,
-    turns:totalTurns,
-    remainingTurns,
-    elapsed,
-    duration,
-    remainingTotal:duration*remainingTurns,
-    projectedTotal:elapsed+duration*remainingTurns,
-    targetSec
-  }
+  return{eligible:all.length,remaining:remaining.length,seatsPerTurn,turns:totalTurns,remainingTurns,elapsed,duration,remainingTotal:duration*remainingTurns,projectedTotal:elapsed+duration*remainingTurns,targetSec}
 }
 function recalculateAutoTimer(t,applyNow=false){
   if(!t||t.autoTimer===false)return;
   const p=autoTimerPlan(t);
+  if(isCompanion(t)){t.durationSec=300;t.targetMinutes=45;t.companionTargetTurns=9}
   if(applyNow||!t.startedAt){
     t.durationSec=p.duration;
     t.nextDurationSec=null;
@@ -630,7 +663,7 @@ function render(){
   recalculateAllTimers();
   if(!data.tables.some(t=>t.id===activeTableId&&!t.collapsed))activeTableId=data.tables.find(t=>!t.collapsed)?.id||data.tables[0]?.id||null;
   const board=document.getElementById("board");
-  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)} → ${estimateEndTime(t)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?`原則2名・残${autoTimerPlan(t).remainingTurns}T／残${autoTimerPlan(t).remaining}名`:"手動"}</div><div class="collapsed-senders"><span class="sender-title">送り指名</span>${senderNames(t).length?senderNames(t).map(n=>`<span class="sender-name">${esc(n)}</span>`).join(""):`<span class="sender-name">なし</span>`}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""}" data-cast="${c.id}" style="border-left-color:${esc(c.nameColor||"#ffffff")};background:linear-gradient(90deg,${esc(c.nameColor||"#ffffff")}66 0%,#181819 72%)"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${(c.penalty||c.sends>=2)?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div></td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id),senderPending=isSenderPending(c.id,t.id);const pr=plannedRecord(c.id,t.id);const current=rec&&Number(rec.turn)===currentTurnForTable(t)&&!t.collapsed;return`<td class="state-cell"><button class="state-btn ${st} ${current?"current-seat":""}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender,pr,senderPending)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
+  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)} → ${estimateEndTime(t)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?(isCompanion(t)?(()=>{const cp=companionSelectionPlan(t);return `予定込${cp.selected}名・残選択${cp.remainingMin}〜${cp.remainingMax}名／残${cp.remainingTurns}T`})():`原則2名・残${autoTimerPlan(t).remainingTurns}T／残${autoTimerPlan(t).remaining}名`):"手動"}</div><div class="collapsed-senders"><span class="sender-title">送り指名</span>${senderNames(t).length?senderNames(t).map(n=>`<span class="sender-name">${esc(n)}</span>`).join(""):`<span class="sender-name">なし</span>`}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""}" data-cast="${c.id}" style="border-left-color:${esc(c.nameColor||"#ffffff")};background:linear-gradient(90deg,${esc(c.nameColor||"#ffffff")}66 0%,#181819 72%)"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${(c.penalty||c.sends>=2)?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div></td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id),senderPending=isSenderPending(c.id,t.id);const pr=plannedRecord(c.id,t.id);const current=rec&&Number(rec.turn)===currentTurnForTable(t)&&!t.collapsed;return`<td class="state-cell"><button class="state-btn ${st} ${current?"current-seat":""}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender,pr,senderPending)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
   board.querySelectorAll(".table-head").forEach(el=>{
     let tapTimer=null;
     el.onclick=()=>{
@@ -669,7 +702,7 @@ function updateStatus(){
     ?rejecting?`${t.number}／着席拒否チェック中`
     :sender?`${t.number}／送り指名チェック中`
     :planning?`${t.number}／予定者チェック中`
-    :`${t.number}（${t.people}名・${t.plan}）${s?"／次候補："+s.name:""}／自動${p.turns}T×${mmss(t.durationSec)}`
+    :isCompanion(t)?(()=>{const cp=companionSelectionPlan(t),owner=companionOwner(t);return `${t.number}（お連れ様：${owner?owner.name:"未選択"}）／9T×05:00・予定込${cp.selected}名・残選択${cp.remainingMin}〜${cp.remainingMax}名`})():`${t.number}（${t.people}名・${t.plan}）${s?"／次候補："+s.name:""}／自動${p.turns}T×${mmss(t.durationSec)}`
     :"卓を追加してください";
   document.getElementById("selectedCount").textContent=rejecting?"拒否":sender?"送り":count?`予定${count}`:"待機";
   const b=document.getElementById("seatBtn");
@@ -758,21 +791,34 @@ function openCast(id){
 }
 function moveTable(id,dir){const i=data.tables.findIndex(t=>t.id===id),j=i+dir;if(i<0||j<0||j>=data.tables.length)return;[data.tables[i],data.tables[j]]=[data.tables[j],data.tables[i]];save();closeSheet();render()}
 function openTable(id){
-  const isNew=!id,now=new Date(),hh=String(now.getHours()).padStart(2,"0"),mm=String(now.getMinutes()).padStart(2,"0"),t=isNew?{id:"t"+Date.now(),number:"",start:hh+":"+mm,people:1,plan:"A",durationSec:180,targetMinutes:50,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false,autoTimer:true,rotationStartedAt:null,nextDurationSec:null}:data.tables.find(x=>x.id===id),dm=Math.floor(t.durationSec/60),ds=t.durationSec%60;
-  openSheet(`<h2>${isNew?"卓追加":"卓設定"}</h2><div class="form-grid"><div class="field"><label>卓番</label><input id="tableNumber" value="${esc(t.number)}"></div><div class="field"><label>案内時刻</label><input id="tableStart" type="time" value="${esc(t.start)}"></div><div class="field"><label>人数</label><input id="tablePeople" type="number" min="1" value="${t.people}"></div><div class="field"><label>プラン</label><select id="tablePlan">${["A","B","VIP","お連れ様"].map(p=>`<option ${t.plan===p?"selected":""}>${p}</option>`).join("")}</select></div><div class="field"><label>完走目標</label><select id="targetMinutes">${[30,35,40,45,50].map(v=>`<option value="${v}" ${Number(t.targetMinutes||(isCompanion(t)?45:50))===v?"selected":""}>${v}分</option>`).join("")}</select></div><div class="field full checkrow"><input id="autoTimer" type="checkbox" ${t.autoTimer!==false?"checked":""}><label>設定した30〜50分で終わるよう自動計算</label></div><div class="field full"><label>手動タイマー（自動OFF時・スクロール選択）</label><div class="wheel-row"><select id="durationMin">${Array.from({length:121},(_,i)=>`<option value="${i}" ${i===dm?"selected":""}>${i}</option>`).join("")}</select><span class="wheel-unit">分</span><select id="durationSec">${Array.from({length:60},(_,i)=>`<option value="${i}" ${i===ds?"selected":""}>${String(i).padStart(2,"0")}</option>`).join("")}</select><span class="wheel-unit">秒</span></div></div></div><div class="small-note">保存してもタイマーは始まりません。営業中は卓番を1回タップで操作、2回タップで卓設定を開けます。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteTable">卓終了</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveTable">保存</button></div>`);
+  const isNew=!id,now=new Date(),hh=String(now.getHours()).padStart(2,"0"),mm=String(now.getMinutes()).padStart(2,"0"),t=isNew?{id:"t"+Date.now(),number:"",start:hh+":"+mm,people:1,plan:"A",durationSec:180,targetMinutes:50,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false,autoTimer:true,rotationStartedAt:null,nextDurationSec:null,companionCastId:"",companionTargetTurns:9}:data.tables.find(x=>x.id===id),dm=Math.floor(t.durationSec/60),ds=t.durationSec%60;
+  openSheet(`<h2>${isNew?"卓追加":"卓設定"}</h2><div class="form-grid"><div class="field"><label>卓番</label><input id="tableNumber" value="${esc(t.number)}"></div><div class="field"><label>案内時刻</label><input id="tableStart" type="time" value="${esc(t.start)}"></div><div class="field"><label>人数</label><input id="tablePeople" type="number" min="1" value="${t.people}"></div><div class="field"><label>プラン</label><select id="tablePlan">${["A","B","VIP","お連れ様"].map(p=>`<option ${t.plan===p?"selected":""}>${p}</option>`).join("")}</select></div><div class="field full" id="companionOwnerField" style="display:${isCompanion(t)?"flex":"none"}"><label>どのキャストのお連れ様か</label><select id="companionCastId"><option value="">選択してください</option>${data.casts.filter(c=>c.working!==false).map(c=>`<option value="${c.id}" ${t.companionCastId===c.id?"selected":""}>${esc(c.name)}（${c.rank}・チーム色）</option>`).join("")}</select><div class="small-note">選択したキャストと同じチーム色の出勤キャストを、自動で着席予定にします。</div></div><div class="field"><label>完走目標</label><select id="targetMinutes">${[30,35,40,45,50].map(v=>`<option value="${v}" ${Number(t.targetMinutes||(isCompanion(t)?45:50))===v?"selected":""}>${v}分</option>`).join("")}</select></div><div class="field full checkrow"><input id="autoTimer" type="checkbox" ${t.autoTimer!==false?"checked":""}><label>設定した30〜50分で終わるよう自動計算</label></div><div class="field full"><label>手動タイマー（自動OFF時・スクロール選択）</label><div class="wheel-row"><select id="durationMin">${Array.from({length:121},(_,i)=>`<option value="${i}" ${i===dm?"selected":""}>${i}</option>`).join("")}</select><span class="wheel-unit">分</span><select id="durationSec">${Array.from({length:60},(_,i)=>`<option value="${i}" ${i===ds?"selected":""}>${String(i).padStart(2,"0")}</option>`).join("")}</select><span class="wheel-unit">秒</span></div></div></div><div class="small-note">お連れ様卓は9ターン×5分を固定し、選択した担当キャストと同じチーム色を着席予定にします。保存してもタイマーは始まりません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteTable">卓終了</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveTable">保存</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
   document.getElementById("tablePlan").addEventListener("change",e=>{
-    const total=e.target.value==="お連れ様"?300:180;
+    const companion=e.target.value==="お連れ様",total=companion?300:180;
     document.getElementById("durationMin").value=Math.floor(total/60);
     document.getElementById("durationSec").value=total%60;
+    document.getElementById("companionOwnerField").style.display=companion?"flex":"none";
+    if(companion)document.getElementById("targetMinutes").value="45";
   });
-  document.getElementById("saveTable").onclick=()=>{const n=document.getElementById("tableNumber").value.trim(),mins=Math.max(0,Number(document.getElementById("durationMin").value)||0),secs=Math.min(59,Math.max(0,Number(document.getElementById("durationSec").value)||0));if(!n){alert("卓番を入力してください");return}if(!document.getElementById("autoTimer").checked&&mins===0&&secs===0){alert("タイマー時間を入力してください");return}t.number=n;t.start=document.getElementById("tableStart").value;t.people=Math.max(1,Number(document.getElementById("tablePeople").value)||1);t.plan=document.getElementById("tablePlan").value;t.targetMinutes=Number(document.getElementById("targetMinutes").value)||(isCompanion(t)?45:50);t.autoTimer=document.getElementById("autoTimer").checked;if(t.autoTimer)recalculateAutoTimer(t,true);else{t.durationSec=mins*60+secs;t.nextDurationSec=null;}if(isNew)data.tables.push(t);activeTableId=t.id;clearSelections();data.planningTableId=null;save();closeSheet();render()};
+  document.getElementById("saveTable").onclick=()=>{
+    const n=document.getElementById("tableNumber").value.trim(),mins=Math.max(0,Number(document.getElementById("durationMin").value)||0),secs=Math.min(59,Math.max(0,Number(document.getElementById("durationSec").value)||0));
+    const plan=document.getElementById("tablePlan").value,companion=plan==="お連れ様",ownerId=document.getElementById("companionCastId")?.value||"";
+    if(!n){alert("卓番を入力してください");return}
+    if(companion&&!ownerId){alert("どのキャストのお連れ様か選択してください");return}
+    if(!document.getElementById("autoTimer").checked&&mins===0&&secs===0){alert("タイマー時間を入力してください");return}
+    t.number=n;t.start=document.getElementById("tableStart").value;t.people=Math.max(1,Number(document.getElementById("tablePeople").value)||1);t.plan=plan;t.companionCastId=companion?ownerId:"";t.companionTargetTurns=9;t.targetMinutes=companion?45:(Number(document.getElementById("targetMinutes").value)||50);t.autoTimer=document.getElementById("autoTimer").checked;
+    if(companion){t.durationSec=300;t.nextDurationSec=null}else if(t.autoTimer)recalculateAutoTimer(t,true);else{t.durationSec=mins*60+secs;t.nextDurationSec=null;}
+    if(isNew)data.tables.push(t);
+    if(companion){applyCompanionTeamPlans(t);recalculateAutoTimer(t,true)}
+    activeTableId=t.id;clearSelections();data.planningTableId=null;save();closeSheet();render()
+  };
   if(!isNew){document.getElementById("deleteTable").onclick=()=>{if(confirm(t.number+"を終了しますか？")){data.history.unshift({id:"h"+Date.now(),type:"table-close",at:Date.now(),tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:[],castNames:[],note:"卓終了"});data.tables=data.tables.filter(x=>x.id!==t.id);[data.seated,data.planned].forEach(o=>Object.keys(o).forEach(k=>{if(k.endsWith(":"+t.id))delete o[k]}));delete data.rejections[t.id];delete data.sendNominees[t.id];delete data.senderPending[t.id];data.casts.forEach(c=>c.ngTables=(c.ngTables||[]).filter(x=>x!==t.id));clearSelections();data.planningTableId=null;activeTableId=data.tables[0]?.id||null;save();closeSheet();render()}}}
 }
 function openTableQuick(id){
   const t=data.tables.find(x=>x.id===id);if(!t)return;
   recalculateAutoTimer(t);const state=!t.startedAt?"未開始":t.pausedAt?"一時停止中":"計測中",senders=senderNames(t),ap=autoTimerPlan(t);
-  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">残${ap.remaining}名・残${ap.remainingTurns}ターン／完走目標 ${t.targetMinutes||(isCompanion(t)?45:50)}分／終了目安 ${estimateEndTime(t)}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">タイマーリセット</button></div><div class="sheet-actions">${isCompanion(t)?`<button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェック終了":"予定者をチェック"}</button>`:""}<button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名"}</button></div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"なし"}</div><div class="small-note">予定者チェック：セルをタップで★、もう一度タップで解除。送り指名：セルを1回タップで「送り?」、2回目で決定。決定人数がお客様人数に達すると卓・タイマーを自動終了して折りたたみます。長押しで解除できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="editTableBtn">卓設定</button></div>`);
+  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">${isCompanion(t)?(()=>{const cp=companionSelectionPlan(t),owner=companionOwner(t);return `担当 ${owner?esc(owner.name):"未選択"}／9ターン×5分／予定込${cp.selected}名／残り選択${cp.remainingMin}〜${cp.remainingMax}名／残${cp.remainingTurns}ターン`})():`残${ap.remaining}名・残${ap.remainingTurns}ターン／完走目標 ${t.targetMinutes||50}分／終了目安 ${estimateEndTime(t)}`}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">タイマーリセット</button></div><div class="sheet-actions">${isCompanion(t)?`<button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェック終了":"予定者をチェック"}</button>`:""}<button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名"}</button></div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"なし"}</div><div class="small-note">予定者チェック：セルをタップで★、もう一度タップで解除。送り指名：セルを1回タップで「送り?」、2回目で決定。決定人数がお客様人数に達すると卓・タイマーを自動終了して折りたたみます。長押しで解除できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="editTableBtn">卓設定</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
   if(!t.startedAt)document.getElementById("startTimerBtn").onclick=()=>{recalculateAutoTimer(t,true);startTimer(t);save();closeSheet();render()};else if(t.pausedAt)document.getElementById("resumeTimerBtn").onclick=()=>{t.totalPaused=(t.totalPaused||0)+(Date.now()-t.pausedAt);t.pausedAt=null;save();closeSheet();render()};else document.getElementById("pauseTimerBtn").onclick=()=>{t.pausedAt=Date.now();save();closeSheet();render()};
   document.getElementById("resetTimerBtn").onclick=()=>{if(confirm("タイマーをリセットしますか？")){t.startedAt=null;t.pausedAt=null;t.totalPaused=0;t.rotationStartedAt=null;t.nextDurationSec=null;recalculateAutoTimer(t,true);save();closeSheet();render()}};
