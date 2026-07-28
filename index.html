@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.8.5 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.8.6 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -308,6 +308,17 @@ input,select{
 .turn-number{display:inline-flex;align-items:center;justify-content:center;width:31px;height:31px;font-size:23px;font-weight:1000;line-height:1}
 .turn-number.confirmed{border:2px solid currentColor;border-radius:50%;font-size:19px}
 
+
+.cast-order-list{max-height:58vh;overflow:auto;margin-top:8px;border:1px solid #444;border-radius:10px;background:#171719}
+.order-item{display:grid;grid-template-columns:30px 28px 26px 1fr;gap:6px;align-items:center;min-height:48px;padding:6px 10px;border-bottom:1px solid #343438;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.order-item:last-child{border-bottom:0}
+.order-grip{font-size:20px;color:#aaa;text-align:center}
+.order-rank{font-size:12px;font-weight:1000;color:#ddd}
+.order-name{font-size:15px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-item.dragging{opacity:.7;background:#23402f;box-shadow:inset 0 0 0 2px var(--green);transform:scale(.99)}
+.cast-order-dragging,.cast-order-dragging *{cursor:grabbing!important}
+.cast-order-dragging .cast-order-list{overflow:hidden}
+.cast-order-dragging .order-item{touch-action:none}
 @media(max-width:390px){
   :root{--name-col:84px;--table-col:76px}
   .topbar{grid-template-columns:68px 1fr 68px}
@@ -318,7 +329,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.8.5</h1>
+  <h1>SWAMP-FOG 初回回し Ver.8.6</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
@@ -342,16 +353,16 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v8_5_complete";
-const MIGRATION_KEYS=["swamp_fog_v8_4_complete","swamp_fog_v8_3_complete","swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
+const STORAGE_KEY="swamp_fog_v8_6_complete";
+const MIGRATION_KEYS=["swamp_fog_v8_5_complete","swamp_fog_v8_4_complete","swamp_fog_v8_3_complete","swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
-  settings:{editMode:false},
+  settings:{editMode:false,castOrderInitialized:true},
   casts:[
-    {id:"c1",name:"さや",rank:"C",nameColor:"#4cff5a",sends:0,penalty:false,inHouse:false,working:true,ngTables:[]},
-    {id:"c2",name:"あい",rank:"C",nameColor:"#4cff5a",sends:1,penalty:false,inHouse:false,working:true,ngTables:[]},
-    {id:"c3",name:"みく",rank:"B",nameColor:"#43a2ff",sends:2,penalty:false,inHouse:false,working:true,ngTables:["t2"]},
+    {id:"c5",name:"ゆい",rank:"S",nameColor:"#ff5a5f",sends:0,penalty:false,inHouse:false,working:true,ngTables:[]},
     {id:"c4",name:"りな",rank:"A",nameColor:"#ffd54a",sends:2,penalty:false,inHouse:false,working:true,ngTables:[]},
-    {id:"c5",name:"ゆい",rank:"S",nameColor:"#ff5a5f",sends:0,penalty:false,inHouse:false,working:true,ngTables:[]}
+    {id:"c3",name:"みく",rank:"B",nameColor:"#43a2ff",sends:2,penalty:false,inHouse:false,working:true,ngTables:["t2"]},
+    {id:"c1",name:"さや",rank:"C",nameColor:"#4cff5a",sends:0,penalty:false,inHouse:false,working:true,ngTables:[]},
+    {id:"c2",name:"あい",rank:"C",nameColor:"#4cff5a",sends:1,penalty:false,inHouse:false,working:true,ngTables:[]}
   ],
   tables:[
     {id:"t1",number:"S1",start:"21:05",people:2,plan:"A",durationSec:180,targetMinutes:50,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false},
@@ -378,8 +389,14 @@ function load(){try{const c=JSON.parse(localStorage.getItem(STORAGE_KEY));if(c?.
 function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
 function pairKey(c,t){return c+":"+t}
-function rankIndex(r){return["C","B","A","S"].indexOf(r)}
+function rankIndex(r){return["S","A","B","C"].indexOf(r)}
 function sortCasts(){data.casts.sort((a,b)=>rankIndex(a.rank)-rankIndex(b.rank))}
+function insertCastByRank(c){
+  const target=rankIndex(c.rank);
+  let at=data.casts.length;
+  for(let i=0;i<data.casts.length;i++){if(rankIndex(data.casts[i].rank)>target){at=i;break}}
+  data.casts.splice(at,0,c);
+}
 function dateTimeText(ts){return new Intl.DateTimeFormat("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date(ts))}
 function elapsedSeconds(t){if(!t.startedAt)return 0;const end=t.pausedAt||Date.now();return Math.max(0,Math.floor((end-t.startedAt-(t.totalPaused||0))/1000))}
 function remainingSeconds(t){return Math.max(0,(Number(t.durationSec)||0)-elapsedSeconds(t))}
@@ -679,14 +696,14 @@ function openBulkCastAdd(){
       const name=parts[0];
       const rank=validRanks.includes((parts[1]||"C").toUpperCase())?(parts[1]||"C").toUpperCase():"C";
       if(!name||data.casts.some(c=>c.name===name)){skipped++;return}
-      data.casts.push({
+      insertCastByRank({
         id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),
         name,rank,nameColor:"#ffffff",sends:0,penalty:false,inHouse:false,
         working,ngTables:[]
       });
       added++;
     });
-    sortCasts();recalculateAllTimers();save();closeSheet();render();
+    recalculateAllTimers();save();closeSheet();render();
     if(skipped)alert(`${added}名追加しました。${skipped}名は重複または入力不備でスキップしました。`);
   };
 }
@@ -702,7 +719,7 @@ function openCast(id){
     btn.textContent=active?"場内中にする":"場内中・押して解除";
     btn.className=active?"cancel":"danger";
   };
-  document.getElementById("saveCast").onclick=()=>{const n=document.getElementById("castName").value.trim();if(!n){alert("名前を入力してください");return}c.name=n;c.rank=document.getElementById("castRank").value;c.nameColor=document.getElementById("castColor").value;c.sends=Math.max(0,Number(document.getElementById("castSends").value)||0);c.penalty=document.getElementById("castPenalty").checked;c.working=document.getElementById("castWorking").checked;c.inHouse=document.getElementById("castInHouse").value==="1";c.ngTables=[...document.querySelectorAll(".ngTable:checked")].map(x=>x.value);if(isNew)data.casts.push(c);sortCasts();recalculateAllTimers();save();closeSheet();render()};
+  document.getElementById("saveCast").onclick=()=>{const n=document.getElementById("castName").value.trim();if(!n){alert("名前を入力してください");return}c.name=n;c.rank=document.getElementById("castRank").value;c.nameColor=document.getElementById("castColor").value;c.sends=Math.max(0,Number(document.getElementById("castSends").value)||0);c.penalty=document.getElementById("castPenalty").checked;c.working=document.getElementById("castWorking").checked;c.inHouse=document.getElementById("castInHouse").value==="1";c.ngTables=[...document.querySelectorAll(".ngTable:checked")].map(x=>x.value);if(isNew)insertCastByRank(c);recalculateAllTimers();save();closeSheet();render()};
   if(!isNew)document.getElementById("resetCastStats").onclick=()=>{
     if(confirm(c.name+"の着席実績を0に戻しますか？")){
       data.history=data.history.flatMap(h=>{
@@ -824,15 +841,52 @@ function openBulkCastColor(){
 }
 
 function openCastOrder(){
-  let order=data.casts.map(c=>c.id);
+  let order=data.casts.map(c=>c.id),dragId=null,holdTimer=null,dragging=false;
   const draw=()=>{
     const box=document.getElementById("castOrderList");if(!box)return;
-    box.innerHTML=order.map((id,i)=>{const c=data.casts.find(x=>x.id===id);return `<div style="display:grid;grid-template-columns:34px 1fr 42px 42px;gap:6px;align-items:center;padding:7px 2px;border-bottom:1px solid #3b3b3f"><strong>${i+1}</strong><span style="font-weight:900">${esc(c?.name||"")}</span><button class="cancel orderUp" data-i="${i}" style="height:34px;border:1px solid #555;border-radius:8px;color:#fff">↑</button><button class="cancel orderDown" data-i="${i}" style="height:34px;border:1px solid #555;border-radius:8px;color:#fff">↓</button></div>`}).join("");
-    box.querySelectorAll(".orderUp").forEach(b=>b.onclick=()=>{const i=Number(b.dataset.i);if(i>0){[order[i-1],order[i]]=[order[i],order[i-1]];draw()}});
-    box.querySelectorAll(".orderDown").forEach(b=>b.onclick=()=>{const i=Number(b.dataset.i);if(i<order.length-1){[order[i+1],order[i]]=[order[i],order[i+1]];draw()}});
+    box.innerHTML=order.map((id,i)=>{const c=data.casts.find(x=>x.id===id);return `<div class="order-item" data-id="${esc(id)}"><span class="order-grip">☰</span><strong>${i+1}</strong><span class="order-rank">${esc(c?.rank||"")}</span><span class="order-name">${esc(c?.name||"")}</span></div>`}).join("");
+    bindOrderDrag();
   };
-  openSheet(`<h2>キャスト並び順一括変更</h2><div class="small-note">↑↓で営業画面の並び順をまとめて調整します。</div><div id="castOrderList" style="max-height:58vh;overflow:auto;margin-top:8px"></div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCastOrder">並び順を保存</button></div>`);
-  draw();document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("saveCastOrder").onclick=()=>{const map=new Map(data.casts.map(c=>[c.id,c]));data.casts=order.map(id=>map.get(id)).filter(Boolean);save();closeSheet();render()};
+  const stopHold=()=>{if(holdTimer){clearTimeout(holdTimer);holdTimer=null}};
+  const finishDrag=()=>{
+    stopHold();
+    if(!dragging)return;
+    dragging=false;dragId=null;
+    document.body.classList.remove("cast-order-dragging");
+    document.querySelectorAll(".order-item.dragging").forEach(x=>x.classList.remove("dragging"));
+    if(navigator.vibrate)navigator.vibrate(15);
+  };
+  const moveDragged=(clientY)=>{
+    if(!dragging||!dragId)return;
+    const target=document.elementFromPoint(40,clientY)?.closest?.(".order-item");
+    if(!target||target.dataset.id===dragId)return;
+    const from=order.indexOf(dragId),to=order.indexOf(target.dataset.id);
+    if(from<0||to<0)return;
+    order.splice(from,1);order.splice(to,0,dragId);draw();
+    const active=document.querySelector(`.order-item[data-id="${CSS.escape(dragId)}"]`);
+    if(active)active.classList.add("dragging");
+  };
+  const bindOrderDrag=()=>{
+    document.querySelectorAll(".order-item").forEach(item=>{
+      item.onpointerdown=e=>{
+        if(e.pointerType==="mouse"&&e.button!==0)return;
+        stopHold();dragId=item.dataset.id;
+        holdTimer=setTimeout(()=>{
+          dragging=true;item.classList.add("dragging");document.body.classList.add("cast-order-dragging");
+          try{item.setPointerCapture(e.pointerId)}catch(_){ }
+          if(navigator.vibrate)navigator.vibrate(25);
+        },420);
+      };
+      item.onpointermove=e=>{if(dragging){e.preventDefault();moveDragged(e.clientY)}};
+      item.onpointerup=finishDrag;item.onpointercancel=finishDrag;item.onpointerleave=()=>{if(!dragging)stopHold()};
+      item.oncontextmenu=e=>e.preventDefault();
+    });
+  };
+  openSheet(`<h2>キャスト並び順変更</h2><div class="small-note">キャストを長押しし、そのまま上下へ動かして入れ替えます。初期順はS→A→B→Cです。</div><div id="castOrderList" class="cast-order-list"></div><div class="sheet-actions"><button class="cancel" id="resetRankOrder">S→A→B→Cに戻す</button><button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCastOrder">保存</button></div>`);
+  draw();
+  document.getElementById("resetRankOrder").onclick=()=>{const map=new Map(data.casts.map(c=>[c.id,c]));order=[...order].sort((a,b)=>rankIndex(map.get(a)?.rank)-rankIndex(map.get(b)?.rank));draw()};
+  document.getElementById("cancelSheet").onclick=closeSheet;
+  document.getElementById("saveCastOrder").onclick=()=>{const map=new Map(data.casts.map(c=>[c.id,c]));data.casts=order.map(id=>map.get(id)).filter(Boolean);data.settings.castOrderInitialized=true;save();closeSheet();render()};
 }
 function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="bulkColorMenu">チーム枠色一括変更</button><button id="castOrderMenu">キャスト並び順変更</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャスト欄はチームごとに背景・左枠の色をまとめて変更できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("bulkColorMenu").onclick=openBulkCastColor;document.getElementById("castOrderMenu").onclick=openCastOrder;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
 function endBusiness(){
@@ -868,7 +922,7 @@ setInterval(()=>{
   });
   if(changed){save();render()}
 },1000);
-sortCasts();recalculateAllTimers();render();
+if(!data.settings.castOrderInitialized){sortCasts();data.settings.castOrderInitialized=true;save()}recalculateAllTimers();render();
 </script>
 </body>
 </html>
