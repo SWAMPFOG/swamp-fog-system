@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.8.9 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.8.10 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -642,7 +642,10 @@ function stateFor(c,t){
   if(data.planningTableId===t.id&&isCompanion(t))return isPlanned(c.id,t.id)?"planned":"empty";
   if(c.working===false)return"blocked";
   if(!eligibility(c,t).ok)return"blocked";
-  if(isPlanned(c.id,t.id))return"queued";
+  const planned=plannedRecord(c.id,t.id);
+  // お連れ様卓の自動着席予定（★）は候補状態。
+  // 1回目のタップでターン番号付きの仮チェック、2回目で着席確定にする。
+  if(planned)return planned.turn?"queued":(isCompanion(t)?"planned":"queued");
   return"empty"
 }
 function circledTurn(turn,confirmed=false){return `<span class="turn-number ${confirmed?"confirmed":""}">${Number(turn)||"?"}</span>`}
@@ -688,7 +691,13 @@ function render(){
       const {c,t}=get();setActiveTable(t.id);const k=pairKey(c.id,t.id);
       if(data.senderTableId===t.id){tapSender(c.id,t.id);save();render();return}
       if(data.planningTableId===t.id&&isCompanion(t)){data.planned[k]?delete data.planned[k]:data.planned[k]={turn:null,at:Date.now()};save();render();return}
-      const st=stateFor(c,t);if(st==="blocked"||st==="rejected"){showReason(c,t);return}if(st==="checked"){showSeatDetail(c,t);return}if(st==="queued"){confirmQueuedCast(c,t);save();render();return}queueCast(c,t);save();render()
+      const st=stateFor(c,t);
+      if(st==="blocked"||st==="rejected"){showReason(c,t);return}
+      if(st==="checked"){showSeatDetail(c,t);return}
+      if(st==="queued"){confirmQueuedCast(c,t);save();render();return}
+      // empty または、お連れ様の自動予定（★）は1回目で仮チェックにする。
+      // 同じセルをもう一度タップすると queued → 着席確定となる。
+      queueCast(c,t);save();render()
     };
   });
   board.querySelectorAll(".cast").forEach(el=>el.onclick=()=>{if(data.settings.editMode)openCast(el.dataset.cast)});
@@ -821,7 +830,7 @@ function openTable(id){
 function openTableQuick(id){
   const t=data.tables.find(x=>x.id===id);if(!t)return;
   recalculateAutoTimer(t);const state=!t.startedAt?"未開始":t.pausedAt?"一時停止中":"計測中",senders=senderNames(t),ap=autoTimerPlan(t);
-  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">${isCompanion(t)?(()=>{const cp=companionSelectionPlan(t),owner=companionOwner(t);return `担当 ${owner?esc(owner.name):"未選択"}／9ターン×5分／予定込${cp.selected}名／残り選択${cp.remainingMin}〜${cp.remainingMax}名／残${cp.remainingTurns}ターン`})():`残${ap.remaining}名・残${ap.remainingTurns}ターン／完走目標 ${t.targetMinutes||50}分／終了目安 ${estimateEndTime(t)}`}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">タイマーリセット</button></div><div class="sheet-actions">${isCompanion(t)?`<button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェック終了":"予定者をチェック"}</button>`:""}<button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名"}</button></div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"なし"}</div><div class="small-note">予定者チェック：セルをタップで★、もう一度タップで解除。送り指名：セルを1回タップで「送り?」、2回目で決定。決定人数がお客様人数に達すると卓・タイマーを自動終了して折りたたみます。長押しで解除できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="editTableBtn">卓設定</button></div>`);
+  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">${isCompanion(t)?(()=>{const cp=companionSelectionPlan(t),owner=companionOwner(t);return `担当 ${owner?esc(owner.name):"未選択"}／9ターン×5分／予定込${cp.selected}名／残り選択${cp.remainingMin}〜${cp.remainingMax}名／残${cp.remainingTurns}ターン`})():`残${ap.remaining}名・残${ap.remainingTurns}ターン／完走目標 ${t.targetMinutes||50}分／終了目安 ${estimateEndTime(t)}`}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">タイマーリセット</button></div><div class="sheet-actions">${isCompanion(t)?`<button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェック終了":"予定者をチェック"}</button>`:""}<button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名"}</button></div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"なし"}</div><div class="small-note">予定者チェック：セルをタップで★、もう一度タップで解除。通常操作では★を1回タップで仮チェック、同じセルを2回目にタップで着席確定。1人回しも同じセルの2回タップで確定できます。送り指名：セルを1回タップで「送り?」、2回目で決定。決定人数がお客様人数に達すると卓・タイマーを自動終了して折りたたみます。長押しで解除できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="editTableBtn">卓設定</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
   if(!t.startedAt)document.getElementById("startTimerBtn").onclick=()=>{recalculateAutoTimer(t,true);startTimer(t);save();closeSheet();render()};else if(t.pausedAt)document.getElementById("resumeTimerBtn").onclick=()=>{t.totalPaused=(t.totalPaused||0)+(Date.now()-t.pausedAt);t.pausedAt=null;save();closeSheet();render()};else document.getElementById("pauseTimerBtn").onclick=()=>{t.pausedAt=Date.now();save();closeSheet();render()};
   document.getElementById("resetTimerBtn").onclick=()=>{if(confirm("タイマーをリセットしますか？")){t.startedAt=null;t.pausedAt=null;t.totalPaused=0;t.rotationStartedAt=null;t.nextDurationSec=null;recalculateAutoTimer(t,true);save();closeSheet();render()}};
