@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.8.3 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.8.4 完成版</title>
 <style>
 :root{
   --name-col:92px;
@@ -302,6 +302,13 @@ input,select{
 .wheel-row{display:grid;grid-template-columns:1fr auto 1fr auto;gap:7px;align-items:end}
 .wheel-row select{height:48px;font-size:18px;font-weight:900;text-align:center}
 .wheel-unit{padding-bottom:13px;color:#bbb;font-size:12px}
+
+.cast{border-left:5px solid transparent}
+.name{color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.75)}
+.state-btn.queued{background:#263246;color:#fff;box-shadow:inset 0 0 0 2px #7db7ff}
+.turn-number{display:inline-flex;align-items:center;justify-content:center;width:31px;height:31px;font-size:23px;font-weight:1000;line-height:1}
+.turn-number.confirmed{border:2px solid currentColor;border-radius:50%;font-size:19px}
+
 @media(max-width:390px){
   :root{--name-col:84px;--table-col:76px}
   .topbar{grid-template-columns:68px 1fr 68px}
@@ -312,7 +319,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.8.3</h1>
+  <h1>SWAMP-FOG 初回回し Ver.8.4</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
@@ -336,8 +343,8 @@ input,select{
 <input class="hidden-input" id="importInput" type="file" accept="application/json">
 
 <script>
-const STORAGE_KEY="swamp_fog_v8_3_complete";
-const MIGRATION_KEYS=["swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
+const STORAGE_KEY="swamp_fog_v8_4_complete";
+const MIGRATION_KEYS=["swamp_fog_v8_3_complete","swamp_fog_v7_9_complete","swamp_fog_v7_8_complete","swamp_fog_v7_7_complete","swamp_fog_v7_6_complete","swamp_fog_v7_5_complete","swamp_fog_v7_4_complete","swamp_fog_v7_3_complete","swamp_fog_v7_2_complete","swamp_fog_v7_complete_1","swamp_fog_v7_gamma_1","swamp_fog_v7_beta_1"];
 const defaultData={
   settings:{editMode:false},
   casts:[
@@ -348,9 +355,9 @@ const defaultData={
     {id:"c5",name:"ゆい",rank:"S",nameColor:"#ff5a5f",sends:0,penalty:false,inHouse:false,working:true,ngTables:[]}
   ],
   tables:[
-    {id:"t1",number:"S1",start:"21:05",people:2,plan:"A",durationSec:900,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false},
-    {id:"t2",number:"VIP1",start:"21:12",people:3,plan:"VIP",durationSec:900,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false},
-    {id:"t3",number:"A2",start:"21:18",people:1,plan:"お連れ様",durationSec:600,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false}
+    {id:"t1",number:"S1",start:"21:05",people:2,plan:"A",durationSec:180,targetMinutes:30,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false},
+    {id:"t2",number:"VIP1",start:"21:12",people:3,plan:"VIP",durationSec:180,targetMinutes:30,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false},
+    {id:"t3",number:"A2",start:"21:18",people:1,plan:"お連れ様",durationSec:300,targetMinutes:30,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false}
   ],
   seated:{},selected:{},planned:{},planningTableId:null,sendNominees:{},senderTableId:null,rejections:{},rejectionTableId:null,history:[]
 };
@@ -359,10 +366,10 @@ let activeTableId=data.tables[0]?.id||null;
 function cloneDefault(){return JSON.parse(JSON.stringify(defaultData))}
 function normalize(d){
   d.settings=d.settings||{}; d.settings.editMode=!!d.settings.editMode;
-  d.history=Array.isArray(d.history)?d.history:[]; d.seated=d.seated||{}; d.selected={}; d.planned=d.planned||{}; d.planningTableId=null; d.sendNominees=d.sendNominees||{}; d.senderTableId=null; d.rejections=d.rejections||{}; d.rejectionTableId=null;
+  d.history=Array.isArray(d.history)?d.history:[]; d.seated=d.seated||{}; d.selected={}; d.planned=d.planned||{}; Object.keys(d.planned).forEach(k=>{if(d.planned[k]===true)d.planned[k]={turn:null,at:Date.now()}}); d.planningTableId=null; d.sendNominees=d.sendNominees||{}; d.senderTableId=null; d.rejections=d.rejections||{}; d.rejectionTableId=null;
   d.casts=Array.isArray(d.casts)?d.casts:[]; d.tables=Array.isArray(d.tables)?d.tables:[];
   d.casts.forEach(c=>{c.ngTables=Array.isArray(c.ngTables)?c.ngTables:[];c.sends=Number(c.sends)||0;c.penalty=!!c.penalty;c.inHouse=!!c.inHouse;c.working=c.working!==false;if(!c.nameColor)c.nameColor={C:"#4cff5a",B:"#43a2ff",A:"#ffd54a",S:"#ff5a5f"}[c.rank]||"#ffffff"});
-  d.tables.forEach(t=>{if(!("pausedAt" in t))t.pausedAt=null;if(!("totalPaused" in t))t.totalPaused=0;if(!("turnCounter" in t))t.turnCounter=Number(t.roundCounter)||0;if(!("startedAt" in t))t.startedAt=null;if(!("durationSec" in t))t.durationSec=900;if(!("autoTimer" in t))t.autoTimer=true;if(!("rotationStartedAt" in t))t.rotationStartedAt=null;if(!("nextDurationSec" in t))t.nextDurationSec=null});
+  d.tables.forEach(t=>{if(!("pausedAt" in t))t.pausedAt=null;if(!("totalPaused" in t))t.totalPaused=0;if(!("turnCounter" in t))t.turnCounter=Number(t.roundCounter)||0;if(!("startedAt" in t))t.startedAt=null;if(!("durationSec" in t))t.durationSec=isCompanion(t)?300:180;if(!("targetMinutes" in t))t.targetMinutes=30;if(!("autoTimer" in t))t.autoTimer=true;if(!("rotationStartedAt" in t))t.rotationStartedAt=null;if(!("nextDurationSec" in t))t.nextDurationSec=null});
   const counters={};
   Object.keys(d.seated).forEach(k=>{if(!d.seated[k]){delete d.seated[k];return}const tid=k.split(":")[1];counters[tid]=(counters[tid]||0)+1;if(typeof d.seated[k]!=="object")d.seated[k]={turn:counters[tid],at:Date.now()};else{d.seated[k].turn=Number(d.seated[k].turn||d.seated[k].order)||counters[tid];d.seated[k].at=Number(d.seated[k].at)||Date.now();delete d.seated[k].order}});
   d.tables.forEach(t=>{const max=Math.max(0,...Object.entries(d.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0));t.turnCounter=Math.max(Number(t.turnCounter)||0,max)});
@@ -423,7 +430,30 @@ function eligibility(c,t){
   return{ok:r.length===0,reasons:r}
 }
 function seatRecord(c,t){return data.seated[pairKey(c,t)]||null}
-function isPlanned(c,t){return!!data.planned[pairKey(c,t)]}
+function plannedRecord(c,t){return data.planned[pairKey(c,t)]||null}
+function isPlanned(c,t){return!!plannedRecord(c,t)}
+function nextTurnForTable(t){
+  const pending=Object.entries(data.planned).filter(([k,v])=>k.endsWith(":"+t.id)&&v&&v.turn);
+  if(pending.length){
+    const turns=[...new Set(pending.map(([,v])=>Number(v.turn)))].sort((a,b)=>a-b);
+    for(const turn of turns){
+      const occupied=Object.entries(data.seated).filter(([k,v])=>k.endsWith(":"+t.id)&&Number(v.turn)===turn).length+pending.filter(([,v])=>Number(v.turn)===turn).length;
+      if(occupied<2)return turn;
+    }
+  }
+  const maxSeated=Math.max(0,...Object.entries(data.seated).filter(([k])=>k.endsWith(":"+t.id)).map(([,v])=>Number(v.turn)||0));
+  const maxPlanned=Math.max(0,...pending.map(([,v])=>Number(v.turn)||0));
+  return Math.max(Number(t.turnCounter)||0,maxSeated,maxPlanned)+1;
+}
+function queueCast(c,t){data.planned[pairKey(c.id,t.id)]={turn:nextTurnForTable(t),at:Date.now()}}
+function confirmQueuedCast(c,t){
+  const k=pairKey(c.id,t.id),pr=data.planned[k];if(!pr)return;
+  const turn=Number(pr.turn)||nextTurnForTable(t),at=Date.now();
+  data.seated[k]={turn,at};delete data.planned[k];t.turnCounter=Math.max(Number(t.turnCounter)||0,turn);
+  const existing=data.history.find(h=>h.type==="seat"&&h.tableId===t.id&&h.turn===turn);
+  if(existing){existing.castIds.push(c.id);existing.castNames.push(c.name);existing.at=at}else data.history.unshift({id:"h"+at,type:"seat",at,tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:[c.id],castNames:[c.name],turn,note:"セル2回タップで着席・タイマー自動スタート"});
+  recalculateAutoTimer(t,true);startTimer(t);
+}
 function castStats(c){
   let initial=0,branch=0;
   data.history.forEach(h=>{
@@ -475,9 +505,10 @@ function autoTimerPlan(t){
 
   // 回し開始後は経過時間を差し引き、残りを約50分内に収め直す。
   const elapsed=rotationElapsedSeconds(t);
+  const targetSec=Math.max(1800,Math.min(3000,(Number(t.targetMinutes)||30)*60));
   const remainingBudget=t.rotationStartedAt
-    ?Math.max(60*remainingTurns,3000-elapsed)
-    :3000;
+    ?Math.max(60*remainingTurns,targetSec-elapsed)
+    :targetSec;
 
   const raw=remainingBudget/remainingTurns;
   const duration=Math.max(60,Math.min(3000,Math.round(raw/5)*5));
@@ -491,7 +522,8 @@ function autoTimerPlan(t){
     elapsed,
     duration,
     remainingTotal:duration*remainingTurns,
-    projectedTotal:elapsed+duration*remainingTurns
+    projectedTotal:elapsed+duration*remainingTurns,
+    targetSec
   }
 }
 function recalculateAutoTimer(t,applyNow=false){
@@ -524,21 +556,19 @@ function estimateEndTime(t){
 function stateFor(c,t){
   if(seatRecord(c.id,t.id))return"checked";
   if(data.rejectionTableId===t.id)return isRejected(c.id,t.id)?"rejected":"empty";
-  if(data.planningTableId===t.id&&isCompanion(t))return isPlanned(c.id,t.id)?"planned":"empty";
   if(isRejected(c.id,t.id))return"rejected";
   if(c.working===false)return"blocked";
   if(!eligibility(c,t).ok)return"blocked";
-  if(data.selected[pairKey(c.id,t.id)])return"selected";
-  if(isCompanion(t)&&isPlanned(c.id,t.id))return"planned";
+  if(isPlanned(c.id,t.id))return"queued";
   return"empty"
 }
-function stateContent(st,rec,sender){
+function circledTurn(turn,confirmed=false){return `<span class="turn-number ${confirmed?"confirmed":""}">${Number(turn)||"?"}</span>`}
+function stateContent(st,rec,sender,planned){
   let base;
-  if(st==="checked")base=`<span class="seat-order"><span class="order-number">${Number(rec?.turn)||"✓"}</span><span class="order-label">T✓</span></span>`;
+  if(st==="checked")base=circledTurn(rec?.turn,true);
+  else if(st==="queued")base=circledTurn(planned?.turn,false);
   else if(st==="blocked")base="🚫";
   else if(st==="rejected")base='<span>🙅</span><span class="reject-badge">拒否</span>';
-  else if(st==="selected")base="●";
-  else if(st==="planned")base='<span class="plan-mark">★</span>';
   else base="□";
   return base+(sender?'<span class="sender-badge">送り</span>':"")
 }
@@ -551,14 +581,14 @@ function render(){
   recalculateAllTimers();
   if(!data.tables.some(t=>t.id===activeTableId&&!t.collapsed))activeTableId=data.tables.find(t=>!t.collapsed)?.id||data.tables[0]?.id||null;
   const board=document.getElementById("board");
-  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)} → ${estimateEndTime(t)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?`原則2名・残${autoTimerPlan(t).remainingTurns}T／残${autoTimerPlan(t).remaining}名`:"手動"}</div><div class="collapsed-senders"><span class="sender-title">送り指名</span>${senderNames(t).length?senderNames(t).map(n=>`<span class="sender-name">${esc(n)}</span>`).join(""):`<span class="sender-name">なし</span>`}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""}" data-cast="${c.id}"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name" style="color:${esc(c.nameColor)}">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${(c.penalty||c.sends>=2)?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div></td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id);return`<td class="state-cell"><button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
+  board.innerHTML=`<thead><tr><th>キャスト</th>${data.tables.map(t=>`<th class="table-head ${t.collapsed?"collapsed":""} ${t.id===activeTableId?"active":""} ${t.id===data.planningTableId?"planning":""} ${t.id===data.senderTableId?"sender-mode":""} ${t.id===data.rejectionTableId?"reject-mode":""}" data-table="${t.id}"><div class="table-no">${esc(t.number)}</div><div class="start">${esc(t.start)} → ${estimateEndTime(t)}</div><div class="meta">${t.people}名・${esc(t.plan)}</div><div class="timer ${timerClass(t)}" data-table-timer="${t.id}">${formatTimer(t)}</div><div class="duration">${mmss(t.durationSec)}</div><div class="auto-info">${t.autoTimer!==false?`原則2名・残${autoTimerPlan(t).remainingTurns}T／残${autoTimerPlan(t).remaining}名`:"手動"}</div><div class="collapsed-senders"><span class="sender-title">送り指名</span>${senderNames(t).length?senderNames(t).map(n=>`<span class="sender-name">${esc(n)}</span>`).join(""):`<span class="sender-name">なし</span>`}</div></th>`).join("")}</tr></thead><tbody>${data.casts.map(c=>{const stt=castStats(c);return`<tr><td class="cast ${data.settings.editMode?"editable":""} ${c.working===false?"attendance-off":""}" data-cast="${c.id}" style="border-left-color:${esc(c.nameColor||"#ffffff")};background:linear-gradient(90deg,${esc(c.nameColor||"#ffffff")}66 0%,#181819 72%)"><div class="cast-line"><span class="rank">${c.rank}</span><span class="name">${esc(c.name)}</span></div><div class="cast-sub">送り${c.sends}${(c.penalty||c.sends>=2)?"・初回停止":""}${c.inHouse?"・場内中":""}${c.working===false?"・休み":""}</div><div class="cast-sub stats">計${stt.total}｜初${stt.initial}卓/枝${stt.branch}卓</div></td>${data.tables.map(t=>{if(t.collapsed)return`<td class="state-cell collapsed"></td>`;const st=stateFor(c,t),rec=seatRecord(c.id,t.id),sender=isSendNominee(c.id,t.id);const pr=plannedRecord(c.id,t.id);return`<td class="state-cell"><button class="state-btn ${st}" data-cast="${c.id}" data-table="${t.id}">${stateContent(st,rec,sender,pr)}</button></td>`}).join("")}</tr>`}).join("")}</tbody>`;
   board.querySelectorAll(".table-head").forEach(el=>el.onclick=()=>{const id=el.dataset.table,t=data.tables.find(x=>x.id===id);if(t.collapsed){t.collapsed=false;activeTableId=id;save();render();return}if(activeTableId===id)openTableQuick(id);else{setActiveTable(id);save();render()}});
-  board.querySelectorAll(".state-btn").forEach(btn=>btn.onclick=()=>{const c=data.casts.find(x=>x.id===btn.dataset.cast),t=data.tables.find(x=>x.id===btn.dataset.table);setActiveTable(t.id);const k=pairKey(c.id,t.id);if(data.rejectionTableId===t.id){toggleRejection(c.id,t.id);save();render();return}if(data.senderTableId===t.id){toggleSendNominee(c.id,t.id);save();render();return}if(data.planningTableId===t.id&&isCompanion(t)){data.planned[k]?delete data.planned[k]:data.planned[k]=true;save();render();return}const st=stateFor(c,t);if(st==="blocked"||st==="rejected"){showReason(c,t);return}if(st==="checked"){showSeatDetail(c,t);return}data.selected[k]?delete data.selected[k]:data.selected[k]=true;save();render()});
+  board.querySelectorAll(".state-btn").forEach(btn=>btn.onclick=()=>{const c=data.casts.find(x=>x.id===btn.dataset.cast),t=data.tables.find(x=>x.id===btn.dataset.table);setActiveTable(t.id);const k=pairKey(c.id,t.id);if(data.rejectionTableId===t.id){toggleRejection(c.id,t.id);save();render();return}if(data.senderTableId===t.id){toggleSendNominee(c.id,t.id);save();render();return}const st=stateFor(c,t);if(st==="blocked"||st==="rejected"){showReason(c,t);return}if(st==="checked"){showSeatDetail(c,t);return}if(st==="queued"){confirmQueuedCast(c,t);save();render();return}queueCast(c,t);save();render()});
   board.querySelectorAll(".cast").forEach(el=>el.onclick=()=>{if(data.settings.editMode)openCast(el.dataset.cast)});
   updateStatus();
 }
 function updateStatus(){
-  const t=activeTable(),count=selectedForActive().length,
+  const t=activeTable(),count=t?Object.keys(data.planned).filter(k=>k.endsWith(":"+t.id)).length:0,
     planning=t&&data.planningTableId===t.id,
     sender=t&&data.senderTableId===t.id,
     rejecting=t&&data.rejectionTableId===t.id,
@@ -570,10 +600,10 @@ function updateStatus(){
     :planning?`${t.number}／予定者チェック中`
     :`${t.number}（${t.people}名・${t.plan}）${s?"／次候補："+s.name:""}／自動${p.turns}T×${mmss(t.durationSec)}`
     :"卓を追加してください";
-  document.getElementById("selectedCount").textContent=rejecting?"拒否":sender?"送り":planning?"予定":count+"名";
+  document.getElementById("selectedCount").textContent=rejecting?"拒否":sender?"送り":count?`予定${count}`:"待機";
   const b=document.getElementById("seatBtn");
-  b.disabled=!t||count===0||planning||sender||rejecting;
-  b.textContent=count?`${count}名を着席`:"次を着席";
+  b.disabled=true;
+  b.textContent="セルを2回タップで着席";
   const m=document.getElementById("modeBtn");
   m.textContent=data.settings.editMode?"編集モード":"営業モード";
   m.classList.toggle("active",data.settings.editMode);
@@ -626,7 +656,7 @@ function openBulkCastAdd(){
 }
 function openCast(id){
   const isNew=!id,c=isNew?{id:"c"+Date.now(),name:"",rank:"C",nameColor:"#ffffff",sends:0,penalty:false,inHouse:false,working:true,ngTables:[]}:data.casts.find(x=>x.id===id);
-  openSheet(`<h2>${isNew?"キャスト追加":"キャスト設定"}</h2><div class="form-grid"><div class="field full"><label>名前</label><input id="castName" value="${esc(c.name)}"></div><div class="field"><label>ランク（色なし）</label><select id="castRank">${["C","B","A","S"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select></div><div class="field"><label>名前の色</label><input id="castColor" type="color" value="${esc(c.nameColor)}"></div><div class="field"><label>送り数（初回のみ）</label><input id="castSends" type="number" min="0" value="${c.sends}"></div><div class="field full checkrow"><input id="castPenalty" type="checkbox" ${c.penalty?"checked":""}><label>勤怠ペナルティ（初回のみ）</label></div><div class="field full checkrow"><input id="castWorking" type="checkbox" ${c.working!==false?"checked":""}><label>本日出勤（自動タイマー人数に含める）</label></div><div class="field full"><label>場内状態</label><button type="button" id="inHouseBtn" class="${c.inHouse?"danger":"cancel"}" style="height:44px;border:1px solid #555;border-radius:9px;color:#fff;font-weight:900">${c.inHouse?"場内中・押して解除":"場内中にする"}</button><input type="hidden" id="castInHouse" value="${c.inHouse?"1":"0"}"></div><div class="field full"><label>卓別NG</label>${data.tables.map(t=>`<div class="checkrow"><input type="checkbox" class="ngTable" value="${t.id}" ${(c.ngTables||[]).includes(t.id)?"checked":""}><span>${esc(t.number)}（${esc(t.plan)}）</span></div>`).join("")||"卓がありません"}</div></div><div class="small-note">VIPはA・Sランクのみ。A・Sランクでも送り制限中はA・Bプランに着席できません。送り制限の適用外はVIPとお連れ様です。場内中は通常の初回卓だけ自動的に着席不可になり、お連れ様には影響しません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="resetCastStats">着席実績リセット</button><button class="danger" id="deleteCast">削除</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCast">保存</button></div>`);
+  openSheet(`<h2>${isNew?"キャスト追加":"キャスト設定"}</h2><div class="form-grid"><div class="field full"><label>名前</label><input id="castName" value="${esc(c.name)}"></div><div class="field"><label>ランク（色なし）</label><select id="castRank">${["C","B","A","S"].map(r=>`<option ${c.rank===r?"selected":""}>${r}</option>`).join("")}</select></div><div class="field"><label>チーム枠の色</label><input id="castColor" type="color" value="${esc(c.nameColor)}"></div><div class="field"><label>送り数（初回のみ）</label><input id="castSends" type="number" min="0" value="${c.sends}"></div><div class="field full checkrow"><input id="castPenalty" type="checkbox" ${c.penalty?"checked":""}><label>勤怠ペナルティ（初回のみ）</label></div><div class="field full checkrow"><input id="castWorking" type="checkbox" ${c.working!==false?"checked":""}><label>本日出勤（自動タイマー人数に含める）</label></div><div class="field full"><label>場内状態</label><button type="button" id="inHouseBtn" class="${c.inHouse?"danger":"cancel"}" style="height:44px;border:1px solid #555;border-radius:9px;color:#fff;font-weight:900">${c.inHouse?"場内中・押して解除":"場内中にする"}</button><input type="hidden" id="castInHouse" value="${c.inHouse?"1":"0"}"></div><div class="field full"><label>卓別NG</label>${data.tables.map(t=>`<div class="checkrow"><input type="checkbox" class="ngTable" value="${t.id}" ${(c.ngTables||[]).includes(t.id)?"checked":""}><span>${esc(t.number)}（${esc(t.plan)}）</span></div>`).join("")||"卓がありません"}</div></div><div class="small-note">VIPはA・Sランクのみ。A・Sランクでも送り制限中はA・Bプランに着席できません。送り制限の適用外はVIPとお連れ様です。場内中は通常の初回卓だけ自動的に着席不可になり、お連れ様には影響しません。</div><div class="sheet-actions">${isNew?"":'<button class="danger" id="resetCastStats">着席実績リセット</button><button class="danger" id="deleteCast">削除</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveCast">保存</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
   document.getElementById("inHouseBtn").onclick=()=>{
     const hidden=document.getElementById("castInHouse");
@@ -657,16 +687,21 @@ function openCast(id){
 }
 function moveTable(id,dir){const i=data.tables.findIndex(t=>t.id===id),j=i+dir;if(i<0||j<0||j>=data.tables.length)return;[data.tables[i],data.tables[j]]=[data.tables[j],data.tables[i]];save();closeSheet();render()}
 function openTable(id){
-  const isNew=!id,now=new Date(),hh=String(now.getHours()).padStart(2,"0"),mm=String(now.getMinutes()).padStart(2,"0"),t=isNew?{id:"t"+Date.now(),number:"",start:hh+":"+mm,people:1,plan:"A",durationSec:900,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false,autoTimer:true,rotationStartedAt:null,nextDurationSec:null}:data.tables.find(x=>x.id===id),dm=Math.floor(t.durationSec/60),ds=t.durationSec%60;
-  openSheet(`<h2>${isNew?"卓追加":"卓設定"}</h2><div class="form-grid"><div class="field"><label>卓番</label><input id="tableNumber" value="${esc(t.number)}"></div><div class="field"><label>案内時刻</label><input id="tableStart" type="time" value="${esc(t.start)}"></div><div class="field"><label>人数</label><input id="tablePeople" type="number" min="1" value="${t.people}"></div><div class="field"><label>プラン</label><select id="tablePlan">${["A","B","VIP","お連れ様"].map(p=>`<option ${t.plan===p?"selected":""}>${p}</option>`).join("")}</select></div><div class="field full checkrow"><input id="autoTimer" type="checkbox" ${t.autoTimer!==false?"checked":""}><label>50分前後で終わるよう自動設定</label></div><div class="field full"><label>手動タイマー（自動OFF時・スクロール選択）</label><div class="wheel-row"><select id="durationMin">${Array.from({length:121},(_,i)=>`<option value="${i}" ${i===dm?"selected":""}>${i}</option>`).join("")}</select><span class="wheel-unit">分</span><select id="durationSec">${Array.from({length:60},(_,i)=>`<option value="${i}" ${i===ds?"selected":""}>${String(i).padStart(2,"0")}</option>`).join("")}</select><span class="wheel-unit">秒</span></div></div></div><div class="small-note">保存してもタイマーは始まりません。卓ヘッダーから開始してください。</div>${isNew?"":'<div class="quick-row"><button id="moveLeft">← 左へ</button><button id="openTimer">タイマー操作</button><button id="moveRight">右へ →</button></div>'}<div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteTable">卓終了</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveTable">保存</button></div>`);
+  const isNew=!id,now=new Date(),hh=String(now.getHours()).padStart(2,"0"),mm=String(now.getMinutes()).padStart(2,"0"),t=isNew?{id:"t"+Date.now(),number:"",start:hh+":"+mm,people:1,plan:"A",durationSec:180,targetMinutes:30,startedAt:null,pausedAt:null,totalPaused:0,turnCounter:0,collapsed:false,autoTimer:true,rotationStartedAt:null,nextDurationSec:null}:data.tables.find(x=>x.id===id),dm=Math.floor(t.durationSec/60),ds=t.durationSec%60;
+  openSheet(`<h2>${isNew?"卓追加":"卓設定"}</h2><div class="form-grid"><div class="field"><label>卓番</label><input id="tableNumber" value="${esc(t.number)}"></div><div class="field"><label>案内時刻</label><input id="tableStart" type="time" value="${esc(t.start)}"></div><div class="field"><label>人数</label><input id="tablePeople" type="number" min="1" value="${t.people}"></div><div class="field"><label>プラン</label><select id="tablePlan">${["A","B","VIP","お連れ様"].map(p=>`<option ${t.plan===p?"selected":""}>${p}</option>`).join("")}</select></div><div class="field"><label>完走目標</label><select id="targetMinutes">${[30,35,40,45,50].map(v=>`<option value="${v}" ${Number(t.targetMinutes||30)===v?"selected":""}>${v}分</option>`).join("")}</select></div><div class="field full checkrow"><input id="autoTimer" type="checkbox" ${t.autoTimer!==false?"checked":""}><label>設定した30〜50分で終わるよう自動計算</label></div><div class="field full"><label>手動タイマー（自動OFF時・スクロール選択）</label><div class="wheel-row"><select id="durationMin">${Array.from({length:121},(_,i)=>`<option value="${i}" ${i===dm?"selected":""}>${i}</option>`).join("")}</select><span class="wheel-unit">分</span><select id="durationSec">${Array.from({length:60},(_,i)=>`<option value="${i}" ${i===ds?"selected":""}>${String(i).padStart(2,"0")}</option>`).join("")}</select><span class="wheel-unit">秒</span></div></div></div><div class="small-note">保存してもタイマーは始まりません。卓ヘッダーから開始してください。</div>${isNew?"":'<div class="quick-row"><button id="moveLeft">← 左へ</button><button id="openTimer">タイマー操作</button><button id="moveRight">右へ →</button></div>'}<div class="sheet-actions">${isNew?"":'<button class="danger" id="deleteTable">卓終了</button>'}<button class="cancel" id="cancelSheet">閉じる</button><button class="save" id="saveTable">保存</button></div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
-  document.getElementById("saveTable").onclick=()=>{const n=document.getElementById("tableNumber").value.trim(),mins=Math.max(0,Number(document.getElementById("durationMin").value)||0),secs=Math.min(59,Math.max(0,Number(document.getElementById("durationSec").value)||0));if(!n){alert("卓番を入力してください");return}if(!document.getElementById("autoTimer").checked&&mins===0&&secs===0){alert("タイマー時間を入力してください");return}t.number=n;t.start=document.getElementById("tableStart").value;t.people=Math.max(1,Number(document.getElementById("tablePeople").value)||1);t.plan=document.getElementById("tablePlan").value;t.autoTimer=document.getElementById("autoTimer").checked;if(t.autoTimer)recalculateAutoTimer(t,true);else{t.durationSec=mins*60+secs;t.nextDurationSec=null;}if(isNew)data.tables.push(t);activeTableId=t.id;clearSelections();data.planningTableId=null;save();closeSheet();render()};
+  document.getElementById("tablePlan").addEventListener("change",e=>{
+    const total=e.target.value==="お連れ様"?300:180;
+    document.getElementById("durationMin").value=Math.floor(total/60);
+    document.getElementById("durationSec").value=total%60;
+  });
+  document.getElementById("saveTable").onclick=()=>{const n=document.getElementById("tableNumber").value.trim(),mins=Math.max(0,Number(document.getElementById("durationMin").value)||0),secs=Math.min(59,Math.max(0,Number(document.getElementById("durationSec").value)||0));if(!n){alert("卓番を入力してください");return}if(!document.getElementById("autoTimer").checked&&mins===0&&secs===0){alert("タイマー時間を入力してください");return}t.number=n;t.start=document.getElementById("tableStart").value;t.people=Math.max(1,Number(document.getElementById("tablePeople").value)||1);t.plan=document.getElementById("tablePlan").value;t.targetMinutes=Number(document.getElementById("targetMinutes").value)||30;t.autoTimer=document.getElementById("autoTimer").checked;if(t.autoTimer)recalculateAutoTimer(t,true);else{t.durationSec=mins*60+secs;t.nextDurationSec=null;}if(isNew)data.tables.push(t);activeTableId=t.id;clearSelections();data.planningTableId=null;save();closeSheet();render()};
   if(!isNew){document.getElementById("moveLeft").onclick=()=>moveTable(t.id,-1);document.getElementById("moveRight").onclick=()=>moveTable(t.id,1);document.getElementById("openTimer").onclick=()=>openTableQuick(t.id);document.getElementById("deleteTable").onclick=()=>{if(confirm(t.number+"を終了しますか？")){data.history.unshift({id:"h"+Date.now(),type:"table-close",at:Date.now(),tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:[],castNames:[],note:"卓終了"});data.tables=data.tables.filter(x=>x.id!==t.id);[data.seated,data.planned].forEach(o=>Object.keys(o).forEach(k=>{if(k.endsWith(":"+t.id))delete o[k]}));delete data.rejections[t.id];delete data.sendNominees[t.id];data.casts.forEach(c=>c.ngTables=(c.ngTables||[]).filter(x=>x!==t.id));clearSelections();data.planningTableId=null;activeTableId=data.tables[0]?.id||null;save();closeSheet();render()}}}
 }
 function openTableQuick(id){
   const t=data.tables.find(x=>x.id===id);if(!t)return;
   recalculateAutoTimer(t);const state=!t.startedAt?"未開始":t.pausedAt?"一時停止中":"計測中",senders=senderNames(t),ap=autoTimerPlan(t),rejects=(data.rejections[t.id]||[]).map(id=>data.casts.find(c=>c.id===id)?.name).filter(Boolean);
-  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">出勤・制限・拒否を反映：対象${ap.eligible}名・残${ap.remaining}名 → 原則2名ずつ、残${ap.remainingTurns}ターン／現在の自動タイマー ${mmss(t.durationSec)}／終了目安 ${estimateEndTime(t)}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">未開始に戻す</button></div><div class="sheet-actions"><button class="danger" id="rejectBtn">${data.rejectionTableId===t.id?"着席拒否チェック終了":"着席拒否を設定"}</button><button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名を設定"}</button>${isCompanion(t)?`<button class="plan-btn" id="planningBtn">${data.planningTableId===t.id?"予定者チェック終了":"予定者をチェック"}</button>`:""}</div><div class="sender-list">着席拒否：${rejects.length?rejects.map(esc).join("・"):"なし"}</div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"なし"}</div><div class="small-note">着席拒否チェック中はセルをタップすると🙅になります。対象人数とターン数を再計算し、約50分で終わるタイマーへ自動変更します。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button>${data.settings.editMode?'<button class="save" id="editTableBtn">卓情報を編集</button>':""}</div>`);
+  openSheet(`<h2>${esc(t.number)}・操作</h2><div class="timer-panel"><div>${state}</div><div class="timer-panel-value ${timerClass(t)}">${formatTimer(t)}</div><div>設定 ${mmss(t.durationSec)}／${t.people}名・${esc(t.plan)}</div><div class="small-note">出勤・制限・拒否を反映：対象${ap.eligible}名・残${ap.remaining}名 → 原則2名ずつ、残${ap.remainingTurns}ターン／現在の自動タイマー ${mmss(t.durationSec)}／完走目標 ${t.targetMinutes||30}分／終了目安 ${estimateEndTime(t)}</div></div><div class="sheet-actions">${!t.startedAt?'<button class="start-timer" id="startTimerBtn">タイマースタート</button>':t.pausedAt?'<button class="start-timer" id="resumeTimerBtn">タイマー再開</button>':'<button class="pause" id="pauseTimerBtn">一時停止</button>'}<button class="cancel" id="resetTimerBtn">未開始に戻す</button></div><div class="sheet-actions"><button class="danger" id="rejectBtn">${data.rejectionTableId===t.id?"着席拒否チェック終了":"着席拒否を設定"}</button><button class="danger" id="senderBtn">${data.senderTableId===t.id?"送り指名チェック終了":"送り指名を設定"}</button></div><div class="sender-list">着席拒否：${rejects.length?rejects.map(esc).join("・"):"なし"}</div><div class="sender-list">送り指名：${senders.length?senders.map(esc).join("・"):"なし"}</div><div class="small-note">着席拒否チェック中はセルをタップすると🙅になります。対象人数とターン数を再計算し、設定した完走時間内で終わるタイマーへ自動変更します。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button>${data.settings.editMode?'<button class="save" id="editTableBtn">卓情報を編集</button>':""}</div>`);
   document.getElementById("cancelSheet").onclick=closeSheet;
   if(!t.startedAt)document.getElementById("startTimerBtn").onclick=()=>{recalculateAutoTimer(t,true);startTimer(t);save();closeSheet();render()};else if(t.pausedAt)document.getElementById("resumeTimerBtn").onclick=()=>{t.totalPaused=(t.totalPaused||0)+(Date.now()-t.pausedAt);t.pausedAt=null;save();closeSheet();render()};else document.getElementById("pauseTimerBtn").onclick=()=>{t.pausedAt=Date.now();save();closeSheet();render()};
   document.getElementById("resetTimerBtn").onclick=()=>{if(confirm("タイマーを未開始に戻しますか？")){t.startedAt=null;t.pausedAt=null;t.totalPaused=0;t.rotationStartedAt=null;t.nextDurationSec=null;save();closeSheet();render()}};
@@ -682,7 +717,6 @@ data.senderTableId=null;data.planningTableId=null;data.rejectionTableId=null;
 activeTableId=data.tables.find(x=>!x.collapsed&&x.id!==t.id)?.id||null;
 save();closeSheet();render();
 }};
-  if(isCompanion(t))document.getElementById("planningBtn").onclick=()=>{data.planningTableId=data.planningTableId===t.id?null:t.id;data.senderTableId=null;data.rejectionTableId=null;activeTableId=t.id;clearSelections();save();closeSheet();render()};
   const finishTableBtn=document.getElementById("finishTableBtn");
   if(finishTableBtn)finishTableBtn.onclick=()=>{if(confirm(`${t.number}の回しを終了して細く折りたたみますか？`)){t.collapsed=true;t.pausedAt=t.startedAt?Date.now():null;data.history.unshift({id:"h"+Date.now(),type:"table-finish",at:Date.now(),tableId:t.id,tableNumber:t.number,plan:t.plan,people:t.people,castIds:[],castNames:senderNames(t),note:"回し終了・折りたたみ"});data.senderTableId=null;data.planningTableId=null;activeTableId=data.tables.find(x=>!x.collapsed&&x.id!==t.id)?.id||null;save();closeSheet();render()}};
   const editTableBtn=document.getElementById("editTableBtn");
@@ -709,7 +743,7 @@ function showSeatDetail(c,t){const r=seatRecord(c.id,t.id);openSheet(`<h2>${esc(
   recalculateAutoTimer(t,false);save();closeSheet();render()
 }}
 function showHistory(){openSheet(`<h2>着席履歴</h2><div class="history-list">${data.history.length?data.history.map(h=>`<div class="history-item"><div class="history-top"><span class="history-table">${esc(h.tableNumber||"")}</span><span class="history-time">${dateTimeText(h.at)}</span></div><div class="history-casts">${h.turn?`<span class="round-badge">${h.turn}ターン目</span>`:""}${h.type==="table-close"?"卓終了":h.type==="table-finish"?"回し終了（送り："+esc((h.castNames||[]).join("・")||"なし")+")":esc((h.castNames||[]).join("・"))}</div><div class="history-meta">${h.people||""}名・${esc(h.plan||"")}${h.note?"／"+esc(h.note):""}</div></div>`).join(""):'<div class="empty-history">まだ履歴はありません</div>'}</div><div class="sheet-actions"><button class="danger" id="clearHistory">履歴削除</button><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("clearHistory").onclick=()=>{if(confirm("履歴を削除しますか？")){data.history=[];save();closeSheet();render()}}}
-function downloadBackup(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="SWAMP-FOG_Ver8.3_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url)}
+function downloadBackup(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="SWAMP-FOG_Ver8.4_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url)}
 
 function openBulkCastColor(){
   const castRows=data.casts.map(c=>`
@@ -723,8 +757,8 @@ function openBulkCastColor(){
   `).join("");
 
   openSheet(`
-    <h2>キャスト名一括色変更</h2>
-    <div class="small-note">同じチームのキャストを複数選択して、名前の色をまとめて変更できます。</div>
+    <h2>チーム枠色一括変更</h2>
+    <div class="small-note">同じチームのキャストを複数選択して、チーム枠の色をまとめて変更できます。</div>
     <div class="sheet-actions">
       <button class="cancel" id="selectAllColor">すべて選択</button>
       <button class="cancel" id="clearAllColor">すべて解除</button>
@@ -733,7 +767,7 @@ function openBulkCastColor(){
       ${castRows||'<div class="empty-history">キャストが登録されていません</div>'}
     </div>
     <div class="field full" style="margin-top:14px">
-      <label>変更する色</label>
+      <label>変更するチーム色</label>
       <input id="bulkCastColor" type="color" value="#ffffff" style="width:100%;height:50px;padding:4px">
     </div>
     <div class="small-note" id="bulkColorCount">0名選択中</div>
@@ -766,7 +800,7 @@ function openBulkCastColor(){
   updateCount();
 }
 
-function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="bulkColorMenu">キャスト名一括色変更</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャスト名は複数選択してチーム単位でまとめて色変更できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("bulkColorMenu").onclick=openBulkCastColor;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
+function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="bulkColorMenu">チーム枠色一括変更</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャスト欄はチームごとに背景・左枠の色をまとめて変更できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("bulkColorMenu").onclick=openBulkCastColor;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
 function endBusiness(){
   if(confirm("営業を終了しますか？\n着席実績・送り数・初回停止・勤怠ペナルティ・場内中・卓NGをリセットします。")){
     data.seated={};data.planned={};data.sendNominees={};data.rejections={};data.history=[];
