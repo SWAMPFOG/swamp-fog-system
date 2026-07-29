@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SWAMP-FOG">
-<title>SWAMP-FOG 初回回し Ver.8.13 完成版</title>
+<title>SWAMP-FOG 初回回し Ver.9.0 キャスト起点UI</title>
 <style>
 :root{
   --name-col:92px;
@@ -342,6 +342,17 @@ input,select{
 .cast.ai-pending .cast-ai-status{color:#cde4ff}
 .ai-mode-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:999px;background:#173d55;color:#8fd7ff;font-size:9px;font-weight:1000}
 
+.candidate-list{display:flex;flex-direction:column;gap:9px}
+.candidate-card{width:100%;min-height:70px;padding:10px 12px;border:1px solid #4c4c52;border-radius:13px;background:#18181b;color:#fff;text-align:left;display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center}
+.candidate-card.recommended{border-color:#52ef87;background:#143522;box-shadow:inset 0 0 0 1px #52ef87}
+.candidate-main{min-width:0}
+.candidate-title{display:flex;align-items:center;gap:7px;font-size:20px;font-weight:1000}
+.candidate-badge{padding:3px 7px;border-radius:999px;background:#237449;color:#caffd8;font-size:10px;font-weight:1000}
+.candidate-reason{margin-top:6px;color:#d7d7dc;font-size:12px;line-height:1.4}
+.candidate-meta{text-align:right;color:#aeb0b7;font-size:11px;line-height:1.45;white-space:nowrap}
+.candidate-empty{padding:25px 10px;text-align:center;border:1px solid #444;border-radius:12px;background:#171719;color:#aaa}
+
+
 @media(max-width:390px){
   :root{--name-col:84px;--table-col:76px}
   .topbar{grid-template-columns:68px 1fr 68px}
@@ -352,7 +363,7 @@ input,select{
 <body>
 <header class="topbar">
   <button class="top-btn" id="modeBtn">営業モード</button>
-  <h1>SWAMP-FOG 初回回し Ver.8.14</h1>
+  <h1>SWAMP-FOG 初回回し Ver.9.0</h1>
   <button class="top-btn" id="menuBtn">メニュー</button>
 </header>
 
@@ -769,13 +780,57 @@ function flashAiGuide(c,t,confirmed=false){
   g.textContent=`${c.name} → ${t.number} ${turn}${confirmed?" 着席確定":"？ 仮予定"}｜${aiReasonText(c,t)}`;g.classList.add("show");
   setTimeout(()=>g.classList.remove("show"),1600);
 }
-function handleCastAiTap(c){
-  const existing=data.tables.find(t=>plannedRecord(c.id,t.id)?.turn&&!t.finished);
-  if(existing){confirmQueuedCast(c,existing);activeTableId=existing.id;flashAiGuide(c,existing,true);save();render();return}
-  const t=bestTableForCast(c);
-  if(!t){const g=document.getElementById("cellGuide");if(g){g.textContent=`${c.name}：回せる卓がありません`;g.classList.add("show");setTimeout(()=>g.classList.remove("show"),1300)}return}
-  activeTableId=t.id;queueCast(c,t);flashAiGuide(c,t,false);save();render();
+function candidateSortValue(c,t){
+  const overdue=t.startedAt&&remainingSeconds(t)===0?1:0;
+  const guide=parseGuideTime(t);
+  const entry=guide?guide.getTime():0;
+  const scarcity=Math.max(0,100-tableScarcity(t));
+  const remaining=isCompanion(t)?companionSelectionPlan(t).remainingTurns:autoTimerPlan(t).remainingTurns;
+  return [overdue,entry,scarcity,remaining];
 }
+function sortedCandidateTables(c){
+  return candidateTablesForCast(c).sort((a,b)=>{
+    const av=candidateSortValue(c,a),bv=candidateSortValue(c,b);
+    for(let i=0;i<av.length;i++){if(bv[i]!==av[i])return bv[i]-av[i]}
+    return String(a.number).localeCompare(String(b.number),'ja',{numeric:true});
+  });
+}
+function candidateReason(c,t){
+  const r=[];
+  if(t.startedAt&&remainingSeconds(t)===0)r.push(`⏰ タイマー${overtimeSeconds(t)>0?`超過 ${mmss(overtimeSeconds(t))}`:"終了"}`);
+  else if(t.startedAt)r.push(`⏱ 残${mmss(remainingSeconds(t))}`);
+  const guide=parseGuideTime(t);if(guide)r.push(`🆕 入店 ${t.start}`);
+  const scarcity=tableScarcity(t);if(scarcity<=2)r.push(`⚠️ 候補${scarcity}名`);
+  const rem=isCompanion(t)?companionSelectionPlan(t).remainingTurns:autoTimerPlan(t).remainingTurns;
+  r.push(`残${rem}ターン`);
+  return r.join("・");
+}
+function confirmCastToTable(c,t){
+  activeTableId=t.id;
+  queueCast(c,t);
+  confirmQueuedCast(c,t);
+  flashAiGuide(c,t,true);
+  save();closeSheet();render();
+}
+function openCastCandidates(c){
+  const candidates=sortedCandidateTables(c);
+  if(!candidates.length){
+    openSheet(`<h2>${esc(c.name)}・卓候補</h2><div class="candidate-empty">現在、着席できる卓はありません。<br>${castAiState(c).text}</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);
+    document.getElementById("cancelSheet").onclick=closeSheet;return;
+  }
+  const cards=candidates.map((t,i)=>{
+    const rem=isCompanion(t)?companionSelectionPlan(t).remainingTurns:autoTimerPlan(t).remainingTurns;
+    return `<button class="candidate-card ${i===0?"recommended":""}" data-candidate-table="${esc(t.id)}"><div class="candidate-main"><div class="candidate-title">${i===0?'<span class="candidate-badge">おすすめ</span>':""}<span>${esc(t.number)}</span></div><div class="candidate-reason">${esc(candidateReason(c,t))}</div></div><div class="candidate-meta">${esc(t.plan)}<br>${t.people}名<br>残${rem}T</div></button>`;
+  }).join("");
+  openSheet(`<h2>${esc(c.name)} が着席可能な卓</h2><div class="small-note">卓をタップすると、その場で着席確定・履歴追加・タイマー開始まで完了します。</div><div class="candidate-list">${cards}</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);
+  document.getElementById("cancelSheet").onclick=closeSheet;
+  document.querySelectorAll("[data-candidate-table]").forEach(btn=>btn.onclick=()=>{
+    const t=data.tables.find(x=>x.id===btn.dataset.candidateTable);
+    if(!t||!candidateTablesForCast(c).some(x=>x.id===t.id)){alert("卓情報が更新されました。候補を開き直してください。");closeSheet();render();return}
+    confirmCastToTable(c,t);
+  });
+}
+function handleCastAiTap(c){openCastCandidates(c)}
 function cancelCastAiPlan(c){
   const t=data.tables.find(t=>plannedRecord(c.id,t.id)?.turn&&!t.finished);
   if(!t)return false;cancelQueuedCast(c,t);save();render();return true;
@@ -860,7 +915,7 @@ function updateStatus(){
   document.getElementById("selectedCount").textContent=data.settings.castCentricMode&&!data.settings.editMode?"AI配席":rejecting?"拒否":sender?"送り":count?`予定${count}`:"待機";
   const b=document.getElementById("seatBtn");
   b.disabled=true;
-  b.textContent=data.settings.castCentricMode?"キャスト名を2回タップで着席":"セルを2回タップで着席";
+  b.textContent=data.settings.castCentricMode?"キャスト→卓の2タップで着席":"セルを2回タップで着席";
   const m=document.getElementById("modeBtn");
   m.textContent=data.settings.editMode?"編集モード":"営業モード";
   m.classList.toggle("active",data.settings.editMode);
@@ -1127,7 +1182,7 @@ function openBulkCastDelete(){
     recalculateAllTimers();save();closeSheet();render();
   };
 }
-function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="castCentricMenu">${data.settings.castCentricMode?"キャスト中心操作：ON":"キャスト中心操作：OFF"}</button><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="bulkColorMenu">チーム枠色一括変更</button><button id="castOrderMenu">キャスト並び順変更</button><button id="bulkDeleteCastMenu">キャスト一括削除</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャスト欄はチームごとに背景・左枠の色をまとめて変更できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("castCentricMenu").onclick=()=>{data.settings.castCentricMode=!data.settings.castCentricMode;save();closeSheet();render()};document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("bulkColorMenu").onclick=openBulkCastColor;document.getElementById("castOrderMenu").onclick=openCastOrder;document.getElementById("bulkDeleteCastMenu").onclick=openBulkCastDelete;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
+function openMenu(){openSheet(`<h2>メニュー</h2><div class="menu-grid"><button id="castCentricMenu">${data.settings.castCentricMode?"キャスト起点操作：ON":"キャスト起点操作：OFF"}</button><button id="historyMenu">履歴を見る</button><button id="addCastMenu">キャスト追加</button><button id="bulkAddCastMenu">まとめて追加</button><button id="bulkColorMenu">チーム枠色一括変更</button><button id="castOrderMenu">キャスト並び順変更</button><button id="bulkDeleteCastMenu">キャスト一括削除</button><button id="backupMenu">バックアップ</button><button id="importMenu">復元</button><button id="endBusinessMenu">営業終了</button></div><div class="small-note">出勤・制限・拒否を反映して原則2名ずつの残りターンを計算し、表示中のタイマーを目安に回します。キャスト名をタップすると着席可能な卓候補が優先順に表示され、卓を選ぶと即着席確定します。キャスト欄はチームごとに背景・左枠の色をまとめて変更できます。</div><div class="sheet-actions"><button class="cancel" id="cancelSheet">閉じる</button></div>`);document.getElementById("cancelSheet").onclick=closeSheet;document.getElementById("castCentricMenu").onclick=()=>{data.settings.castCentricMode=!data.settings.castCentricMode;save();closeSheet();render()};document.getElementById("historyMenu").onclick=showHistory;document.getElementById("addCastMenu").onclick=()=>openCast();document.getElementById("bulkAddCastMenu").onclick=openBulkCastAdd;document.getElementById("bulkColorMenu").onclick=openBulkCastColor;document.getElementById("castOrderMenu").onclick=openCastOrder;document.getElementById("bulkDeleteCastMenu").onclick=openBulkCastDelete;document.getElementById("backupMenu").onclick=downloadBackup;document.getElementById("importMenu").onclick=()=>document.getElementById("importInput").click();document.getElementById("endBusinessMenu").onclick=endBusiness}
 function endBusiness(){
   if(confirm("営業を終了しますか？\n着席実績・送り数・初回停止・勤怠ペナルティ・場内中・卓NGをリセットします。")){
     data.seated={};data.planned={};data.sendNominees={};data.senderPending={};data.rejections={};data.history=[];
