@@ -128,7 +128,7 @@ function seat(c,t){
    t.currentCastIds=[];t.groupNo=(t.groupNo||0)+1;current=[];
  }
  if(!t.groupNo)t.groupNo=1;
- state.casts.forEach(x=>{if(x.preparingFor===t.id&&x.id!==c.id)x.preparingFor=null});
+ // 同じ卓で準備中の他キャストは維持する。着席確定した本人だけ準備中を解除する。
  c.currentTable=t.id;c.preparingFor=null;t.currentCastIds=t.currentCastIds||[];
  if(!t.currentCastIds.includes(c.id))t.currentCastIds.push(c.id);
  t.seated=t.seated||[];if(!t.seated.includes(c.id))t.seated.push(c.id);
