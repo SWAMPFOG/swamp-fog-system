@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.2 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.3 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -58,7 +58,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 </style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.2 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.3 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="direct-head"><b>卓別営業画面</b><span>追加順に左から表示／各卓はS→A→B→C</span></div>
@@ -548,7 +548,36 @@ function renderDirectBoard(){
  box.querySelectorAll('[data-cancel-pending]').forEach(b=>b.onclick=()=>cancelPendingGroup(state.tables.find(t=>t.id===b.dataset.cancelPending)));
 }
 
-setInterval(()=>{processAutoSwaps();processPendingGroups();render()},1000);render();
+function updateLiveOnly(){
+  const clock=document.querySelector('#clock');
+  if(clock)clock.textContent=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+  const active=state.tables.filter(t=>t.active);
+  const mt=document.querySelector('#mTables'),ms=document.querySelector('#mSeated'),ma=document.querySelector('#mAlerts');
+  if(mt)mt.textContent=active.length;
+  if(ms)ms.textContent=state.casts.filter(c=>c.currentTable).length;
+  if(ma)ma.textContent=active.filter(t=>['find','prepare','urgent','over'].includes(tablePhase(t).stage)).length;
+  document.querySelectorAll('#directBoard .direct-table[data-direct-table]').forEach(card=>{
+    const t=state.tables.find(x=>x.id===card.dataset.directTable);if(!t)return;
+    const p=tablePhase(t);
+    const timer=card.querySelector('.direct-timer');
+    if(timer)timer.textContent=t.rotationEnded?'一時終了':(!t.lastSeatAt?'未開始':p.stage==='over'?'超過 '+fmt(p.sec):fmt(p.sec));
+    card.classList.remove('find','prepare','urgent','over','paused');
+    if(t.pausedAt)card.classList.add('paused'); else if(p.stage)card.classList.add(p.stage);
+    const cd=card.querySelector('.direct-countdown');
+    if(cd)cd.textContent=pendingSecondsLeft(t);
+    const banner=card.querySelector('.timer-stage-banner');
+    if(banner){
+      banner.className='timer-stage-banner '+(t.pausedAt?'paused':p.stage||'normal');
+      banner.textContent=t.pausedAt?'一時停止中':p.stage==='over'?'交代時間超過':p.stage==='urgent'?'30秒前：交代準備':p.stage==='prepare'?'90秒前：呼び出し・待機':p.stage==='find'?'3分前：次を見つけてください':'接客中';
+    }
+  });
+}
+setInterval(()=>{
+  processAutoSwaps();
+  const changed=processPendingGroups();
+  if(!changed)updateLiveOnly();
+},1000);
+render();
 </script>
 
 <style>
@@ -714,9 +743,9 @@ setTimeout(()=>{document.querySelector('#openIntakeJudge')?.addEventListener('cl
 .companion-kind{display:inline-block;margin-right:5px;padding:2px 5px;border-radius:6px;background:#5a4380;color:#fff;font-size:9px;font-weight:900}
 .companion-kind.apply{background:#225c47}.companion-kind.owner{background:#792d35}.companion-overview-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
 
-/* Ver.11.2.2: nested scroll stability */
-.direct-list{overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;}
-.direct-board{touch-action:pan-x;overscroll-behavior-y:none;}
+/* Ver.11.2.3: nested scroll stability */
+.direct-list{overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;overflow-y:auto;}
+.direct-board{touch-action:pan-x pan-y;overscroll-behavior-x:contain;overscroll-behavior-y:auto;}
 </style>
 <script>
 (function(){
@@ -829,7 +858,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.2 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.3 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
