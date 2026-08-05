@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.1 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.2 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -58,7 +58,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 </style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.1 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.2 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="direct-head"><b>卓別営業画面</b><span>追加順に左から表示／各卓はS→A→B→C</span></div>
@@ -541,7 +541,7 @@ function renderDirectBoard(){
    let rankHtml=['S','A','B','C'].map(rank=>{let list=candidates.filter(c=>c.rank===rank);if(!list.length)return'';return '<div class="direct-rank">'+rank+'ランク</div>'+list.map(c=>{let reason=blockReason(c,t),pend=t.pendingCastIds.includes(c.id);return `<button class="direct-cast ${reason&&!pend?'blocked':''} ${pend?'pending':''}" data-direct-table="${t.id}" data-direct-cast="${c.id}" style="--team:${esc(c.team)}"><b>${esc(c.name)}</b><small>${pend?'受付中・再タップで取消':reason?esc(reason):'タップで受付'}</small></button>`}).join('')}).join('');
    let time=!t.lastSeatAt?'未開始':p.stage==='over'?'超過 '+fmt(p.sec):fmt(p.sec);
    let pendingHtml=pending.length?`<div class="direct-pending"><b>${first?'1ターン目・開始待ち':'同時着席受付中'}</b><br>${esc(pending.map(c=>c.name).join('・'))}<br>${first?'ドリンク・乾杯後にスタートしてください':`無操作であと <span class="direct-countdown">${pendingSecondsLeft(t)}</span> 秒`}<div class="direct-pending-actions"><button class="direct-start" data-commit-pending="${t.id}">${first?'スタート':'今すぐ開始'}</button><button class="direct-cancel" data-cancel-pending="${t.id}">全取消</button></div></div>`:'';
-   return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}"><div class="direct-table-head"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br>残${st.remaining}人・残${st.remainingTurns}T</div>${pendingHtml}</div><div class="direct-current"><b>現在着席</b>${esc(current.map(c=>c.name).join('・')||'空席')}</div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前タップ＝受付追加／受付中の再タップ＝取消<br>1ターン目はスタート、2ターン目以降は5秒無操作で確定</div></section>`
+   return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><div class="direct-table-head"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br>残${st.remaining}人・残${st.remainingTurns}T</div>${pendingHtml}</div><div class="direct-current"><b>現在着席</b>${esc(current.map(c=>c.name).join('・')||'空席')}</div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前タップ＝受付追加／受付中の再タップ＝取消<br>1ターン目はスタート、2ターン目以降は5秒無操作で確定</div></section>`
  }).join('');
  box.querySelectorAll('[data-direct-cast]').forEach(btn=>{btn.onclick=()=>{let c=state.casts.find(x=>x.id===btn.dataset.directCast),t=state.tables.find(x=>x.id===btn.dataset.directTable);if(c&&t)togglePendingCast(c,t)};bindLong(btn,()=>{let c=state.casts.find(x=>x.id===btn.dataset.directCast),t=state.tables.find(x=>x.id===btn.dataset.directTable);if(c&&t&&ensurePending(t).includes(c.id))togglePendingCast(c,t)})});
  box.querySelectorAll('[data-commit-pending]').forEach(b=>b.onclick=()=>commitPendingGroup(state.tables.find(t=>t.id===b.dataset.commitPending),'manual'));
@@ -713,6 +713,10 @@ setTimeout(()=>{document.querySelector('#openIntakeJudge')?.addEventListener('cl
 .companion-manage-inline{width:100%;min-height:34px;margin-top:7px;border-radius:9px;border:1px solid #765db0;background:#2b2140;color:#e4d7ff;font-size:11px;font-weight:900}
 .companion-kind{display:inline-block;margin-right:5px;padding:2px 5px;border-radius:6px;background:#5a4380;color:#fff;font-size:9px;font-weight:900}
 .companion-kind.apply{background:#225c47}.companion-kind.owner{background:#792d35}.companion-overview-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+
+/* Ver.11.2.2: nested scroll stability */
+.direct-list{overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;}
+.direct-board{touch-action:pan-x;overscroll-behavior-y:none;}
 </style>
 <script>
 (function(){
@@ -825,7 +829,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.1 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.2 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -837,6 +841,13 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.renderDirectBoard=function(){
     const box=document.querySelector('#directBoard');
     if(!box)return;
+    // 毎秒の再描画でも、卓横スクロールと各キャスト一覧の縦位置を保持する。
+    const boardScrollLeft=box.scrollLeft;
+    const listScrollPositions={};
+    box.querySelectorAll('[data-direct-table]').forEach(card=>{
+      const list=card.querySelector('.direct-list');
+      if(list)listScrollPositions[card.dataset.directTable]=list.scrollTop;
+    });
     const tables=state.tables.filter(t=>t.active);
     if(!tables.length){
       box.innerHTML='<div class="info-card" style="min-width:calc(100vw - 20px)">卓設定から卓を追加してください。</div>';
@@ -866,6 +877,13 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
       const currentHtml=current.length?current.map(c=>`<button type="button" class="current-cast-chip" data-simple-undo="${c.id}" data-simple-undo-table="${t.id}" ${canUndo?'':'disabled'}>${esc(c.name)}${canUndo?'　取消':''}</button>`).join(''):'空席';
       return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br>残${st.remaining}人・残${st.remainingTurns}T</div>${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button><div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
     }).join('');
+    // DOM差し替え後に、直前のスクロール位置を復元する。
+    box.scrollLeft=boardScrollLeft;
+    box.querySelectorAll('[data-direct-table]').forEach(card=>{
+      const list=card.querySelector('.direct-list');
+      const saved=listScrollPositions[card.dataset.directTable];
+      if(list&&Number.isFinite(saved))list.scrollTop=saved;
+    });
     box.querySelectorAll('[data-simple-cast]').forEach(btn=>{
       btn.addEventListener('click',e=>{
         e.preventDefault();e.stopPropagation();
