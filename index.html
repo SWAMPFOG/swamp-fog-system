@@ -1101,4 +1101,134 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   render();
 })();
 </script>
+
+
+<!-- Ver.11.2.15: 交代後の自動着席・自動タイマー開始を完全停止 -->
+<style>
+.direct-table.over .tap-start-guide{background:#4b171b;color:#ffb6bb;border:1px solid #a93b43;padding:8px;border-radius:9px;margin-top:8px;font-weight:900}
+.direct-table.over .direct-pending{border-color:#a93b43;background:#321518}
+</style>
+<script>
+(function(){
+  // 5秒無操作による自動着席・自動タイマー開始を完全停止。
+  window.processPendingGroups=function(){ return false; };
+  window.processAutoSwaps=function(){ return false; };
+
+  // 画面上の案内文だけ、手動開始仕様に統一する。
+  const baseRenderDirectBoard=window.renderDirectBoard;
+  window.renderDirectBoard=function(){
+    baseRenderDirectBoard();
+    document.querySelectorAll('#directBoard [data-direct-table]').forEach(card=>{
+      const tid=card.dataset.directTable;
+      const t=state.tables.find(x=>x.id===tid);
+      if(!t)return;
+      const p=tablePhase(t);
+      const pending=Array.isArray(t.pendingCastIds)?t.pendingCastIds:[];
+      const guide=card.querySelector('.tap-start-guide');
+      if(guide){
+        if(p?.stage==='over'){
+          guide.textContent=pending.length
+            ? '交代時間超過中｜ここをタップして着席・タイマースタート'
+            : '交代時間超過中｜次キャストを選択してください';
+        }else if(pending.length){
+          guide.textContent='ここをタップして着席・タイマースタート';
+        }else{
+          guide.textContent='先にキャストを選択';
+        }
+      }
+    });
+  };
+
+  // タイマー開始は既存の卓情報タップ（commitPendingGroup）だけで実行。
+  // 0秒到達後も lastSeatAt は更新しないため、押すまで超過表示を維持する。
+  render();
+})();
+</script>
+
+
+
+<!-- Ver.11.2.16: 回す予定チェック -->
+<style>
+#directBoard .direct-cast{position:relative;padding-right:48px!important;text-align:left}
+#directBoard .planned-check{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:30px;height:30px;border-radius:8px;border:2px solid #69717c;
+  background:#11151a;color:transparent;display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:1000;z-index:5;touch-action:none;
+}
+#directBoard .planned-check.on{background:#163d2a;border-color:#45b979;color:#9bffc3}
+#directBoard .planned-check.on::after{content:'✓'}
+#directBoard .direct-cast.is-planned{box-shadow:inset 0 0 0 1px #45b97988}
+#directBoard .direct-cast.is-planned small::after{content:' ・回す予定';color:#8cf0ad;font-weight:900}
+</style>
+<script>
+(function(){
+  const previousRenderDirectBoard=window.renderDirectBoard;
+  function ensurePlanned(t){
+    if(!Array.isArray(t.plannedCastIds))t.plannedCastIds=[];
+    return t.plannedCastIds;
+  }
+  function applyPlannedControls(){
+    const board=document.querySelector('#directBoard');
+    if(!board)return;
+    board.querySelectorAll('[data-simple-cast]').forEach(row=>{
+      if(row.querySelector('.planned-check'))return;
+      const t=state.tables.find(x=>x.id===row.dataset.simpleTable);
+      const c=state.casts.find(x=>x.id===row.dataset.simpleCast);
+      if(!t||!c)return;
+      const planned=ensurePlanned(t).includes(c.id);
+      row.classList.toggle('is-planned',planned);
+      const check=document.createElement('span');
+      check.className='planned-check'+(planned?' on':'');
+      check.setAttribute('role','checkbox');
+      check.setAttribute('aria-checked',planned?'true':'false');
+      check.setAttribute('aria-label',planned?'回す予定・長押しで解除':'回す予定に追加');
+      check.dataset.planTable=t.id;
+      check.dataset.planCast=c.id;
+      row.appendChild(check);
+
+      let hold=null,longFired=false,startX=0,startY=0;
+      const clear=()=>{if(hold){clearTimeout(hold);hold=null}};
+      const stop=e=>{e.stopPropagation()};
+      check.addEventListener('pointerdown',e=>{
+        e.preventDefault();e.stopPropagation();longFired=false;startX=e.clientX;startY=e.clientY;clear();
+        hold=setTimeout(()=>{
+          longFired=true;
+          const ids=ensurePlanned(t);
+          if(ids.includes(c.id)){
+            t.plannedCastIds=ids.filter(id=>id!==c.id);
+            save();render();toast(c.name+'の「回す予定」を解除しました');
+          }else{
+            toast('回す予定の解除は、チェック済みの状態で長押ししてください');
+          }
+        },650);
+      });
+      check.addEventListener('pointermove',e=>{e.stopPropagation();if(Math.abs(e.clientX-startX)>10||Math.abs(e.clientY-startY)>10)clear()});
+      ['pointerup','pointercancel','pointerleave'].forEach(ev=>check.addEventListener(ev,e=>{e.stopPropagation();clear()}));
+      check.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation()});
+      check.addEventListener('click',e=>{
+        e.preventDefault();e.stopPropagation();clear();
+        if(longFired){longFired=false;return}
+        const ids=ensurePlanned(t);
+        if(ids.includes(c.id)){
+          toast('「回す予定」の解除は長押しです');
+          return;
+        }
+        ids.push(c.id);
+        save();render();toast(c.name+'を「回す予定」にしました');
+      });
+      ['touchstart','touchend'].forEach(ev=>check.addEventListener(ev,stop,{passive:false}));
+    });
+  }
+  window.renderDirectBoard=function(){
+    previousRenderDirectBoard();
+    applyPlannedControls();
+  };
+  // 卓終了や営業終了で予定状態が残らないよう、非稼働卓の予定は表示対象外。
+  // 履歴・着席カウントには一切影響しない。
+  const h=document.querySelector('.brand h1');
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.16 Stable <span class="stable-badge">STABLE</span>';
+  render();
+})();
+</script>
 </body></html>
