@@ -1417,4 +1417,124 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 })();
 </script>
 
+
+
+<style>
+/* Ver.11.2.19: 現行シンプル画面のキャスト枠に次予定を正式対応 */
+#directBoard .direct-cast.current-other-next{
+  border-color:#4d87c4!important;
+  background:#112235!important;
+  opacity:1!important;
+}
+#directBoard .direct-cast.next-planned-v2{
+  border-color:#6ea8ff!important;
+  background:#102b49!important;
+  box-shadow:inset 0 0 0 1px #6ea8ff88!important;
+  opacity:1!important;
+}
+#directBoard .direct-cast.current-other-next small,
+#directBoard .direct-cast.next-planned-v2 small{
+  color:#9ecbff!important;
+  font-weight:900!important;
+}
+</style>
+<script>
+(function(){
+  function ensureNextPlanV2(t){
+    if(!Array.isArray(t.nextPlannedCastIds)) t.nextPlannedCastIds=[];
+    return t.nextPlannedCastIds;
+  }
+  function nextPlanTableV2(cid, exceptTid=''){
+    return state.tables.find(t=>t.active && t.id!==exceptTid && ensureNextPlanV2(t).includes(cid)) || null;
+  }
+  function toggleNextPlanV2(c,t){
+    const arr=ensureNextPlanV2(t);
+    const i=arr.indexOf(c.id);
+    if(i>=0){
+      arr.splice(i,1);
+      save();render();toast(c.name+'の'+t.no+'次予定を解除しました');
+      return;
+    }
+    const other=nextPlanTableV2(c.id,t.id);
+    if(other){toast(c.name+'は'+other.no+'に次予定登録済みです');return;}
+    arr.push(c.id);
+    save();render();toast(c.name+' → '+t.no+' 次予定に登録しました');
+  }
+
+  state.tables.forEach(ensureNextPlanV2);
+  save();
+
+  const prevRender=window.renderDirectBoard;
+  window.renderDirectBoard=function(){
+    prevRender();
+    const board=document.querySelector('#directBoard');
+    if(!board)return;
+
+    board.querySelectorAll('[data-simple-cast]').forEach(btn=>{
+      const c=state.casts.find(x=>x.id===btn.dataset.simpleCast);
+      const t=state.tables.find(x=>x.id===btn.dataset.simpleTable);
+      if(!c||!t)return;
+
+      const isNext=ensureNextPlanV2(t).includes(c.id);
+      const currentElsewhere=!!c.currentTable && c.currentTable!==t.id;
+      const small=btn.querySelector('small');
+
+      if(isNext){
+        btn.classList.remove('blocked','current-other-next');
+        btn.classList.add('next-planned-v2');
+        if(small)small.textContent=currentElsewhere
+          ? '次予定｜現在 '+tableNo(c.currentTable)+' 着席中'
+          : '次予定｜タップで着席選択';
+      }else if(currentElsewhere){
+        // 次予定は「着席確定」ではないため、現在着席中でも登録を許可。
+        // VIP/お連れ様/制限の最終判定は実際に着席選択する時に行う。
+        btn.classList.remove('blocked','next-planned-v2');
+        btn.classList.add('current-other-next');
+        if(small)small.textContent='現在 '+tableNo(c.currentTable)+' 着席中｜タップで次予定';
+      }
+
+      // 現行の addEventListener(click) より先に処理して二重発火を防ぐ。
+      btn.addEventListener('click',function(e){
+        const cast=state.casts.find(x=>x.id===btn.dataset.simpleCast);
+        const table=state.tables.find(x=>x.id===btn.dataset.simpleTable);
+        if(!cast||!table)return;
+        const next=ensureNextPlanV2(table).includes(cast.id);
+        const elsewhere=!!cast.currentTable && cast.currentTable!==table.id;
+
+        if(elsewhere){
+          e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+          toggleNextPlanV2(cast,table);
+          return;
+        }
+
+        if(next){
+          e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+          // 前卓を離れた後は、次予定を外して通常の着席選択へ移す。
+          table.nextPlannedCastIds=ensureNextPlanV2(table).filter(id=>id!==cast.id);
+          save();
+          const reason=blockReason(cast,table);
+          if(reason){render();toast(reason);return;}
+          togglePendingCast(cast,table);
+        }
+      },true);
+    });
+  };
+
+  // 実際に着席確定したキャストは次予定から全卓で除外。
+  const oldCommitV219=window.commitPendingGroup;
+  window.commitPendingGroup=function(t,source='manual'){
+    if(t){
+      const ids=Array.isArray(t.pendingCastIds)?[...t.pendingCastIds]:[];
+      state.tables.forEach(tb=>{
+        tb.nextPlannedCastIds=ensureNextPlanV2(tb).filter(cid=>!ids.includes(cid));
+      });
+    }
+    return oldCommitV219(t,source);
+  };
+
+  const h=document.querySelector('.brand h1');
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.19 Stable <span class="stable-badge">STABLE</span>';
+  render();
+})();
+</script>
 </body></html>
