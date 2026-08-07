@@ -1537,4 +1537,103 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   render();
 })();
 </script>
+
+
+<style>
+/* Ver.11.2.20: 状態を色＋バッジで一目判別 */
+#directBoard .direct-cast{position:relative;transition:background .15s,border-color .15s,box-shadow .15s,opacity .15s}
+#directBoard .flow-status-badge{
+  flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+  min-width:44px;height:22px;padding:0 7px;border-radius:999px;
+  font-size:9px;font-weight:1000;letter-spacing:.08em;border:1px solid currentColor;
+  margin-left:4px;white-space:nowrap;pointer-events:none
+}
+/* NEXT = 黄色/オレンジ。着席中の緑と完全に分離 */
+#directBoard .direct-cast.next-planned-v2,
+#directBoard .direct-cast.next-planned{
+  background:#3a2d08!important;
+  border-color:#eab83c!important;
+  box-shadow:inset 0 0 0 1px #eab83c99,0 0 0 1px #eab83c22!important;
+  opacity:1!important;
+}
+#directBoard .direct-cast.next-planned-v2 b,
+#directBoard .direct-cast.next-planned-v2 small,
+#directBoard .direct-cast.next-planned b,
+#directBoard .direct-cast.next-planned small{color:#ffe08a!important}
+#directBoard .direct-cast.next-planned-v2 .flow-status-badge,
+#directBoard .direct-cast.next-planned .flow-status-badge{color:#ffd45d;background:#5a430a}
+/* 前卓に着席中で、まだNEXT未登録 */
+#directBoard .direct-cast.current-other-next,
+#directBoard .direct-cast.current-other{
+  background:#18202a!important;border-color:#596b7d!important;opacity:.9!important
+}
+#directBoard .direct-cast.current-other-next .flow-status-badge,
+#directBoard .direct-cast.current-other .flow-status-badge{color:#b8c8d8;background:#202c38}
+/* READY = 準備/選択中 */
+#directBoard .direct-cast.pending,
+#directBoard .direct-cast.preparing{
+  background:#0d2f52!important;border-color:#42a5f5!important;
+  box-shadow:inset 0 0 0 1px #42a5f588!important;opacity:1!important
+}
+#directBoard .direct-cast.pending b,#directBoard .direct-cast.pending small,
+#directBoard .direct-cast.preparing b,#directBoard .direct-cast.preparing small{color:#a9d8ff!important}
+#directBoard .direct-cast.pending .flow-status-badge,
+#directBoard .direct-cast.preparing .flow-status-badge{color:#8ecbff;background:#113f69}
+/* NG = 着席拒否 */
+#directBoard .direct-cast.status-refused{
+  background:#351519!important;border-color:#df5963!important;
+  box-shadow:inset 0 0 0 1px #df596388!important;opacity:1!important
+}
+#directBoard .direct-cast.status-refused b,#directBoard .direct-cast.status-refused small{color:#ffb1b7!important}
+#directBoard .direct-cast.status-refused .flow-status-badge{color:#ff9ca4;background:#531b22}
+/* PLAY = 現在着席。上部チップにも明確な緑 */
+#directBoard .current-cast-chip{
+  background:#143c24!important;border:1px solid #3fb36c!important;color:#a6f6bf!important;
+  font-weight:900!important
+}
+#directBoard .current-cast-chip::before{content:'PLAY';display:inline-flex;margin-right:7px;padding:2px 5px;border-radius:999px;background:#1e5b35;color:#a6f6bf;font-size:8px;font-weight:1000;letter-spacing:.08em}
+/* 回す予定チェックは従来通り独立。NEXTの色と混同しない */
+#directBoard .planned-check.on{background:#163d2a!important;border-color:#45b979!important;color:#9bffc3!important}
+</style>
+<script>
+(function(){
+  function decorateFlowStates(){
+    const board=document.querySelector('#directBoard');
+    if(!board)return;
+    board.querySelectorAll('[data-simple-cast]').forEach(row=>{
+      const c=state.casts.find(x=>x.id===row.dataset.simpleCast);
+      const t=state.tables.find(x=>x.id===row.dataset.simpleTable);
+      if(!c||!t)return;
+      row.classList.remove('status-refused');
+      let label='',kind='';
+      const refused=!!state.refusals[c.id+'|'+t.id];
+      const isNext=Array.isArray(t.nextPlannedCastIds)&&t.nextPlannedCastIds.includes(c.id);
+      const pending=Array.isArray(t.pendingCastIds)&&t.pendingCastIds.includes(c.id);
+      if(refused){row.classList.add('status-refused');label='NG';kind='ng';}
+      else if(isNext){label='NEXT';kind='next';}
+      else if(pending||c.preparingFor===t.id){label='READY';kind='ready';}
+      else if(c.currentTable&&c.currentTable!==t.id){label='PLAY';kind='play-other';}
+      let badge=row.querySelector('.flow-status-badge');
+      if(label){
+        if(!badge){badge=document.createElement('span');badge.className='flow-status-badge';const check=row.querySelector('.planned-check');if(check)row.insertBefore(badge,check);else row.appendChild(badge);}
+        badge.textContent=label;badge.dataset.kind=kind;
+      }else if(badge){badge.remove();}
+    });
+  }
+  const prev=window.renderDirectBoard;
+  window.renderDirectBoard=function(){
+    const r=prev.apply(this,arguments);
+    decorateFlowStates();
+    return r;
+  };
+  const oldRender=window.render;
+  if(oldRender){
+    window.render=function(){const r=oldRender.apply(this,arguments);decorateFlowStates();return r;};
+  }
+  const h=document.querySelector('.brand h1');
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.20 Stable <span class="stable-badge">STABLE</span>';
+  render();
+})();
+</script>
+
 </body></html>
