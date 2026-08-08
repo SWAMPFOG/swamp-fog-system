@@ -1,342 +1,69 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#0b0b0c" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="簡単会計" />
-  
-  <title>SWAMP FOG 簡単会計</title>
-  <style>
-    :root{
-      --bg:#f4f4f5; --card:#fff; --ink:#111214; --muted:#777;
-      --gold:#d8b44b; --line:#e5e5e7; --danger:#d94b4b;
-      --shadow:0 8px 30px rgba(0,0,0,.08);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Yu Gothic",sans-serif;
-      background:var(--bg);color:var(--ink);
-    }
-    .app{max-width:720px;margin:0 auto;padding-bottom:140px}
-    .top{
-      position:sticky;top:0;z-index:20;background:#0b0b0c;color:#fff;
-      padding:calc(14px + env(safe-area-inset-top)) 18px 14px;
-      box-shadow:0 1px 0 rgba(255,255,255,.08)
-    }
-    .top-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{font-weight:800;letter-spacing:.08em;font-size:18px}
-    .brand small{display:block;font-size:11px;letter-spacing:.35em;font-weight:600;opacity:.72;margin-top:2px}
-    .reset{border:1px solid #3b3b3d;background:#171719;color:#fff;border-radius:12px;padding:10px 13px;font-size:14px}
-    .wrap{padding:14px}
-    .card{
-      background:var(--card);border:1px solid var(--line);border-radius:18px;
-      padding:16px;margin-bottom:12px;box-shadow:var(--shadow)
-    }
-    .section-title{font-weight:800;font-size:17px;margin-bottom:12px}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
-    input,select,button{
-      font:inherit
-    }
-    input[type=time],select{
-      width:100%;height:48px;border:1px solid #d9d9dc;border-radius:12px;background:#fff;
-      padding:0 12px;font-size:17px;color:#111
-    }
-    .plans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .plan{
-      border:1px solid #d7d7da;border-radius:14px;background:#fff;padding:14px 10px;text-align:center;
-      font-weight:800;cursor:pointer
-    }
-    .plan .price{display:block;font-size:15px;margin-top:4px;font-weight:700}
-    .plan.active{background:#111214;color:#fff;border-color:#111214}
-    .drink-add{display:grid;grid-template-columns:1.4fr .8fr;gap:10px}
-    .qty-wrap{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;border:1px solid #d9d9dc;border-radius:12px;overflow:hidden}
-    .qty-wrap button{height:48px;border:0;background:#f3f3f4;font-size:23px}
-    .qty-wrap input{height:48px;border:0;text-align:center;width:100%;font-size:18px}
-    .add-btn{
-      width:100%;height:50px;border:0;border-radius:14px;background:#111214;color:#fff;
-      font-weight:800;margin-top:10px
-    }
-    .drink-row{
-      display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;
-      padding:12px 0;border-bottom:1px solid #eee
-    }
-    .drink-row:last-child{border-bottom:0}
-    .drink-name{font-weight:750}
-    .drink-meta{font-size:12px;color:var(--muted);margin-top:2px}
-    .drink-amount{font-weight:800}
-    .delete{border:0;background:#f3f3f4;color:#555;border-radius:9px;width:34px;height:34px}
-    .empty{color:#888;text-align:center;padding:14px 0;font-size:14px}
-    .totals{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .mini{
-      background:#fafafa;border:1px solid #ececee;border-radius:14px;padding:14px;text-align:center
-    }
-    .mini .k{font-size:12px;color:#666;margin-bottom:5px}
-    .mini .v{font-size:22px;font-weight:900}
-    .formula{font-size:12px;color:#777;margin-top:8px}
-    .final{
-      position:fixed;left:0;right:0;bottom:0;z-index:30;background:#0b0b0c;color:#fff;
-      padding:14px 14px calc(14px + env(safe-area-inset-bottom));
-      box-shadow:0 -8px 28px rgba(0,0,0,.18)
-    }
-    .final-inner{max-width:720px;margin:0 auto;display:flex;align-items:end;justify-content:space-between;gap:14px}
-    .final .label{font-size:14px;font-weight:700}
-    .final .note{font-size:11px;color:#aaa;margin-top:3px}
-    .final .amount{font-size:38px;line-height:1;font-weight:950;color:#f0cf64;white-space:nowrap}
-    .settings-toggle{
-      background:none;border:0;color:#666;font-size:13px;text-decoration:underline;padding:4px 0
-    }
-    .settings{display:none;margin-top:12px}
-    .settings.open{display:block}
-    .setting-row{display:grid;grid-template-columns:1fr 120px 50px;gap:8px;margin-bottom:8px}
-    .setting-row input{height:42px;border:1px solid #ddd;border-radius:10px;padding:0 10px;min-width:0}
-    .setting-row button{border:0;border-radius:10px;background:#f1f1f2}
-    .setting-add{display:grid;grid-template-columns:1fr 120px;gap:8px;margin-top:10px}
-    .setting-add input{height:42px;border:1px solid #ddd;border-radius:10px;padding:0 10px;min-width:0}
-    .save-settings{width:100%;height:44px;border:0;border-radius:12px;background:#111;color:#fff;font-weight:800;margin-top:10px}
-    .small-note{font-size:12px;color:#777;line-height:1.5;margin-top:8px}
-    @media (max-width:430px){
-      .drink-add{grid-template-columns:1fr}
-      .final .amount{font-size:34px}
-      .grid2{grid-template-columns:1fr 1fr}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0c">
+<title>SWAMP FOG 簡単会計 Ver.2</title>
+<style>
+:root{--bg:#f4f4f5;--card:#fff;--ink:#111214;--gold:#d8b44b;--line:#e5e5e7}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--ink)}
+.app{max-width:720px;margin:auto;padding-bottom:150px}
+header{position:sticky;top:0;z-index:20;background:#0b0b0c;color:#fff;padding:16px}
+.head{display:flex;justify-content:space-between;align-items:center}.brand{font-weight:900;letter-spacing:.08em}.brand small{display:block;font-size:10px;opacity:.7;margin-top:3px}
+.reset{background:#171719;color:#fff;border:1px solid #3b3b3d;border-radius:10px;padding:9px 12px}
+main{padding:14px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.title{font-weight:900;font-size:17px;margin-bottom:12px}label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}
+input,select,button{font:inherit}input[type=time],input[type=number],select{width:100%;height:48px;border:1px solid #d8d8dc;border-radius:12px;background:#fff;padding:0 12px;font-size:17px}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:10px}.plan{border:1px solid #ddd;border-radius:14px;background:#fff;padding:14px 8px;font-weight:900}.plan span{display:block;margin-top:4px}.plan.active{background:#111;color:#fff}
+.cats{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}.cat{flex:0 0 auto;border:1px solid #ddd;background:#fff;border-radius:999px;padding:10px 13px;font-weight:800}.cat.active{background:#111;color:#fff}
+.grid{display:grid;grid-template-columns:1.4fr .8fr;gap:10px;margin-top:12px}.qty{display:grid;grid-template-columns:42px 1fr 42px;border:1px solid #ddd;border-radius:12px;overflow:hidden}.qty button{border:0;background:#f2f2f3;font-size:22px}.qty input{border:0;border-radius:0;text-align:center}
+.custom{display:none;margin-top:10px}.custom.show{display:block}.preview{margin-top:10px;padding:12px 14px;border-radius:12px;background:#faf7ea;border:1px solid #eee2b5;font-weight:900}.add{width:100%;height:50px;border:0;border-radius:14px;background:#111;color:#fff;font-weight:900;margin-top:10px}
+.row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #eee}.row:last-child{border-bottom:0}.name{font-weight:850}.meta{font-size:12px;color:#777}.amount{font-weight:900}.del{border:0;background:#f2f2f3;border-radius:9px;width:34px;height:34px}.empty{text-align:center;color:#888;padding:12px 0}
+.totals{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{background:#fafafa;border:1px solid #eee;border-radius:14px;padding:13px;text-align:center}.mini .k{font-size:12px;color:#666}.mini .v{font-size:23px;font-weight:950;margin-top:4px}.formula{font-size:12px;color:#777;margin-top:9px;line-height:1.5}
+.final{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#0b0b0c;color:#fff;padding:14px}.final-in{max-width:720px;margin:auto;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.final .l{font-size:14px;font-weight:800}.final .d{font-size:11px;color:#aaa;margin-top:3px}.final .g{font-size:40px;line-height:1;font-weight:950;color:#f0cf64;white-space:nowrap}
+@media(max-width:430px){.grid{grid-template-columns:1fr}.final .g{font-size:35px}}
+</style>
 </head>
 <body>
 <div class="app">
-  <header class="top">
-    <div class="top-row">
-      <div class="brand">SWAMP FOG<small>SIMPLE ACCOUNTING</small></div>
-      <button class="reset" id="resetBtn">↻ リセット</button>
-    </div>
-  </header>
-
-  <main class="wrap">
-    <section class="card">
-      <div class="grid2">
-        <div>
-          <label for="entryTime">入店時間</label>
-          <input type="time" id="entryTime" />
-        </div>
-        <div>
-          <label for="tableNo">卓番</label>
-          <select id="tableNo"></select>
-        </div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="section-title">プラン</div>
-      <div class="plans">
-        <button class="plan active" data-plan="quick">クイック<span class="price">¥10,000</span></button>
-        <button class="plan" data-plan="free">フリータイム<span class="price">¥20,000</span></button>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="section-title">ドリンク追加</div>
-      <div class="drink-add">
-        <div>
-          <label for="drinkSelect">種類</label>
-          <select id="drinkSelect"></select>
-        </div>
-        <div>
-          <label>数量</label>
-          <div class="qty-wrap">
-            <button id="qtyMinus" type="button">−</button>
-            <input id="qty" type="number" min="1" step="1" value="1" inputmode="numeric" />
-            <button id="qtyPlus" type="button">＋</button>
-          </div>
-        </div>
-      </div>
-      <button class="add-btn" id="addDrink">＋ ドリンクを追加</button>
-    </section>
-
-    <section class="card">
-      <div class="section-title">ドリンク一覧</div>
-      <div id="drinkList"></div>
-    </section>
-
-    <section class="card">
-      <div class="totals">
-        <div class="mini">
-          <div class="k">ドリンク小計</div>
-          <div class="v" id="subtotal">¥0</div>
-        </div>
-        <div class="mini">
-          <div class="k">小計 + TAX40%</div>
-          <div class="v" id="taxedSubtotal">¥0</div>
-        </div>
-      </div>
-      <div class="formula">最終合計 = プラン料金 +（ドリンク小計 × 1.4）→ 1,000円単位で切り上げ</div>
-    </section>
-
-    <section class="card">
-      <button class="settings-toggle" id="settingsToggle">ドリンク料金を設定する</button>
-      <div class="settings" id="settings">
-        <div id="settingsRows"></div>
-        <div class="setting-add">
-          <input id="newDrinkName" placeholder="ドリンク名" />
-          <input id="newDrinkPrice" type="number" min="0" step="100" placeholder="金額" inputmode="numeric" />
-        </div>
-        <button class="save-settings" id="saveSettings">設定を保存</button>
-        <div class="small-note">この端末に保存されます。料金表が決まれば、最初から固定登録した版にもできます。</div>
-      </div>
-    </section>
-  </main>
-</div>
-
-<div class="final">
-  <div class="final-inner">
-    <div>
-      <div class="label">合計金額</div>
-      <div class="note" id="detailNote">クイック ¥10,000 + ドリンク ¥0</div>
-    </div>
-    <div class="amount" id="grandTotal">¥10,000</div>
-  </div>
-</div>
-
+<header><div class="head"><div class="brand">SWAMP FOG<small>SIMPLE ACCOUNTING Ver.2</small></div><button class="reset" id="resetBtn">↻ リセット</button></div></header>
+<main>
+<section class="card"><label for="entryTime">入店時間</label><input type="time" id="entryTime"></section>
+<section class="card"><div class="title">プラン</div><div class="plans"><button class="plan active" data-plan="quick">クイック<span>¥10,000</span></button><button class="plan" data-plan="free">フリータイム<span>¥20,000</span></button></div></section>
+<section class="card"><div class="title">ドリンク追加</div><div class="cats" id="cats"></div><div class="grid"><div><label for="product">商品</label><select id="product"></select></div><div><label>数量</label><div class="qty"><button id="minus">−</button><input id="qty" type="number" min="1" value="1" inputmode="numeric"><button id="plus">＋</button></div></div></div><div class="custom" id="customWrap"><label for="customPrice">その他シャンパン 金額</label><input id="customPrice" type="number" min="0" step="1000" placeholder="金額を直接入力" inputmode="numeric"></div><div class="preview" id="preview"></div><button class="add" id="add">＋ 追加</button></section>
+<section class="card"><div class="title">追加済み</div><div id="list"></div></section>
+<section class="card"><div class="totals"><div class="mini"><div class="k">ドリンク小計</div><div class="v" id="subtotal">¥0</div></div><div class="mini"><div class="k">小計 + TAX40%</div><div class="v" id="taxed">¥0</div></div></div><div class="formula">最終合計 = プラン料金 +（ドリンク小計 × 1.4）→ 1,000円単位で切り上げ</div></section>
+</main></div>
+<div class="final"><div class="final-in"><div><div class="l">合計金額</div><div class="d" id="detail"></div></div><div class="g" id="grand"></div></div></div>
 <script>
-const yen = n => '¥' + Math.round(n).toLocaleString('ja-JP');
-const ceil1000 = n => Math.ceil(n / 1000) * 1000;
-
-const tableOptions = [
-  ...Array.from({length:8},(_,i)=>'A'+(i+1)),
-  ...Array.from({length:3},(_,i)=>'B'+(i+1)),
-  ...Array.from({length:8},(_,i)=>'C'+(i+1)),
-  ...Array.from({length:2},(_,i)=>'D'+(i+1)),
-  ...Array.from({length:9},(_,i)=>'S'+(i+1)),
-  'VIP','RVIP'
-];
-
-const defaultDrinks = [
-  {name:'ドリンク①',price:1000},
-  {name:'ドリンク②',price:1000},
-  {name:'ドリンク③',price:1500}
-];
-
-let drinksMaster = JSON.parse(localStorage.getItem('swampFogDrinks') || 'null') || defaultDrinks;
-let added = [];
-let plan = 'quick';
-
-const planPrice = () => plan === 'quick' ? 10000 : 20000;
-
-function initTables(){
-  const s = document.getElementById('tableNo');
-  s.innerHTML = tableOptions.map(x=>`<option value="${x}">${x}</option>`).join('');
-}
-function renderDrinkSelect(){
-  const s = document.getElementById('drinkSelect');
-  s.innerHTML = drinksMaster.map((d,i)=>`<option value="${i}">${d.name}（${yen(d.price)}）</option>`).join('');
-}
-function renderAdded(){
-  const box = document.getElementById('drinkList');
-  if(!added.length){ box.innerHTML = '<div class="empty">まだ追加されていません</div>'; }
-  else {
-    box.innerHTML = added.map((d,i)=>`
-      <div class="drink-row">
-        <div>
-          <div class="drink-name">${escapeHtml(d.name)}</div>
-          <div class="drink-meta">${yen(d.price)} × ${d.qty}</div>
-        </div>
-        <div class="drink-amount">${yen(d.price*d.qty)}</div>
-        <button class="delete" onclick="removeDrink(${i})">×</button>
-      </div>
-    `).join('');
-  }
-  recalc();
-}
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-function recalc(){
-  const subtotal = added.reduce((a,d)=>a+d.price*d.qty,0);
-  const taxed = Math.floor(subtotal * 1.4);
-  const raw = planPrice() + taxed;
-  const grand = ceil1000(raw);
-  document.getElementById('subtotal').textContent = yen(subtotal);
-  document.getElementById('taxedSubtotal').textContent = yen(taxed);
-  document.getElementById('grandTotal').textContent = yen(grand);
-  document.getElementById('detailNote').textContent =
-    `${plan === 'quick' ? 'クイック' : 'フリータイム'} ${yen(planPrice())} + ドリンク税込 ${yen(taxed)}`;
-}
-function removeDrink(i){ added.splice(i,1); renderAdded(); window.scrollTo({top:window.scrollY,behavior:'instant'}); }
-
-document.querySelectorAll('.plan').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.plan').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    plan = btn.dataset.plan;
-    recalc();
-  });
-});
-
-document.getElementById('qtyMinus').onclick=()=>{
-  const q=document.getElementById('qty'); q.value=Math.max(1,(parseInt(q.value)||1)-1);
+const master={
+"ソフトドリンク":[["ソフトドリンク",1000]],
+"ピッチャー":[["ピッチャー",2000]],
+"缶類":[["缶類（2本1セット）",3000],["レッドブル",2000]],
+"ビン類":[["ビン類（2本1セット）",4000]],
+"シャンパン":[["アスティ",50000],["オリシャン",70000],["オリシャンルミナス",100000],["オリシャンキラキラ",420000],["その他シャンパン",null]],
+"ボトル":[["茉莉花 / JAPAN / 鍛高譚",12000],["柚子小町 / 黒霧島",15000],["吉四六",18000],["梅酒 / 富乃宝山",30000],["角",50000]],
+"高級ボトル":[["バカラ",700000],["トラディション",3500000],["ジュビリー",5000000],["ロイヤルバカラ",6000000],["ヘネパラ",2500000],["ヘネパラインペリ",8000000],["リシャール",10000000],["新型リシャール",17000000],["ルイ13世",8000000]],
+"ショット":[["ショット",3000],["コカボム / クライナー",4000],["テキーラアネホ",8000],["テキーラ観覧車",150000],["テキーラship / アネホ観覧車",300000]]
 };
-document.getElementById('qtyPlus').onclick=()=>{
-  const q=document.getElementById('qty'); q.value=(parseInt(q.value)||1)+1;
-};
-document.getElementById('addDrink').onclick=()=>{
-  if(!drinksMaster.length) return;
-  const idx=parseInt(document.getElementById('drinkSelect').value||0);
-  const qty=Math.max(1,parseInt(document.getElementById('qty').value)||1);
-  const d=drinksMaster[idx];
-  const existing=added.find(x=>x.name===d.name && x.price===d.price);
-  if(existing) existing.qty += qty;
-  else added.push({name:d.name,price:Number(d.price),qty});
-  document.getElementById('qty').value=1;
-  renderAdded();
-};
-
-document.getElementById('resetBtn').onclick=()=>{
-  if(!confirm('入力内容をリセットしますか？')) return;
-  added=[]; plan='quick';
-  document.querySelectorAll('.plan').forEach(b=>b.classList.toggle('active',b.dataset.plan==='quick'));
-  document.getElementById('qty').value=1;
-  document.getElementById('entryTime').value='';
-  document.getElementById('tableNo').selectedIndex=0;
-  renderAdded();
-};
-
-document.getElementById('settingsToggle').onclick=()=>{
-  const s=document.getElementById('settings');
-  s.classList.toggle('open');
-  renderSettings();
-};
-function renderSettings(){
-  document.getElementById('settingsRows').innerHTML = drinksMaster.map((d,i)=>`
-    <div class="setting-row">
-      <input data-i="${i}" data-k="name" value="${escapeHtml(d.name)}" />
-      <input data-i="${i}" data-k="price" type="number" min="0" step="100" value="${Number(d.price)}" />
-      <button type="button" onclick="deleteSetting(${i})">×</button>
-    </div>
-  `).join('');
-}
-function deleteSetting(i){ drinksMaster.splice(i,1); renderSettings(); }
-document.getElementById('saveSettings').onclick=()=>{
-  document.querySelectorAll('#settingsRows input').forEach(inp=>{
-    const i=Number(inp.dataset.i), k=inp.dataset.k;
-    if(!drinksMaster[i]) return;
-    drinksMaster[i][k] = k==='price' ? Math.max(0,Number(inp.value)||0) : inp.value.trim();
-  });
-  const nn=document.getElementById('newDrinkName').value.trim();
-  const np=Number(document.getElementById('newDrinkPrice').value)||0;
-  if(nn) drinksMaster.push({name:nn,price:Math.max(0,np)});
-  drinksMaster = drinksMaster.filter(d=>d.name);
-  localStorage.setItem('swampFogDrinks',JSON.stringify(drinksMaster));
-  document.getElementById('newDrinkName').value='';
-  document.getElementById('newDrinkPrice').value='';
-  renderSettings(); renderDrinkSelect();
-  alert('ドリンク料金を保存しました');
-};
-
-initTables(); renderDrinkSelect(); renderAdded();
-
-
+const categories=["ソフトドリンク","ピッチャー","缶類","ビン類","シャンパン","ボトル","高級ボトル","ショット"];
+let category=categories[0],plan="quick",added=[];
+const yen=n=>"¥"+Math.round(Number(n)||0).toLocaleString("ja-JP"),planPrice=()=>plan==="quick"?10000:20000,ceil1000=n=>Math.ceil(n/1000)*1000;
+const el=id=>document.getElementById(id);
+function renderCats(){el("cats").innerHTML=categories.map(c=>`<button class="cat ${c===category?"active":""}" data-c="${c}">${c}</button>`).join("");document.querySelectorAll(".cat").forEach(b=>b.onclick=()=>{category=b.dataset.c;renderCats();renderProducts();});}
+function renderProducts(){el("product").innerHTML=master[category].map((p,i)=>`<option value="${i}">${p[0]}${p[1]!=null?"（"+yen(p[1])+"）":""}</option>`).join("");el("product").selectedIndex=0;updatePreview();}
+function selected(){return master[category][Number(el("product").value||0)]}
+function updatePreview(){const p=selected(),custom=p[1]===null;el("customWrap").classList.toggle("show",custom);const price=custom?(Number(el("customPrice").value)||0):p[1];const q=Math.max(1,Number(el("qty").value)||1);el("preview").textContent="追加金額 "+yen(price*q);}
+function renderList(){el("list").innerHTML=added.length?added.map((x,i)=>`<div class="row"><div><div class="name">${x.name}</div><div class="meta">${yen(x.price)} × ${x.qty}</div></div><div class="amount">${yen(x.price*x.qty)}</div><button class="del" onclick="removeItem(${i})">×</button></div>`).join(""):'<div class="empty">まだ追加されていません</div>';recalc();}
+function recalc(){const sub=added.reduce((s,x)=>s+x.price*x.qty,0),tax=Math.floor(sub*1.4),total=ceil1000(planPrice()+tax);el("subtotal").textContent=yen(sub);el("taxed").textContent=yen(tax);el("grand").textContent=yen(total);el("detail").textContent=`${plan==="quick"?"クイック":"フリータイム"} ${yen(planPrice())} + ドリンク税込 ${yen(tax)}`;}
+function removeItem(i){added.splice(i,1);renderList();}
+document.querySelectorAll(".plan").forEach(b=>b.onclick=()=>{document.querySelectorAll(".plan").forEach(x=>x.classList.remove("active"));b.classList.add("active");plan=b.dataset.plan;recalc();});
+el("product").onchange=updatePreview;el("customPrice").oninput=updatePreview;el("qty").oninput=updatePreview;
+el("minus").onclick=()=>{el("qty").value=Math.max(1,(Number(el("qty").value)||1)-1);updatePreview();};
+el("plus").onclick=()=>{el("qty").value=(Number(el("qty").value)||1)+1;updatePreview();};
+el("add").onclick=()=>{const p=selected();let price=p[1]===null?(Number(el("customPrice").value)||0):p[1],q=Math.max(1,Number(el("qty").value)||1);if(p[1]===null&&price<=0){alert("その他シャンパンの金額を入力してください");return;}const same=added.find(x=>x.name===p[0]&&x.price===price);if(same)same.qty+=q;else added.push({name:p[0],price,qty:q});el("qty").value=1;if(p[1]===null)el("customPrice").value="";updatePreview();renderList();};
+el("resetBtn").onclick=()=>{if(!confirm("入力内容をリセットしますか？"))return;added=[];plan="quick";category=categories[0];el("entryTime").value="";el("qty").value=1;el("customPrice").value="";document.querySelectorAll(".plan").forEach(x=>x.classList.toggle("active",x.dataset.plan==="quick"));renderCats();renderProducts();renderList();};
+renderCats();renderProducts();renderList();
 </script>
-</body>
-</html>
+</body></html>
