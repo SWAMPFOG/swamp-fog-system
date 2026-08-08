@@ -1690,4 +1690,94 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 })();
 </script>
 
+
+
+<style>
+/* Ver.11.2.22: NEXTは連続着席予約。卓スタート時にそのまま同時着席 */
+#directBoard .direct-next-summary{cursor:pointer}
+#directBoard .direct-table.has-next .tap-start-guide.next-ready{
+  background:#1c1912;border:1px solid #5d512e;color:#d7ca9a;
+}
+</style>
+<script>
+(function(){
+  function nextIdsFor(t){
+    if(!Array.isArray(t.nextPlannedCastIds))t.nextPlannedCastIds=[];
+    return t.nextPlannedCastIds.filter(id=>state.casts.some(c=>c.id===id));
+  }
+  function detachFromCurrentTable(c,targetTable,at){
+    if(!c||!c.currentTable||c.currentTable===targetTable.id)return;
+    const old=state.tables.find(t=>t.id===c.currentTable);
+    if(old){
+      old.currentCastIds=(old.currentCastIds||[]).filter(id=>id!==c.id);
+      state.history.push({
+        type:'leave',cast:c.id,table:old.id,castName:c.name,tableNo:old.no,
+        turn:old.groupNo||1,at,reason:'next-transfer'
+      });
+    }
+    c.currentTable=null;
+  }
+  function startTableWithNext(t){
+    if(!t||!t.active||t.rotationEnded)return false;
+    if(!Array.isArray(t.pendingCastIds))t.pendingCastIds=[];
+    const next=nextIdsFor(t);
+    const ids=[...new Set([...(t.pendingCastIds||[]),...next])];
+    if(!ids.length){toast('先にキャストを選択してください');return false;}
+
+    const at=Date.now();
+    // NEXTは前卓に着席中でも、スタート操作をした瞬間に前卓を離席して連続着席へ移す。
+    next.forEach(id=>detachFromCurrentTable(state.casts.find(c=>c.id===id),t,at));
+
+    t.pendingCastIds=ids;
+    ids.forEach(id=>{
+      const c=state.casts.find(x=>x.id===id);
+      if(c)c.preparingFor=t.id;
+    });
+    const ok=commitPendingGroup(t,'next-direct-start');
+    if(ok){
+      t.nextPlannedCastIds=[];
+      save();
+      toast((ids.map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean).join('・'))+' → '+t.no+' 着席・タイマースタート');
+    }
+    return ok;
+  }
+
+  const prevDirect=window.renderDirectBoard;
+  window.renderDirectBoard=function(){
+    const r=prevDirect.apply(this,arguments);
+    const board=document.querySelector('#directBoard');
+    if(!board)return r;
+    board.querySelectorAll('[data-direct-table]').forEach(card=>{
+      const t=state.tables.find(x=>x.id===card.dataset.directTable);
+      if(!t)return;
+      const next=nextIdsFor(t);
+      card.classList.toggle('has-next',next.length>0);
+      const head=card.querySelector('[data-simple-start]');
+      const guide=card.querySelector('.tap-start-guide');
+      if(guide&&next.length){
+        guide.classList.add('next-ready');
+        const names=next.map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean);
+        guide.textContent='NEXT '+names.join('・')+' を着席・タイマースタート';
+      }
+      if(head&&!head.dataset.nextStartBound){
+        head.dataset.nextStartBound='1';
+        head.addEventListener('click',function(e){
+          const table=state.tables.find(x=>x.id===head.dataset.simpleStart);
+          if(!table)return;
+          const nextNow=nextIdsFor(table);
+          if(!nextNow.length)return; // NEXTが無い時は従来処理へ
+          e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+          startTableWithNext(table);
+        },true);
+      }
+    });
+    return r;
+  };
+
+  const h=document.querySelector('.brand h1');
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.22 Stable <span class="stable-badge">STABLE</span>';
+  render();
+})();
+</script>
+
 </body></html>
