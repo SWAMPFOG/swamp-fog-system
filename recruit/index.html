@@ -1,274 +1,64 @@
-<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>SWAMP FOG RECRUIT</title>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="apple-mobile-web-app-capable" content="yes"><title>SWAMP FOG 面接アンケート</title>
 <style>
-:root{--bg:#08090b;--panel:#111318;--panel2:#171a20;--gold:#d8b45b;--gold2:#f1d58b;--text:#f6f3ea;--muted:#9da3ad;--line:#2a2e36;--danger:#e26b6b;--ok:#65c28b}
-*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at top,#20232a 0,#0b0c0f 35%,#050607 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans JP",sans-serif;min-height:100vh}
-button,input,select,textarea{font:inherit} button{cursor:pointer}
-.app{max-width:980px;margin:auto;min-height:100vh;padding:env(safe-area-inset-top) 18px calc(24px + env(safe-area-inset-bottom))}
-header{display:flex;justify-content:space-between;align-items:center;padding:20px 4px 14px;border-bottom:1px solid var(--line);margin-bottom:20px}
-.brand{font-weight:900;letter-spacing:.18em;font-size:22px}.brand small{display:block;color:var(--gold);font-size:10px;letter-spacing:.28em;margin-top:4px}
-.admin-link{background:none;border:1px solid #353942;color:#9da3ad;border-radius:12px;padding:10px 13px}
-.card{background:rgba(17,19,24,.96);border:1px solid #282c34;border-radius:20px;padding:20px;margin:14px 0;box-shadow:0 12px 35px #0005}
-h1{font-size:28px;margin:6px 0 6px} h2{font-size:18px;margin:0 0 16px;color:var(--gold2)} .lead{color:var(--muted);line-height:1.7;margin:0 0 20px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}
-label{display:block;color:#cfd2d8;font-size:13px;margin-bottom:7px}
-input,select,textarea{width:100%;background:#0b0d11;border:1px solid #343944;color:white;border-radius:13px;padding:14px 13px;outline:none;min-height:50px}
-input:focus,select:focus,textarea:focus{border-color:var(--gold)} textarea{min-height:100px;resize:vertical}
-.choices{display:flex;flex-wrap:wrap;gap:9px}.chip{position:relative}.chip input{position:absolute;opacity:0;pointer-events:none}.chip span{display:block;border:1px solid #343944;background:#0d0f13;border-radius:999px;padding:11px 14px;color:#d9dce1}.chip input:checked+span{border-color:var(--gold);background:#3a3019;color:#ffe7a8}
-.primary{width:100%;border:0;border-radius:15px;padding:16px;background:linear-gradient(135deg,#b78b2e,#f0d17c);color:#171109;font-weight:900;font-size:17px;box-shadow:0 8px 25px #d8b45b26}
-.secondary{border:1px solid #3a3f49;background:#171a20;color:white;border-radius:12px;padding:11px 14px}.danger{border-color:#653838;color:#ffaaaa}
-.hidden{display:none!important}.notice{text-align:center;padding:60px 20px}.notice .check{font-size:56px;color:var(--gold)}
-.modal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}.modalbox{width:min(440px,100%);background:#14171c;border:1px solid #343943;border-radius:20px;padding:22px}
-.row{display:flex;gap:10px;align-items:center}.row>*{flex:1}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{background:#0d0f13;border:1px solid #2b3038;border-radius:15px;padding:14px}.stat b{display:block;font-size:25px;color:var(--gold2)}.stat span{font-size:11px;color:var(--muted)}
-.list{display:grid;gap:9px}.person{display:grid;grid-template-columns:120px 1fr auto;gap:12px;align-items:center;background:#0d0f13;border:1px solid #2c3038;border-radius:14px;padding:13px}.person:hover{border-color:#66562f}.date{font-size:12px;color:var(--muted)}.name{font-weight:800}.meta{font-size:12px;color:#aeb3bc;margin-top:4px}.badge{border-radius:999px;padding:7px 10px;font-size:11px;background:#242832;color:#ddd}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.detail-item{background:#0d0f13;border-radius:12px;padding:12px}.detail-item small{color:var(--muted);display:block;margin-bottom:5px}.detail-item div{white-space:pre-wrap}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}.tabs{display:flex;gap:8px;margin:14px 0}.tabs button{flex:1}.active-tab{border-color:var(--gold)!important;color:var(--gold2)!important}
-canvas{width:100%;max-height:260px}
-@media(max-width:650px){.grid,.detail-grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.person{grid-template-columns:1fr auto}.person .date{grid-column:1/-1}.brand{font-size:18px}}
-</style>
-</head>
-<body>
-<div class="app">
-<header><div class="brand">SWAMP FOG<small>RECRUIT ENTRY</small></div><button class="admin-link" onclick="openLogin()">⚙ 管理者</button></header>
+:root{--bg:#08090b;--p:#12151a;--g:#d8b45b;--t:#f5f2ea;--m:#9da4ae;--l:#30353e}*{box-sizing:border-box}body{margin:0;background:#08090b;color:var(--t);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif}.app{max-width:980px;margin:auto;padding:18px 18px 40px}header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--l);padding:12px 0 18px}.brand{font-weight:900;letter-spacing:.16em}.brand small{display:block;color:var(--g);font-size:10px;margin-top:5px}.card{background:var(--p);border:1px solid #292e36;border-radius:18px;padding:18px;margin:14px 0}h1{font-size:27px;margin:0 0 8px}h2{font-size:18px;color:#f0d083;margin:0 0 14px}.lead{color:var(--m);line-height:1.6}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}label{display:block;color:#d1d5db;font-size:13px;margin-bottom:6px}input,select,textarea{width:100%;min-height:48px;background:#0b0d10;color:#fff;border:1px solid #373c45;border-radius:12px;padding:12px;font:inherit}textarea{min-height:90px}.btn{border:1px solid #3b414b;background:#171a20;color:#fff;border-radius:12px;padding:11px 14px;font:inherit}.primary{border:0;background:linear-gradient(135deg,#ae8127,#f1d47f);color:#171109;font-weight:900}.wide{width:100%;padding:16px}.hidden{display:none!important}.modal{position:fixed;inset:0;background:#000c;display:flex;align-items:center;justify-content:center;padding:18px;z-index:9}.box{width:min(780px,100%);max-height:90vh;overflow:auto;background:#14171c;border:1px solid #363b44;border-radius:18px;padding:18px}.list{display:grid;gap:9px}.item{background:#0d1014;border:1px solid #2c3139;border-radius:13px;padding:13px;display:flex;justify-content:space-between;gap:10px}.meta{font-size:12px;color:var(--m);margin-top:4px}.detail{display:grid;grid-template-columns:1fr 1fr;gap:8px}.d{background:#0c0f13;border-radius:10px;padding:10px}.d small{color:var(--m);display:block;margin-bottom:4px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.toolbar>*{flex:1}.danger{color:#ffaaaa;border-color:#6e3e3e}@media(max-width:650px){.grid,.detail{grid-template-columns:1fr}.brand{font-size:16px}}
+</style></head><body><div class="app">
+<header><div class="brand">SWAMP FOG<small>INTERVIEW SHEET</small></div><button class="btn" onclick="loginOpen()">⚙ 管理者</button></header>
 
-<section id="applicantView">
-  <div class="card">
-    <h1>求人アンケート</h1>
-    <p class="lead">ご応募ありがとうございます。今後の面談・ご案内の参考にさせていただきます。選択式を中心に、2〜3分程度で回答できます。</p>
-  </div>
-  <form id="surveyForm">
-    <div class="card"><h2>01 基本情報</h2><div class="grid">
-      <div><label>お名前 *</label><input name="name" required autocomplete="off"></div>
-      <div><label>源氏名希望</label><input name="stageName" autocomplete="off" placeholder="未定でもOK"></div>
-      <div><label>年齢 *</label><input name="age" type="number" min="18" max="99" required inputmode="numeric"></div>
-      <div><label>電話番号</label><input name="phone" type="tel" inputmode="tel"></div>
-      <div class="full"><label>Instagram / SNS</label><input name="sns" autocomplete="off" placeholder="@ユーザー名 など"></div>
-    </div></div>
+<section id="formView"><div class="card"><h1>面接アンケート</h1><p class="lead">面接の参考に使用します。分かる範囲で入力してください。</p><div class="grid"><div><label>面接日</label><input id="ivDate" readonly></div><div><label>応募方法 *</label><select id="method" required onchange="methodChange()"><option value="">選択</option><option>ホスホス</option><option>スターガイズ</option><option>インスタ</option><option>X</option><option>TikTok</option><option>紹介</option><option>その他</option></select></div><div id="methodDetailWrap" class="full hidden"><label id="methodDetailLabel">詳細 *</label><input id="methodDetail"></div></div></div>
 
-    <div class="card"><h2>02 経験について</h2><div class="grid">
-      <div><label>ホスト経験 *</label><select name="experience" required><option value="">選択してください</option><option>未経験</option><option>経験あり</option></select></div>
-      <div><label>経験年数</label><input name="years" placeholder="例：2年"></div>
-      <div><label>過去最高売上</label><input name="bestSales" placeholder="例：300万円"></div>
-      <div><label>現在の職業</label><input name="job"></div>
-    </div></div>
+<form id="f">
+<div class="card"><h2>01 個人情報</h2><div class="grid">
+<div><label>フリガナ</label><input name="furigana"></div><div><label>氏名 *</label><input name="name" required></div>
+<div><label>生年月日</label><input name="birthday" type="date" onchange="calcAge()"></div><div><label>年齢</label><input name="age" id="age" readonly></div>
+<div><label>身長</label><input name="height" type="number" placeholder="cm"></div><div><label>血液型</label><select name="blood"><option value="">未回答</option><option>A</option><option>B</option><option>O</option><option>AB</option><option>不明</option></select></div>
+<div><label>国籍</label><input name="nationality"></div><div><label>連絡先</label><input name="phone" type="tel"></div>
+<div class="full"><label>現住所</label><input name="address"></div><div class="full"><label>最終学歴</label><input name="education"></div>
+<div class="full"><label>職歴①</label><input name="career1" placeholder="勤務先・職種・勤続年数"></div><div class="full"><label>職歴②</label><input name="career2" placeholder="勤務先・職種・勤続年数"></div>
+<div class="full"><label>職歴③</label><input name="career3" placeholder="勤務先・職種・勤続年数"></div><div class="full"><label>職歴④</label><input name="career4" placeholder="勤務先・職種・勤続年数"></div>
+</div></div>
 
-    <div class="card"><h2>03 応募について</h2>
-      <label>何を見て応募しましたか？ *</label>
-      <div class="choices" id="sourceChoices">
-        <label class="chip"><input type="radio" name="source" value="Instagram" required><span>Instagram</span></label>
-        <label class="chip"><input type="radio" name="source" value="TikTok"><span>TikTok</span></label>
-        <label class="chip"><input type="radio" name="source" value="求人サイト"><span>求人サイト</span></label>
-        <label class="chip"><input type="radio" name="source" value="紹介"><span>紹介</span></label>
-        <label class="chip"><input type="radio" name="source" value="スカウト"><span>スカウト</span></label>
-        <label class="chip"><input type="radio" name="source" value="店舗HP"><span>店舗HP</span></label>
-        <label class="chip"><input type="radio" name="source" value="その他"><span>その他</span></label>
-      </div>
-      <div class="grid" style="margin-top:14px"><div><label>紹介者名 / スカウト担当</label><input name="referrer"></div><div><label>求人サイト・その他の詳細</label><input name="sourceDetail"></div></div>
-      <div style="margin-top:16px"><label>応募した理由（複数選択可）</label><div class="choices">
-        <label class="chip"><input type="checkbox" name="reason" value="稼ぎたい"><span>稼ぎたい</span></label>
-        <label class="chip"><input type="checkbox" name="reason" value="有名になりたい"><span>有名になりたい</span></label>
-        <label class="chip"><input type="checkbox" name="reason" value="成長したい"><span>成長したい</span></label>
-        <label class="chip"><input type="checkbox" name="reason" value="独立・経営"><span>独立・経営</span></label>
-        <label class="chip"><input type="checkbox" name="reason" value="環境・雰囲気"><span>環境・雰囲気</span></label>
-        <label class="chip"><input type="checkbox" name="reason" value="友人・知人"><span>友人・知人</span></label>
-        <label class="chip"><input type="checkbox" name="reason" value="SNS活動"><span>SNS活動</span></label>
-        <label class="chip"><input type="checkbox" name="reason" value="その他"><span>その他</span></label>
-      </div></div>
-    </div>
+<div class="card"><h2>02 質問項目</h2><div class="grid">
+<div><label>雇用形態</label><select name="employment"><option value="">未回答</option><option>レギュラー</option><option>バイト</option></select></div><div><label>バイト希望：週何日</label><select name="days"><option value="">未回答</option><option>週1日</option><option>週2日</option><option>週3日</option><option>週4日</option><option>週5日</option><option>週6日以上</option></select></div>
+<div><label>希望源氏名</label><input name="stage"></div><div><label>ホスト経験</label><select name="exp"><option value="">未回答</option><option>有</option><option>無</option></select></div>
+<div><label>経験ありの場合の期間</label><input name="expPeriod"></div><div><label>過去最高月収</label><input name="highIncome" placeholder="万円"></div>
+<div><label>過去最低月収</label><input name="lowIncome" placeholder="万円"></div><div><label>現在の状況</label><select name="current"><option value="">未回答</option><option>在籍中</option><option>在籍なし</option></select></div>
+<div class="full"><label>現在の在籍先</label><input name="workplace"></div>
+<div><label>X フォロワー数</label><input name="x"></div><div><label>Instagram フォロワー数</label><input name="ig"></div><div><label>TikTok フォロワー数</label><input name="tt"></div><div><label>YouTube 登録者数</label><input name="yt"></div>
+<div class="full"><label>SNSアカウント</label><input name="sns"></div>
+<div class="full"><label>当店を選んだ理由 ①</label><input name="reason1"></div><div class="full"><label>当店を選んだ理由 ②</label><input name="reason2"></div><div class="full"><label>当店を選んだ理由 ③</label><input name="reason3"></div>
+<div class="full"><label>仕事で大切なこと ①</label><input name="important1"></div><div class="full"><label>仕事で大切なこと ②</label><input name="important2"></div><div class="full"><label>仕事で大切なこと ③</label><input name="important3"></div>
+<div><label>会話は得意ですか？</label><select name="talk"><option value="">未回答</option><option>はい</option><option>いいえ</option></select></div><div><label>お酒は飲めますか？</label><select name="drink"><option value="">未回答</option><option>はい</option><option>いいえ</option></select></div>
+<div class="full"><label>長所</label><textarea name="strength"></textarea></div><div class="full"><label>短所</label><textarea name="weakness"></textarea></div><div class="full"><label>部活・特技・趣味</label><textarea name="hobby"></textarea></div><div class="full"><label>不安・悩み</label><textarea name="worry"></textarea></div>
+<div><label>体調面の自己管理</label><select name="health"><option value="">未回答</option><option>している</option><option>していない</option></select></div><div><label>具体的な内容</label><input name="healthDetail"></div>
+<div><label>通院や持病</label><select name="medical"><option value="">未回答</option><option>ある</option><option>ない</option></select></div><div><label>具体的な内容</label><input name="medicalDetail"></div>
+<div class="full"><label>将来の夢</label><textarea name="dream"></textarea></div><div class="full"><label>体験入店した店舗</label><textarea name="tried"></textarea></div><div class="full"><label>体験予定の店舗</label><textarea name="planned"></textarea></div>
+</div></div><div class="card"><button class="btn primary wide">アンケートを送信</button></div></form></section>
 
-    <div class="card"><h2>04 目標・働き方</h2><div class="grid">
-      <div><label>月収目標</label><input name="incomeGoal" placeholder="例：100万円"></div>
-      <div><label>売上目標</label><input name="salesGoal" placeholder="例：月300万円"></div>
-      <div><label>週の希望出勤日数</label><select name="days"><option value="">未定</option><option>週1〜2日</option><option>週3日</option><option>週4日</option><option>週5日</option><option>週6日以上</option></select></div>
-      <div><label>勤務開始可能時期</label><input name="startWhen" placeholder="例：すぐ / 9月から"></div>
-      <div class="full"><label>お店選びで重視すること（複数選択可）</label><div class="choices">
-        <label class="chip"><input type="checkbox" name="priority" value="給与"><span>給与</span></label>
-        <label class="chip"><input type="checkbox" name="priority" value="知名度"><span>知名度</span></label>
-        <label class="chip"><input type="checkbox" name="priority" value="集客力"><span>集客力</span></label>
-        <label class="chip"><input type="checkbox" name="priority" value="教育"><span>教育</span></label>
-        <label class="chip"><input type="checkbox" name="priority" value="人間関係"><span>人間関係</span></label>
-        <label class="chip"><input type="checkbox" name="priority" value="SNS支援"><span>SNS支援</span></label>
-        <label class="chip"><input type="checkbox" name="priority" value="営業時間"><span>営業時間</span></label>
-      </div></div>
-      <div class="full"><label>ホストとしての目標・将来やりたいこと</label><textarea name="goal"></textarea></div>
-      <div class="full"><label>質問・伝えておきたいこと</label><textarea name="note"></textarea></div>
-    </div></div>
-    <div class="card"><button class="primary" type="submit">アンケートを送信</button></div>
-  </form>
-</section>
+<section id="thanks" class="hidden"><div class="card" style="text-align:center;padding:55px 20px"><h1 style="color:#f0d083">✓</h1><h1>ご回答ありがとうございました</h1><p class="lead">スタッフをお呼びください。</p><button class="btn" onclick="resetForm()">次の入力画面へ</button></div></section>
 
-<section id="thanksView" class="hidden"><div class="card notice"><div class="check">✓</div><h1>ご回答ありがとうございました</h1><p class="lead">スタッフをお呼びください。</p><button class="secondary" onclick="resetToSurvey()">次の入力画面へ</button></div></section>
-
-<section id="adminView" class="hidden">
-  <div class="topbar"><div><h1 style="margin:0">応募者管理</h1><div class="lead" style="margin:4px 0 0">SWAMP FOG RECRUIT</div></div><button class="secondary" onclick="logout()">応募者画面へ</button></div>
-  <div class="tabs"><button id="tabList" class="secondary active-tab" onclick="showAdminTab('list')">応募者一覧</button><button id="tabStats" class="secondary" onclick="showAdminTab('stats')">集計</button><button id="tabData" class="secondary" onclick="showAdminTab('data')">データ管理</button></div>
-  <div id="adminList">
-    <div class="stats" id="quickStats"></div>
-    <div class="card">
-      <div class="toolbar"><input id="search" placeholder="名前・SNS・媒体で検索" oninput="renderList()" style="flex:2"><select id="statusFilter" onchange="renderList()"><option value="">全ステータス</option><option>応募</option><option>面接</option><option>体験入店</option><option>入店</option><option>辞退</option><option>不採用</option></select></div>
-      <div class="list" id="peopleList"></div>
-    </div>
-  </div>
-  <div id="adminStats" class="hidden"><div class="card"><h2>応募媒体別</h2><div id="sourceStats"></div></div><div class="card"><h2>採用ステータス</h2><div id="statusStats"></div></div></div>
-  <div id="adminData" class="hidden"><div class="card"><h2>バックアップ</h2><p class="lead">この端末内の応募データをJSONで保存・復元できます。</p><div class="toolbar"><button class="secondary" onclick="exportData()">バックアップを書き出す</button><button class="secondary" onclick="document.getElementById('importFile').click()">バックアップを復元</button><input class="hidden" id="importFile" type="file" accept=".json,application/json" onchange="importData(event)"></div></div><div class="card"><h2>管理設定</h2><button class="secondary" onclick="changePassword()">管理者パスワード変更</button></div></div>
-</section>
+<section id="admin" class="hidden"><div class="toolbar"><button class="btn" onclick="logout()">応募者画面へ</button><input id="search" placeholder="名前・応募方法・担当者で検索" oninput="render()"><select id="filter" onchange="render()"><option value="">全ステータス</option><option>応募</option><option>面接</option><option>体験入店</option><option>入店</option><option>辞退</option><option>不採用</option></select></div><div id="list" class="list"></div></section>
 </div>
 
-<div id="loginModal" class="modal hidden"><div class="modalbox"><h2>管理者ログイン</h2><label>パスワード</label><input id="loginPassword" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')login()"><div id="loginError" style="color:#ff9b9b;font-size:12px;margin-top:8px"></div><div class="row" style="margin-top:15px"><button class="secondary" onclick="closeLogin()">キャンセル</button><button class="primary" onclick="login()">ログイン</button></div></div></div>
-<div id="detailModal" class="modal hidden"><div class="modalbox" style="width:min(760px,100%);max-height:88vh;overflow:auto"><div id="detailContent"></div></div></div>
+<div id="login" class="modal hidden"><div class="box" style="width:min(420px,100%)"><h2>管理者ログイン</h2><label>パスワード</label><input id="pw" type="password"><div class="toolbar"><button class="btn" onclick="loginClose()">キャンセル</button><button class="btn primary" onclick="doLogin()">ログイン</button></div></div></div>
+<div id="detailModal" class="modal hidden"><div class="box"><div id="detail"></div></div></div>
 
 <script>
-const KEY='swampFogRecruitEntries_v1', PASSKEY='swampFogRecruitPass_v1';
-if(!localStorage.getItem(PASSKEY)) localStorage.setItem(PASSKEY,'2026'); // 初期パスワード
-let entries=JSON.parse(localStorage.getItem(KEY)||'[]');
-
-const $=s=>document.querySelector(s);
-function save(){localStorage.setItem(KEY,JSON.stringify(entries))}
-function val(fd,k){return (fd.get(k)||'').toString().trim()}
-function all(fd,k){return fd.getAll(k).map(x=>x.toString())}
-$('#surveyForm').addEventListener('submit',e=>{
- e.preventDefault(); const fd=new FormData(e.target);
- const item={id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(),createdAt:new Date().toISOString(),status:'応募',
- name:val(fd,'name'),stageName:val(fd,'stageName'),age:val(fd,'age'),phone:val(fd,'phone'),sns:val(fd,'sns'),
- experience:val(fd,'experience'),years:val(fd,'years'),bestSales:val(fd,'bestSales'),job:val(fd,'job'),
- source:val(fd,'source'),referrer:val(fd,'referrer'),sourceDetail:val(fd,'sourceDetail'),reason:all(fd,'reason'),
- incomeGoal:val(fd,'incomeGoal'),salesGoal:val(fd,'salesGoal'),days:val(fd,'days'),startWhen:val(fd,'startWhen'),
- priority:all(fd,'priority'),goal:val(fd,'goal'),note:val(fd,'note')};
- entries.unshift(item); save(); e.target.reset(); $('#applicantView').classList.add('hidden');$('#thanksView').classList.remove('hidden');window.scrollTo(0,0);
-});
-function resetToSurvey(){$('#thanksView').classList.add('hidden');$('#applicantView').classList.remove('hidden');window.scrollTo(0,0)}
-function openLogin(){$('#loginModal').classList.remove('hidden');$('#loginPassword').value='';$('#loginError').textContent='';setTimeout(()=>$('#loginPassword').focus(),100)}
-function closeLogin(){$('#loginModal').classList.add('hidden')}
-function login(){if($('#loginPassword').value===localStorage.getItem(PASSKEY)){closeLogin();$('#applicantView').classList.add('hidden');$('#thanksView').classList.add('hidden');$('#adminView').classList.remove('hidden');renderAll();window.scrollTo(0,0)}else $('#loginError').textContent='パスワードが違います'}
-function logout(){$('#adminView').classList.add('hidden');$('#applicantView').classList.remove('hidden');window.scrollTo(0,0)}
-function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function renderAll(){renderList();renderStats()}
-function renderList(){
- const q=$('#search').value.toLowerCase(), sf=$('#statusFilter').value;
- const filtered=entries.filter(x=>(!sf||x.status===sf)&&(!q||[x.name,x.stageName,x.sns,x.source,x.referrer].join(' ').toLowerCase().includes(q)));
- $('#quickStats').innerHTML=[
- ['応募総数',entries.length],['体入',entries.filter(x=>x.status==='体験入店').length],['入店',entries.filter(x=>x.status==='入店').length],['未経験',entries.filter(x=>x.experience==='未経験').length]
- ].map(([a,b])=>`<div class="stat"><b>${b}</b><span>${a}</span></div>`).join('');
- $('#peopleList').innerHTML=filtered.length?filtered.map(x=>`<div class="person" onclick="openDetail('${x.id}')"><div class="date">${new Date(x.createdAt).toLocaleString('ja-JP')}</div><div><div class="name">${esc(x.name)} ${x.stageName?`<span style="color:#aaa;font-weight:400"> / ${esc(x.stageName)}</span>`:''}</div><div class="meta">${esc(x.age)}歳 ・ ${esc(x.experience)} ・ ${esc(x.source)}</div></div><span class="badge">${esc(x.status)}</span></div>`).join(''):'<p class="lead">該当する応募者はいません。</p>';
-}
-function openDetail(id){
- const x=entries.find(e=>e.id===id); if(!x)return;
- const fields=[['お名前',x.name],['源氏名希望',x.stageName],['年齢',x.age+'歳'],['電話番号',x.phone],['SNS',x.sns],['経験',x.experience],['経験年数',x.years],['過去最高売上',x.bestSales],['現在の職業',x.job],['応募媒体',x.source],['紹介者/担当',x.referrer],['媒体詳細',x.sourceDetail],['応募理由',(x.reason||[]).join('・')],['月収目標',x.incomeGoal],['売上目標',x.salesGoal],['希望出勤',x.days],['開始可能時期',x.startWhen],['重視すること',(x.priority||[]).join('・')],['目標',x.goal],['質問・備考',x.note]];
- $('#detailContent').innerHTML=`<div class="topbar"><h2 style="margin:0">${esc(x.name)}</h2><button class="secondary" onclick="closeDetail()">閉じる</button></div>
- <div style="margin:16px 0"><label>採用ステータス</label><select onchange="updateStatus('${x.id}',this.value)">${['応募','面接','体験入店','入店','辞退','不採用'].map(s=>`<option ${s===x.status?'selected':''}>${s}</option>`).join('')}</select></div>
- <div class="detail-grid">${fields.map(([k,v])=>`<div class="detail-item"><small>${k}</small><div>${esc(v||'—')}</div></div>`).join('')}</div>
- <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
- <button class="primary" style="flex:2;min-width:220px" onclick="shareApplicant('${x.id}')">幹部LINEへ共有</button>
- <button class="secondary" style="flex:1;min-width:160px" onclick="copyApplicant('${x.id}')">内容をコピー</button>
- <button class="secondary danger" style="flex:1;min-width:180px" onclick="deleteEntry('${x.id}')">この応募者データを削除</button>
- </div>`;
- $('#detailModal').classList.remove('hidden');
-}
-
-function applicantShareText(x){
- const dt=new Date(x.createdAt).toLocaleString('ja-JP');
- const line=(label,value)=>`${label}：${value||'—'}`;
- return [
- '【SWAMP FOG 求人アンケート】',
- '',
- line('回答日時',dt),
- line('氏名',x.name),
- line('源氏名希望',x.stageName),
- line('年齢',x.age?x.age+'歳':'—'),
- line('電話番号',x.phone),
- line('SNS',x.sns),
- '',
- '■ 経験',
- line('ホスト経験',x.experience),
- line('経験年数',x.years),
- line('過去最高売上',x.bestSales),
- line('現在の職業',x.job),
- '',
- '■ 応募',
- line('応募媒体',x.source),
- line('紹介者 / スカウト担当',x.referrer),
- line('媒体詳細',x.sourceDetail),
- line('応募理由',(x.reason||[]).join('・')),
- '',
- '■ 目標・働き方',
- line('月収目標',x.incomeGoal),
- line('売上目標',x.salesGoal),
- line('希望出勤',x.days),
- line('勤務開始可能時期',x.startWhen),
- line('重視すること',(x.priority||[]).join('・')),
- line('将来の目標',x.goal),
- line('質問・備考',x.note),
- '',
- line('現在ステータス',x.status)
- ].join('\n');
-}
-async function copyTextCompat(t){
- try{
-   await navigator.clipboard.writeText(t);
-   return true;
- }catch(e){
-   const ta=document.createElement('textarea');
-   ta.value=t; ta.style.position='fixed'; ta.style.opacity='0';
-   document.body.appendChild(ta); ta.focus(); ta.select();
-   const ok=document.execCommand('copy');
-   ta.remove(); return ok;
- }
-}
-async function copyApplicant(id){
- const x=entries.find(e=>e.id===id); if(!x)return;
- const ok=await copyTextCompat(applicantShareText(x));
- alert(ok?'LINE貼り付け用にコピーしました':'コピーできませんでした');
-}
-async function shareApplicant(id){
- const x=entries.find(e=>e.id===id); if(!x)return;
- const text=applicantShareText(x);
- if(navigator.share){
-   try{
-     await navigator.share({title:'SWAMP FOG 求人アンケート',text});
-     return;
-   }catch(e){
-     if(e && e.name==='AbortError') return;
-   }
- }
- const ok=await copyTextCompat(text);
- if(ok){
-   alert('共有機能を開けなかったため、内容をコピーしました。\nLINEの幹部グループに貼り付けてください。');
- }else{
-   alert('共有できませんでした');
- }
-}
-
-function closeDetail(){$('#detailModal').classList.add('hidden')}
-function updateStatus(id,status){let x=entries.find(e=>e.id===id);if(x){x.status=status;save();renderAll()}}
-function deleteEntry(id){if(confirm('この応募者データを削除しますか？')){entries=entries.filter(x=>x.id!==id);save();closeDetail();renderAll()}}
-function renderStats(){
- const countBy=k=>entries.reduce((a,x)=>{let v=x[k]||'未設定';a[v]=(a[v]||0)+1;return a},{});
- const bars=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="margin:11px 0"><div class="row"><span>${esc(k)}</span><b style="text-align:right">${v}名</b></div><div style="height:8px;background:#242832;border-radius:9px;overflow:hidden;margin-top:6px"><div style="height:100%;width:${entries.length?v/entries.length*100:0}%;background:linear-gradient(90deg,#a77c28,#efd17d)"></div></div></div>`).join('')||'<p class="lead">まだデータがありません。</p>';
- $('#sourceStats').innerHTML=bars(countBy('source'));$('#statusStats').innerHTML=bars(countBy('status'));
-}
-function showAdminTab(t){
- ['list','stats','data'].forEach(x=>{$('#admin'+x[0].toUpperCase()+x.slice(1)).classList.toggle('hidden',x!==t);$('#tab'+x[0].toUpperCase()+x.slice(1)).classList.toggle('active-tab',x===t)});
- if(t==='stats')renderStats();
-}
-function exportData(){
- const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),entries},null,2)],{type:'application/json'});
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='SWAMP_FOG_RECRUIT_BACKUP_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);
-}
-function importData(ev){
- const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.entries))throw 0;if(confirm(`${d.entries.length}件のデータで現在のデータを置き換えますか？`)){entries=d.entries;save();renderAll();alert('復元しました')}}catch(e){alert('正しいバックアップファイルではありません')}};r.readAsText(f);ev.target.value='';
-}
-function changePassword(){
- const old=prompt('現在のパスワードを入力してください');if(old!==localStorage.getItem(PASSKEY)){alert('パスワードが違います');return}
- const n=prompt('新しいパスワードを入力してください');if(!n||n.length<4){alert('4文字以上で設定してください');return}
- localStorage.setItem(PASSKEY,n);alert('パスワードを変更しました');
-}
-</script>
-</body>
-</html>
+const K='swampFogInterview_v12',PK='swampFogInterviewPass';if(!localStorage.getItem(PK))localStorage.setItem(PK,'2026');let data=JSON.parse(localStorage.getItem(K)||'[]');const $=s=>document.querySelector(s);
+function today(){let d=new Date();return d.toLocaleDateString('ja-JP')}$('#ivDate').value=today();
+function methodChange(){let v=$('#method').value,show=v==='紹介'||v==='その他';$('#methodDetailWrap').classList.toggle('hidden',!show);$('#methodDetail').required=show;$('#methodDetailLabel').textContent=v==='紹介'?'紹介者名 *':'その他の応募方法 *';if(!show)$('#methodDetail').value=''}
+function calcAge(){let v=document.querySelector('[name=birthday]').value;if(!v){$('#age').value='';return}let b=new Date(v),n=new Date(),a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()==b.getMonth()&&n.getDate()<b.getDate()))a--;$('#age').value=a}
+function save(){localStorage.setItem(K,JSON.stringify(data))}function val(fd,k){return(fd.get(k)||'').toString().trim()}function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+$('#f').onsubmit=e=>{e.preventDefault();let fd=new FormData(e.target),o={id:Date.now().toString(),createdAt:new Date().toISOString(),interviewDate:today(),interviewer:'',status:'応募',method:$('#method').value,methodDetail:$('#methodDetail').value.trim()};['furigana','name','birthday','age','height','blood','nationality','phone','address','education','career1','career2','career3','career4','employment','days','stage','exp','expPeriod','highIncome','lowIncome','current','workplace','x','ig','tt','yt','sns','reason1','reason2','reason3','important1','important2','important3','talk','drink','strength','weakness','hobby','worry','health','healthDetail','medical','medicalDetail','dream','tried','planned'].forEach(k=>o[k]=val(fd,k));data.unshift(o);save();e.target.reset();$('#method').value='';methodChange();$('#formView').classList.add('hidden');$('#thanks').classList.remove('hidden');scrollTo(0,0)}
+function resetForm(){$('#thanks').classList.add('hidden');$('#formView').classList.remove('hidden');$('#ivDate').value=today();scrollTo(0,0)}
+function loginOpen(){$('#login').classList.remove('hidden');$('#pw').value=''}function loginClose(){$('#login').classList.add('hidden')}function doLogin(){if($('#pw').value===localStorage.getItem(PK)){loginClose();$('#formView').classList.add('hidden');$('#thanks').classList.add('hidden');$('#admin').classList.remove('hidden');render()}else alert('パスワードが違います')}
+function logout(){$('#admin').classList.add('hidden');$('#formView').classList.remove('hidden');$('#ivDate').value=today()}
+function render(){let q=$('#search').value.toLowerCase(),f=$('#filter').value,arr=data.filter(x=>(!f||x.status===f)&&(!q||[x.name,x.stage,x.method,x.methodDetail,x.interviewer,x.sns].join(' ').toLowerCase().includes(q)));$('#list').innerHTML=arr.length?arr.map(x=>`<div class="item" onclick="openDetail('${x.id}')"><div><b>${esc(x.name)}</b><div class="meta">${esc(x.interviewDate)} ・ ${esc(x.method)}${x.methodDetail?'（'+esc(x.methodDetail)+'）':''}${x.interviewer?' ・ 担当:'+esc(x.interviewer):''}</div></div><span>${esc(x.status)}</span></div>`).join(''):'<div class="card lead">データがありません。</div>'}
+function D(k,v){return`<div class="d"><small>${esc(k)}</small><div>${esc(v||'—')}</div></div>`}
+function openDetail(id){let x=data.find(v=>v.id===id);if(!x)return;let fs=[['面接日',x.interviewDate],['応募方法',x.method+(x.methodDetail?'（'+x.methodDetail+'）':'')],['フリガナ',x.furigana],['氏名',x.name],['生年月日',x.birthday],['年齢',x.age?x.age+'歳':''],['身長',x.height?x.height+'cm':''],['血液型',x.blood],['国籍',x.nationality],['連絡先',x.phone],['現住所',x.address],['最終学歴',x.education],['職歴',[x.career1,x.career2,x.career3,x.career4].filter(Boolean).join('\n')],['雇用形態',x.employment+(x.days?' / '+x.days:'')],['希望源氏名',x.stage],['ホスト経験',x.exp],['経験期間',x.expPeriod],['過去最高月収',x.highIncome?x.highIncome+'万円':''],['過去最低月収',x.lowIncome?x.lowIncome+'万円':''],['現在の状況',x.current],['在籍先',x.workplace],['X',x.x],['Instagram',x.ig],['TikTok',x.tt],['YouTube',x.yt],['SNS',x.sns],['当店を選んだ理由',[x.reason1,x.reason2,x.reason3].filter(Boolean).join('\n')],['仕事で大切なこと',[x.important1,x.important2,x.important3].filter(Boolean).join('\n')],['会話',x.talk],['お酒',x.drink],['長所',x.strength],['短所',x.weakness],['部活・特技・趣味',x.hobby],['不安・悩み',x.worry],['体調面の自己管理',x.health+(x.healthDetail?'：'+x.healthDetail:'')],['通院や持病',x.medical+(x.medicalDetail?'：'+x.medicalDetail:'')],['将来の夢',x.dream],['体験入店した店舗',x.tried],['体験予定の店舗',x.planned]];$('#detail').innerHTML=`<div class="toolbar"><button class="btn" onclick="closeDetail()">閉じる</button><input id="interviewer" value="${esc(x.interviewer)}" placeholder="面接担当者（管理者入力）"><select id="status">${['応募','面接','体験入店','入店','辞退','不採用'].map(s=>`<option ${s===x.status?'selected':''}>${s}</option>`).join('')}</select><button class="btn" onclick="adminSave('${x.id}')">保存</button></div><div class="detail">${fs.map(v=>D(v[0],v[1])).join('')}</div><div class="toolbar"><button class="btn primary" onclick="shareLine('${x.id}')">幹部LINEへ共有</button><button class="btn" onclick="copyLine('${x.id}')">内容をコピー</button><button class="btn danger" onclick="del('${x.id}')">削除</button></div>`;$('#detailModal').classList.remove('hidden')}
+function closeDetail(){$('#detailModal').classList.add('hidden')}function adminSave(id){let x=data.find(v=>v.id===id);x.interviewer=$('#interviewer').value.trim();x.status=$('#status').value;save();render();alert('保存しました')}
+function lineText(x){let L=(a,b)=>`${a}：${b||'—'}`;return['【SWAMP FOG 面接アンケート】',L('面接日',x.interviewDate),L('面接担当',x.interviewer),L('応募方法',x.method+(x.methodDetail?'（'+x.methodDetail+'）':'')),'',L('氏名',x.name),L('年齢',x.age?x.age+'歳':''),L('連絡先',x.phone),L('ホスト経験',x.exp),L('経験期間',x.expPeriod),L('過去最高月収',x.highIncome?x.highIncome+'万円':''),L('現在の在籍先',x.workplace),L('SNS',x.sns),L('当店を選んだ理由',[x.reason1,x.reason2,x.reason3].filter(Boolean).join(' / ')),L('仕事で大切なこと',[x.important1,x.important2,x.important3].filter(Boolean).join(' / ')),L('長所',x.strength),L('短所',x.weakness),L('不安・悩み',x.worry),L('将来の夢',x.dream),L('体験入店した店舗',x.tried),L('体験予定の店舗',x.planned),L('ステータス',x.status)].join('\n')}
+async function cp(t){try{await navigator.clipboard.writeText(t);return true}catch(e){let a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let ok=document.execCommand('copy');a.remove();return ok}}
+async function copyLine(id){let x=data.find(v=>v.id===id);alert(await cp(lineText(x))?'コピーしました':'コピーできませんでした')}
+async function shareLine(id){let x=data.find(v=>v.id===id),t=lineText(x);if(navigator.share){try{await navigator.share({title:'SWAMP FOG 面接アンケート',text:t});return}catch(e){if(e.name==='AbortError')return}}await cp(t);alert('共有できない環境のためコピーしました。LINEに貼り付けてください。')}
+function del(id){if(confirm('削除しますか？')){data=data.filter(v=>v.id!==id);save();closeDetail();render()}}
+</script></body></html>
