@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#08090b">
-<title>SWAMP FOG HELP SIMPLE Ver.2</title>
+<title>SWAMP FOG HELP SIMPLE Ver.3</title>
 <style>
 :root{
   --bg:#08090b;--panel:#121318;--panel2:#191b22;--line:#2b2e38;
@@ -69,12 +69,27 @@ textarea{min-height:150px}
 .tag{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
 .tag.on{background:#e7c66b;color:#111}
 .note{font-size:11px;color:var(--muted);line-height:1.55}
+
+#viewBoard{display:flex;flex-direction:column;min-height:calc(100vh - 190px)}
+.table-zone{position:sticky;top:65px;z-index:15;background:var(--bg);padding-bottom:9px;border-bottom:1px solid var(--line)}
+.compact-head{margin:7px 2px 7px}
+.table-strip{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:1px 2px 7px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.table-strip::-webkit-scrollbar{display:none}
+.table-strip .table-card{flex:0 0 145px;min-height:92px;padding:9px;scroll-snap-align:start}
+.table-strip .table-name{font-size:17px}
+.table-strip .meta{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.table-strip .badges{margin-top:6px;gap:4px}
+.table-strip .badge{font-size:9px;padding:4px 6px}
+.cast-zone{min-height:0}
+.cast-head{margin-top:10px}
+.available-label{font-size:10px;color:var(--green);font-weight:800}
+
 </style>
 </head>
 <body>
 <header>
 <div class="title">SWAMP FOG HELP</div>
-<div class="sub">SIMPLE AVAILABILITY BOARD — Ver.2</div>
+<div class="sub">SIMPLE AVAILABILITY BOARD — Ver.3</div>
 </header>
 
 <main>
@@ -86,11 +101,15 @@ textarea{min-height:150px}
 </div>
 
 <section id="viewBoard">
-  <div class="section-head"><h2>キャスト状況</h2><button class="small secondary" onclick="showInfo()">操作</button></div>
-  <div id="castList" class="list"></div>
+  <div class="table-zone">
+    <div class="section-head compact-head"><h2>卓情報</h2><button class="small secondary" onclick="showInfo()">操作</button></div>
+    <div id="tableList" class="table-strip"></div>
+  </div>
 
-  <div class="section-head"><h2>自席卓</h2></div>
-  <div id="tableList" class="list"></div>
+  <div class="cast-zone">
+    <div class="section-head cast-head"><h2>キャスト一覧</h2><span id="availableLabel" class="available-label"></span></div>
+    <div id="castList" class="list"></div>
+  </div>
 </section>
 
 <section id="viewAttendance" class="hide">
@@ -148,7 +167,7 @@ textarea{min-height:150px}
 </dialog>
 
 <script>
-const KEY='swampHelpSimpleV2';
+const KEY='swampHelpSimpleV3';
 const TABLES=['A1','A2','A3','A4','A5','A6','A7','A8','B1','B2','B3','C1','C2','C3','C4','C5','C6','C7','C8','D1','D2','S1','S2','S3','S4','S5','S6','S7','S8','S9','VIP','RVIP'];
 const TAGS=['高単価','リピート','場内','飲み上げ','告知','通常'];
 let state=load()||{casts:[],tableMeta:{}};
@@ -265,14 +284,20 @@ function render(){
     </div>`
   }).join(''):'<div class="empty">本日出勤を設定してください</div>';
 
-  let usedTables=TABLES.filter(t=>getOwners(t).length);
+  let rank={high:0,mid:1,low:2};
+  let usedTables=TABLES.filter(t=>getOwners(t).length).sort((a,b)=>{
+    let pa=(state.tableMeta[a]||{priority:'mid'}).priority;
+    let pb=(state.tableMeta[b]||{priority:'mid'}).priority;
+    return rank[pa]-rank[pb] || TABLES.indexOf(a)-TABLES.indexOf(b);
+  });
+  availableLabel.textContent='ヘルプ可能 '+available+'名';
   tableList.innerHTML=usedTables.length?usedTables.map(t=>{
     let owners=getOwners(t),m=state.tableMeta[t]||{priority:'mid',tags:[]};
     let pLabel=m.priority==='high'?'高':m.priority==='low'?'低':'中';
     return `<div class="table-card ${m.priority}" onclick="openTableMeta('${t}')">
-      <div class="table-top"><div><div class="table-name">${t}</div><div class="meta">担当：${owners.map(o=>esc(o.name)).join('・')}</div></div>
+      <div class="table-top"><div><div class="table-name">${t}</div><div class="meta">${owners.map(o=>esc(o.name)).join('・')}</div></div>
       <div class="badge ${m.priority==='high'?'red':m.priority==='low'?'green':'yellow'}">${pLabel}</div></div>
-      <div class="badges">${(m.tags||[]).map(x=>`<span class="badge">${esc(x)}</span>`).join('')||'<span class="badge">属性なし</span>'}</div>
+      <div class="badges">${(m.tags||[]).slice(0,2).map(x=>`<span class="badge">${esc(x)}</span>`).join('')||'<span class="badge">通常</span>'}</div>
     </div>`
   }).join(''):'<div class="empty">自席卓はまだありません</div>';
 
@@ -286,7 +311,7 @@ function showView(v){
     document.getElementById('nav'+x).classList.toggle('on',x.toLowerCase()===v)
   });render()
 }
-function showInfo(){alert('キャスト操作は長押しのみです。\\nスクロール中は操作されません。\\n自席ありを選ぶと複数卓登録できます。\\n卓番の色は各卓の優先度です。')}
+function showInfo(){alert('上の卓情報は横スワイプ、下のキャスト一覧は縦スクロールです。\\n卓は 高→中→低 の順に自動表示します。\\nキャスト操作は長押しのみ。スクロール中は操作されません。')}
 render();
 </script>
 </body>
