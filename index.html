@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.39 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.40 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -169,7 +169,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11238-compact-direct-table">
-/* Ver.11.2.39
+/* Ver.11.2.40
    稼働中は卓情報を最小化してキャスト一覧の縦領域を最大化。
    送り・場内は一時終了後のみ表示。 */
 
@@ -283,7 +283,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11239-summary-remove">
-/* Ver.11.2.39: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
+/* Ver.11.2.40: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
 header .summary{
   display:none !important;
 }
@@ -342,7 +342,7 @@ header .clock{
 
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.39 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.40 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="all-timers-wrap"><div class="all-timers-title"><b>全卓タイマー</b><span>タップで該当卓へ</span></div><div id="allTimersBar" class="all-timers-bar"></div></div>
@@ -657,58 +657,49 @@ function openCompanionApply(cid){let c=state.casts.find(x=>x.id===cid),tables=st
 function openCompanionManage(tid){let t=state.tables.find(x=>x.id===tid);if(!t||!isCompanion(t))return;let owner=state.casts.find(c=>c.id===t.ownerId);let sCasts=state.casts.filter(c=>c.working&&c.rank==='S'&&c.id!==t.ownerId);openUtility(t.no+'・お連れ様候補',`<div class="notice">基本候補は「担当指名＋担当と同じチーム」。必要な卓ではSランク全員を幹部候補として一括追加できます。それ以外は申告制です。</div><div class="form" style="margin-top:10px"><div class="info-card"><b>担当</b><p>${esc(owner?.name||'未設定')}</p><b>同チーム候補</b><p>${esc(state.casts.filter(c=>owner&&c.team===owner.team&&c.id!==owner.id&&c.working).map(c=>c.name).join('・')||'なし')}</p><b>Sランク一括候補</b><p>${t.companionIncludeS?esc(sCasts.map(c=>c.name).join('・')||'対象者なし'):'OFF'}</p><b>申告者</b><p>${esc((t.companionApplicants||[]).map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean).join('・')||'なし')}</p></div><label class="switch-row important-switch"><span><b>Sランクをまとめて候補にする</b><br><small>幹部を回してほしい要望がある卓だけON</small></span><input id="compIncludeS" type="checkbox" ${t.companionIncludeS?'checked':''}></label><b>担当指名キャスト</b>${state.casts.filter(c=>c.working&&c.id!==t.ownerId).map(c=>`<label class="switch-row"><span>${esc(c.name)}　${c.rank}${owner&&c.team===owner.team?'（同チーム）':''}${c.rank==='S'&&t.companionIncludeS?'（S一括候補）':''}${(t.companionApplicants||[]).includes(c.id)?'（申告）':''}</span><input class="compPick" type="checkbox" value="${c.id}" ${(t.companionPicks||[]).includes(c.id)?'checked':''}></label>`).join('')}<button class="primary" id="saveCompManage">保存</button></div>`);document.querySelector('#saveCompManage').onclick=()=>{t.companionIncludeS=!!document.querySelector('#compIncludeS')?.checked;t.companionPicks=[...document.querySelectorAll('.compPick:checked')].map(x=>x.value);save();closeUtility();render();toast(t.companionIncludeS?'Sランクを含むお連れ様候補を保存しました':'お連れ様候補を保存しました')}}
 function openRestrictions(){openUtility('制限設定',`<div class="notice">制限は着席候補へ即時反映されます。勤怠ペナルティ中はお連れ様以外不可。VIPのB・Cは卓ごとの例外追加時のみ候補になります。</div><div class="info-card" style="margin-top:10px">${state.casts.map(c=>`<div class="list-row"><div class="list-main"><b>${esc(c.name)}　${c.rank}</b><small>${esc(restrictionsText(c)||'制限なし')}</small></div><button class="icon-btn" data-restrict="${c.id}">設定</button></div>`).join('')}</div>`);document.querySelectorAll('[data-restrict]').forEach(b=>b.onclick=()=>openRestrictionCast(b.dataset.restrict))}
 function openRestrictionCast(cid){let c=state.casts.find(x=>x.id===cid);openUtility(c.name+'・制限',`<div class="notice">遅刻・欠勤などの勤怠上の制限は「勤怠ペナルティ」にまとめて設定します。勤怠ペナルティ中はランク・VIPに関係なく、お連れ様卓以外には着席できません。</div><div class="form" style="margin-top:10px"><div class="switch-row"><span>本日出勤</span><input id="rWorking" type="checkbox" ${c.working?'checked':''}></div><div class="switch-row"><span>勤怠ペナルティ<br><small style="color:var(--muted)">遅刻・欠勤などを含む</small></span><input id="rPenalty" type="checkbox" ${c.penalty?'checked':''}></div><div class="switch-row"><span>場内中</span><input id="rInHouse" type="checkbox" ${c.inHouse?'checked':''}></div><label>送り数<input id="rSends" type="number" min="0" value="${c.sends}"></label><div><b>卓別NG</b>${state.tables.filter(t=>t.active).map(t=>`<label class="switch-row"><span>${esc(t.no)} ${esc(t.plan)}</span><input class="rNg" type="checkbox" value="${t.id}" ${c.ngTables.includes(t.id)?'checked':''}></label>`).join('')||'<p class="hint">稼働卓なし</p>'}</div><button class="primary" id="rSave">保存</button></div>`);document.querySelector('#rSave').onclick=()=>{const wasInHouse=!!c.inHouse;const nextInHouse=document.querySelector('#rInHouse').checked;c.working=document.querySelector('#rWorking').checked;c.penalty=document.querySelector('#rPenalty').checked;c.inHouse=nextInHouse;if(!wasInHouse&&nextInHouse)c.inHouseSince=now();if(wasInHouse&&!nextInHouse)c.inHouseSince=null;c.sends=+document.querySelector('#rSends').value||0;c.ngTables=[...document.querySelectorAll('.rNg:checked')].map(x=>x.value);if(!wasInHouse&&nextInHouse){const activeTable=c.currentTable||c.preparingFor||null;const t=activeTable?state.tables.find(x=>x.id===activeTable):null;state.history.push({type:'extension',cast:c.id,castName:c.name,table:activeTable||'',tableNo:t?.no||'',at:now()})}if(!c.working){c.currentTable=null;c.preparingFor=null}save();closeUtility();render();toast(!wasInHouse&&nextInHouse?'制限を保存しました・場内/延長を1件記録':'制限を保存しました')}}
+function finalizeQuickOutcome(t,kind){
+  if(!t)return;let tid=t.id,tableNo=t.no;
+  state.casts.forEach(c=>{if(c.currentTable===tid)c.currentTable=null;if(c.preparingFor===tid)c.preparingFor=null});
+  Object.keys(state.refusals||{}).forEach(k=>{if(k.endsWith('|'+tid))delete state.refusals[k]});
+  state.history.push({type:kind==='send'?'tableEndWithSend':'tableEndInHouse',table:tid,tableNo,senders:[...(t.senders||[])],at:now()});
+  state.tables=state.tables.filter(x=>x.id!==tid);
+  if(selectedTable===tid){selectedTable=null;selectedCast=null;document.querySelector('#sheet')?.classList.add('hidden')}
+  if(editTableId===tid)editTableId=null;
+  save();render();toast(tableNo+(kind==='send'?' 送り確定・卓終了':' 場内確定・卓終了'));
+}
 function openQuickSendAndFinish(tid){
-  let t=state.tables.find(x=>x.id===tid);
-  if(!t)return;
-  openUtility(t.no+'・送り選択',`
-    <div class="notice">送りキャストを1名タップすると、送りを記録してこの卓をそのまま終了します。</div>
-    <div class="sender-grid">
-      ${state.casts.filter(c=>c.working).map(c=>`<button class="sender-btn" data-quick-finish-sender="${c.id}">${esc(c.name)}<br><small>タップで送り確定 → 卓終了</small></button>`).join('')}
-    </div>
-    <button class="danger" id="quickNoSendFinish" style="width:100%;margin-top:10px">送り無しで卓終了</button>
-  `);
-  document.querySelectorAll('[data-quick-finish-sender]').forEach(b=>b.onclick=()=>{
-    let cid=b.dataset.quickFinishSender,c=state.casts.find(x=>x.id===cid);
-    if(!c)return;
-    // 既存の送りがあれば重複記録せず、選択キャストを送りとして確定
-    if(!(t.senders||[]).includes(cid)){
-      t.senders=t.senders||[];
-      t.senders.push(cid);
-      if(t.plan!=='お連れ様')c.sends=(Number(c.sends)||0)+1;
-      state.history.push({type:'send',cast:cid,table:t.id,castName:c.name||'',tableNo:t.no,at:now()});
-      save();
-    }
-    closeUtility();
-    finalizeTable(t,'withSend',true);
-  });
-  let noSend=document.querySelector('#quickNoSendFinish');
-  if(noSend)noSend.onclick=()=>{closeUtility();finalizeTable(t,'noSend')};
+  let t=state.tables.find(x=>x.id===tid);if(!t)return;
+  let selected=[];
+  const draw=()=>{
+    openUtility(t.no+'・送り選択',`
+      <div class="notice">送りのキャストを選択してください。複数人選べます。最後に「決定」で確定して卓を終了します。</div>
+      <div class="sender-grid">${state.casts.filter(c=>c.working).map(c=>`<button class="sender-btn ${selected.includes(c.id)?'on':''}" data-pick-send="${c.id}">${esc(c.name)}<br><small>${selected.includes(c.id)?'✓ 選択中':'タップで選択'}</small></button>`).join('')}</div>
+      <p class="hint">選択中：${esc(selected.map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean).join('・')||'なし')}</p>
+      <button class="danger" id="decideSend" style="width:100%;margin-top:10px" ${selected.length?'':'disabled'}>決定</button>`);
+    document.querySelectorAll('[data-pick-send]').forEach(b=>b.onclick=()=>{let id=b.dataset.pickSend;selected=selected.includes(id)?selected.filter(x=>x!==id):[...selected,id];draw()});
+    document.querySelector('#decideSend').onclick=()=>{
+      if(!selected.length)return;
+      selected.forEach(cid=>{let c=state.casts.find(x=>x.id===cid);if(!c)return;if(!(t.senders||[]).includes(cid)){t.senders=t.senders||[];t.senders.push(cid);if(t.plan!=='お連れ様')c.sends=(Number(c.sends)||0)+1;state.history.push({type:'send',cast:cid,table:t.id,castName:c.name||'',tableNo:t.no,at:now()})}});
+      save();closeUtility();finalizeQuickOutcome(t,'send');
+    };
+  };draw();
 }
 function openQuickInHouseAndFinish(tid){
-  let t=state.tables.find(x=>x.id===tid);
-  if(!t)return;
-  openUtility(t.no+'・場内選択',`
-    <div class="notice">場内になったキャストを1名タップすると、場内を1件記録してこの初回卓を終了します。</div>
-    <div class="sender-grid">
-      ${state.casts.filter(c=>c.working).map(c=>`<button class="sender-btn ${c.inHouse?'on':''}" data-quick-inhouse-cast="${c.id}">${esc(c.name)}<br><small>${c.inHouse?'場内中':'タップで場内確定 → 卓終了'}</small></button>`).join('')}
-    </div>
-  `);
-  document.querySelectorAll('[data-quick-inhouse-cast]').forEach(b=>b.onclick=()=>{
-    let cid=b.dataset.quickInhouseCast,c=state.casts.find(x=>x.id===cid);
-    if(!c)return;
-    const stamp=now();
-    c.inHouse=true;
-    c.inHouseSince=stamp;
-    state.history.push({type:'extension',cast:cid,castName:c.name||'',table:t.id,tableNo:t.no,at:stamp});
-    let tid=t.id,tableNo=t.no;
-    state.casts.forEach(x=>{if(x.currentTable===tid)x.currentTable=null;if(x.preparingFor===tid)x.preparingFor=null});
-    Object.keys(state.refusals||{}).forEach(k=>{if(k.endsWith('|'+tid))delete state.refusals[k]});
-    state.history.push({type:'tableEndExtension',table:tid,tableNo:tableNo,cast:cid,castName:c.name||'',at:stamp});
-    state.tables=state.tables.filter(x=>x.id!==tid);
-    if(selectedTable===tid){selectedTable=null;selectedCast=null;document.querySelector('#sheet')?.classList.add('hidden')}
-    if(editTableId===tid)editTableId=null;
-    save();closeUtility();render();toast(tableNo+' 場内 '+c.name+'・卓終了');
-  });
+  let t=state.tables.find(x=>x.id===tid);if(!t)return;
+  let selected=[];
+  const draw=()=>{
+    openUtility(t.no+'・場内選択',`
+      <div class="notice">場内のキャストを選択してください。複数人選べます。最後に「決定」で確定して卓を終了します。</div>
+      <div class="sender-grid">${state.casts.filter(c=>c.working).map(c=>`<button class="sender-btn ${selected.includes(c.id)?'on':''}" data-pick-inhouse="${c.id}">${esc(c.name)}<br><small>${selected.includes(c.id)?'✓ 選択中':'タップで選択'}</small></button>`).join('')}</div>
+      <p class="hint">選択中：${esc(selected.map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean).join('・')||'なし')}</p>
+      <button class="danger" id="decideInHouse" style="width:100%;margin-top:10px" ${selected.length?'':'disabled'}>決定</button>`);
+    document.querySelectorAll('[data-pick-inhouse]').forEach(b=>b.onclick=()=>{let id=b.dataset.pickInhouse;selected=selected.includes(id)?selected.filter(x=>x!==id):[...selected,id];draw()});
+    document.querySelector('#decideInHouse').onclick=()=>{
+      if(!selected.length)return;
+      let at=now();selected.forEach(cid=>{let c=state.casts.find(x=>x.id===cid);if(!c)return;c.inHouse=true;c.inHouseSince=at;state.history.push({type:'extension',cast:c.id,castName:c.name,table:t.id,tableNo:t.no,at})});
+      save();closeUtility();finalizeQuickOutcome(t,'inhouse');
+    };
+  };draw();
 }
 function openSending(){openUtility('送り設定',`<div class="notice">送り指名を登録します。卓の最終終了は「送り有り卓終了」または「送り無し卓終了」から行います。</div><div class="info-card" style="margin-top:10px">${state.tables.filter(t=>t.active).map(t=>`<div class="list-row"><div class="list-main"><b>${esc(t.no)}　${esc(t.plan)}</b><small>送り ${(t.senders||[]).length}/${t.guests}</small></div><button class="icon-btn" data-sending="${t.id}">設定</button></div>`).join('')||'稼働卓なし'}</div>`);document.querySelectorAll('[data-sending]').forEach(b=>b.onclick=()=>openSenderForTable(b.dataset.sending,false))}
 function openSenderForTable(tid,finishMode=false){let t=state.tables.find(x=>x.id===tid);if(!t)return;openUtility(t.no+'・送り指名',`<div class="notice">キャストを1回タップで送り確定。もう一度タップで取り消せます。${finishMode?'送りを選んだ後、下の「送り有り卓終了」で確定します。':''}</div><div class="sender-grid">${state.casts.filter(c=>c.working).map(c=>{let on=t.senders.includes(c.id),pending=t.senderPending.includes(c.id);return`<button class="sender-btn ${on?'on':pending?'pending':''}" data-sender="${c.id}">${esc(c.name)}<br><small>${on?'✓ 送り':'送り'+c.sends}</small></button>`}).join('')}</div><p class="hint">確定 ${(t.senders||[]).length}/${t.guests}</p>${finishMode?`<button class="danger" id="finishWithSend" style="width:100%;margin-top:10px" ${(t.senders||[]).length?'':'disabled'}>送り有り卓終了</button>`:''}`);document.querySelectorAll('[data-sender]').forEach(b=>{let cid=b.dataset.sender;bindLong(b,()=>removeSender(t,cid,finishMode));b.onclick=()=>toggleSender(t,cid,finishMode)});let finish=document.querySelector('#finishWithSend');if(finish)finish.onclick=()=>{closeUtility();finalizeTable(t,'withSend')}}
@@ -1288,7 +1279,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.39 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.40 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2132,7 +2123,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.39 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.40 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
