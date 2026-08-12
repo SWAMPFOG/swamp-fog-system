@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.36 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.37 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -132,9 +132,44 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 #directBoard .direct-outcome-actions .direct-send-quick{margin:0!important}
 #directBoard .direct-inhouse-open{width:100%;min-height:32px;padding:5px 9px;border-radius:8px;background:#10261a;border:1px solid #285a3c;color:#9af0b7;font-size:11px;font-weight:900;text-align:center}
 </style>
+
+<style id="v11237-outcome-buttons-visible">
+#directBoard .direct-outcome-actions{
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:8px !important;
+  flex:0 0 auto !important;
+  padding:8px 0 !important;
+  margin:0 !important;
+}
+#directBoard .direct-outcome-actions .direct-send-open,
+#directBoard .direct-outcome-actions .direct-inhouse-open{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  min-height:40px !important;
+  border-radius:10px !important;
+  font-size:13px !important;
+  font-weight:950 !important;
+  position:relative !important;
+  z-index:5 !important;
+}
+#directBoard .direct-outcome-actions .direct-send-open{
+  background:#332b12 !important;
+  border:1px solid #8f7629 !important;
+  color:#ffe18b !important;
+}
+#directBoard .direct-outcome-actions .direct-inhouse-open{
+  background:#10261a !important;
+  border:1px solid #285a3c !important;
+  color:#9af0b7 !important;
+}
+</style>
+
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.36 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.37 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="all-timers-wrap"><div class="all-timers-title"><b>全卓タイマー</b><span>タップで該当卓へ</span></div><div id="allTimersBar" class="all-timers-bar"></div></div>
@@ -1080,7 +1115,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.36 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.37 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -1130,7 +1165,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
       const pendingHtml=pending.length?`<div class="direct-pending"><b>選択中 ${pending.length}名</b><br>${esc(pending.map(c=>c.name).join('・'))}</div>`:'';
       const canUndo=t.lastSeatAt&&p.stage!=='over'&&current.length;
       const currentHtml=current.length?current.map(c=>`<button type="button" class="current-cast-chip" data-simple-undo="${c.id}" data-simple-undo-table="${t.id}" ${canUndo?'':'disabled'}>${esc(c.name)}${canUndo?'　取消':''}</button>`).join(''):'空席';
-      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button><div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
+      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button><div class="direct-outcome-actions"><button type="button" class="direct-send-open" data-quick-send="${t.id}">送り</button><button type="button" class="direct-inhouse-open" data-quick-inhouse="${t.id}">場内</button></div><div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
     }).join('');
     // DOM差し替え後に、直前のスクロール位置を復元する。
     box.scrollLeft=boardScrollLeft;
@@ -1138,6 +1173,20 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
       const list=card.querySelector('.direct-list');
       const saved=listScrollPositions[card.dataset.directTable];
       if(list&&Number.isFinite(saved))list.scrollTop=saved;
+    });
+    box.querySelectorAll('[data-quick-send]').forEach(btn=>{
+      btn.onclick=(e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        openQuickSendAndFinish(btn.dataset.quickSend);
+      };
+    });
+    box.querySelectorAll('[data-quick-inhouse]').forEach(btn=>{
+      btn.onclick=(e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        openQuickInHouseAndFinish(btn.dataset.quickInhouse);
+      };
     });
     box.querySelectorAll('[data-simple-cast]').forEach(btn=>{
       let holdTimer=null,longFired=false,startX=0,startY=0;
@@ -1910,7 +1959,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.36 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.37 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
