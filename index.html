@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.38 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.39 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -169,7 +169,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11238-compact-direct-table">
-/* Ver.11.2.38
+/* Ver.11.2.39
    稼働中は卓情報を最小化してキャスト一覧の縦領域を最大化。
    送り・場内は一時終了後のみ表示。 */
 
@@ -281,9 +281,68 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 }
 </style>
 
+
+<style id="v11239-summary-remove">
+/* Ver.11.2.39: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
+header .summary{
+  display:none !important;
+}
+header{
+  padding:calc(6px + env(safe-area-inset-top)) 12px 6px !important;
+}
+header .brand{
+  min-height:28px !important;
+}
+header .brand h1{
+  font-size:15px !important;
+}
+header .clock{
+  font-size:11px !important;
+}
+
+/* 卓別営業画面見出しも少し圧縮 */
+.direct-head{
+  top:44px !important;
+  padding:5px 10px 4px !important;
+  min-height:30px !important;
+}
+.direct-head b{
+  font-size:13px !important;
+}
+.direct-head span{
+  font-size:9px !important;
+}
+
+/* 上部を削った分、卓別回し領域を縦に拡大 */
+#directBoard.direct-board{
+  height:calc(100dvh - 82px - var(--nav, 64px) - env(safe-area-inset-bottom)) !important;
+  max-height:calc(100dvh - 82px - var(--nav, 64px) - env(safe-area-inset-bottom)) !important;
+  min-height:420px !important;
+}
+#directBoard .direct-table{
+  height:100% !important;
+  max-height:none !important;
+  min-height:0 !important;
+}
+#directBoard .direct-list{
+  flex:1 1 0 !important;
+  min-height:0 !important;
+  max-height:none !important;
+}
+
+/* 小さい端末でもできるだけ一覧を優先 */
+@media (max-height:760px){
+  #directBoard.direct-board{
+    height:calc(100dvh - 76px - var(--nav, 64px) - env(safe-area-inset-bottom)) !important;
+    max-height:calc(100dvh - 76px - var(--nav, 64px) - env(safe-area-inset-bottom)) !important;
+    min-height:340px !important;
+  }
+}
+</style>
+
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.38 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.39 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="all-timers-wrap"><div class="all-timers-title"><b>全卓タイマー</b><span>タップで該当卓へ</span></div><div id="allTimersBar" class="all-timers-bar"></div></div>
@@ -1229,7 +1288,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.38 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.39 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2073,7 +2132,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.38 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.39 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
