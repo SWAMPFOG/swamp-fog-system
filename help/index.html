@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#08090b">
-<title>SWAMP FOG HELP SIMPLE Ver.1</title>
+<title>SWAMP FOG HELP SIMPLE Ver.2</title>
 <style>
 :root{
   --bg:#08090b;--panel:#121318;--panel2:#191b22;--line:#2b2e38;
-  --text:#f5f5f7;--muted:#8f95a3;--green:#56d38c;--blue:#63a4ff;
-  --orange:#ffad5a;--red:#ff626d;--yellow:#e8c75f;
+  --text:#f5f5f7;--muted:#8f95a3;--green:#56d38c;--yellow:#e8c75f;
+  --red:#ff626d;--orange:#ffad5a;--dark:#2a2d35;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:86px}
@@ -24,19 +24,26 @@ h2{font-size:15px;margin:0}
 button{border:0;border-radius:10px;padding:9px 11px;font-weight:800;background:#e7c66b;color:#111}
 button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
 button.small{padding:7px 9px;font-size:11px}
-.grid{display:grid;gap:8px}
-.cast-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.cast{
-  min-height:64px;border-radius:13px;border:1px solid var(--line);background:var(--panel);
-  padding:9px 6px;text-align:center;display:flex;flex-direction:column;justify-content:center;
-  user-select:none;-webkit-user-select:none;touch-action:manipulation
+.list{display:grid;gap:7px}
+.cast-row{
+  min-height:62px;border-radius:13px;border:1px solid var(--line);background:var(--panel);
+  padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  user-select:none;-webkit-user-select:none;touch-action:pan-y;
 }
-.cast.available{border-color:rgba(86,211,140,.45);background:rgba(86,211,140,.08)}
-.cast.own{border-color:rgba(99,164,255,.45);background:rgba(99,164,255,.10)}
-.cast.help{border-color:rgba(255,173,90,.45);background:rgba(255,173,90,.10)}
-.cast .name{font-weight:900;font-size:13px;line-height:1.15}
-.cast .state{font-size:10px;margin-top:5px;color:var(--muted)}
-.cast.available .state{color:var(--green)}.cast.own .state{color:var(--blue)}.cast.help .state{color:var(--orange)}
+.cast-row.help{background:var(--dark);opacity:.72}
+.cast-main{min-width:0}
+.cast-name{font-weight:900;font-size:15px;line-height:1.2}
+.cast-sub{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.45}
+.status-pill{font-size:10px;border-radius:999px;padding:6px 8px;background:var(--panel2);border:1px solid var(--line);white-space:nowrap}
+.status-pill.available{color:var(--green)}
+.status-pill.help{color:var(--orange)}
+.table-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.table-tag{
+  font-size:10px;border-radius:999px;padding:5px 7px;border:1px solid var(--line);background:var(--panel2)
+}
+.table-tag.high{color:#fff;background:rgba(255,98,109,.18);border-color:rgba(255,98,109,.55)}
+.table-tag.mid{color:#fff;background:rgba(232,199,95,.15);border-color:rgba(232,199,95,.5)}
+.table-tag.low{color:#fff;background:rgba(86,211,140,.14);border-color:rgba(86,211,140,.45)}
 .table-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:11px}
 .table-card.high{border-color:var(--red)}.table-card.mid{border-color:var(--yellow)}.table-card.low{border-color:var(--green)}
 .table-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
@@ -44,7 +51,7 @@ button.small{padding:7px 9px;font-size:11px}
 .meta{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.45}
 .badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .badge{font-size:10px;border-radius:999px;padding:5px 7px;background:var(--panel2);border:1px solid var(--line)}
-.badge.red{color:var(--red)}.badge.yellow{color:var(--yellow)}.badge.green{color:var(--green)}.badge.blue{color:var(--blue)}
+.badge.red{color:var(--red)}.badge.yellow{color:var(--yellow)}.badge.green{color:var(--green)}
 .empty{font-size:12px;color:var(--muted);padding:12px 2px}
 .nav{position:fixed;bottom:0;left:0;right:0;z-index:30;display:grid;grid-template-columns:repeat(3,1fr);background:rgba(12,13,16,.97);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:7px 8px calc(7px + env(safe-area-inset-bottom))}
 .nav button{background:transparent;color:var(--muted);padding:10px 4px;font-size:11px}.nav button.on{color:#e7c66b}
@@ -57,7 +64,7 @@ textarea{min-height:150px}
 .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 .table-picks{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .table-pick{background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:10px 4px}
-.table-pick.on{background:var(--blue);color:#111}
+.table-pick.on{background:#63a4ff;color:#111}
 .tag-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
 .tag{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
 .tag.on{background:#e7c66b;color:#111}
@@ -67,7 +74,7 @@ textarea{min-height:150px}
 <body>
 <header>
 <div class="title">SWAMP FOG HELP</div>
-<div class="sub">SIMPLE AVAILABILITY BOARD — Ver.1</div>
+<div class="sub">SIMPLE AVAILABILITY BOARD — Ver.2</div>
 </header>
 
 <main>
@@ -80,23 +87,20 @@ textarea{min-height:150px}
 
 <section id="viewBoard">
   <div class="section-head"><h2>キャスト状況</h2><button class="small secondary" onclick="showInfo()">操作</button></div>
-  <div id="castGrid" class="cast-grid"></div>
+  <div id="castList" class="list"></div>
 
   <div class="section-head"><h2>自席卓</h2></div>
-  <div id="tableList" class="grid"></div>
+  <div id="tableList" class="list"></div>
 </section>
 
 <section id="viewAttendance" class="hide">
-  <div class="section-head">
-    <h2>本日出勤</h2>
-    <button class="small" onclick="openBulk()">＋まとめて追加</button>
-  </div>
-  <div id="attendanceList" class="grid"></div>
+  <div class="section-head"><h2>本日出勤</h2><button class="small" onclick="openBulk()">＋まとめて追加</button></div>
+  <div id="attendanceList" class="list"></div>
 </section>
 
 <section id="viewManage" class="hide">
   <div class="section-head"><h2>在籍管理</h2><button class="small" onclick="openBulk()">＋追加</button></div>
-  <div id="manageList" class="grid"></div>
+  <div id="manageList" class="list"></div>
 </section>
 </main>
 
@@ -116,16 +120,16 @@ textarea{min-height:150px}
 <dialog id="stateDialog">
 <h2 id="stateTitle">状態変更</h2>
 <div class="field">
-  <button style="width:100%;margin-bottom:8px" onclick="setState('available')">🟢 ヘルプ可能</button>
-  <button style="width:100%;margin-bottom:8px;background:#63a4ff" onclick="openOwnTables()">🔵 自席あり</button>
-  <button style="width:100%;background:#ffad5a" onclick="setState('help')">🟠 ヘルプ着席中</button>
+  <button style="width:100%;margin-bottom:8px" onclick="setState('available')">ヘルプ可能</button>
+  <button style="width:100%;margin-bottom:8px;background:#63a4ff" onclick="openOwnTables()">自席あり</button>
+  <button style="width:100%;background:#ffad5a" onclick="setState('help')">ヘルプ着席中</button>
 </div>
 <div class="actions"><button class="secondary" onclick="stateDialog.close()">閉じる</button></div>
 </dialog>
 
 <dialog id="ownDialog">
 <h2 id="ownTitle">自席卓</h2>
-<p class="note">同じキャストに複数卓を設定すると、自動で「2被り」「3被り」と表示します。</p>
+<p class="note">複数卓を選ぶと自動で「2被り」「3被り」と表示します。</p>
 <div id="tablePicks" class="table-picks"></div>
 <div class="actions"><button class="secondary" onclick="ownDialog.close()">閉じる</button><button onclick="saveOwnTables()">保存</button></div>
 </dialog>
@@ -135,16 +139,16 @@ textarea{min-height:150px}
 <div class="field"><label>属性</label><div id="tagGrid" class="tag-grid"></div></div>
 <div class="field"><label>優先度</label>
 <select id="prioritySelect">
-<option value="high">🔴 高</option>
-<option value="mid">🟡 中</option>
-<option value="low">🟢 低</option>
+<option value="high">高</option>
+<option value="mid">中</option>
+<option value="low">低</option>
 </select>
 </div>
 <div class="actions"><button class="secondary" onclick="tableEditDialog.close()">閉じる</button><button onclick="saveTableMeta()">保存</button></div>
 </dialog>
 
 <script>
-const KEY='swampHelpSimpleV1';
+const KEY='swampHelpSimpleV2';
 const TABLES=['A1','A2','A3','A4','A5','A6','A7','A8','B1','B2','B3','C1','C2','C3','C4','C5','C6','C7','C8','D1','D2','S1','S2','S3','S4','S5','S6','S7','S8','S9','VIP','RVIP'];
 const TAGS=['高単価','リピート','場内','飲み上げ','告知','通常'];
 let state=load()||{casts:[],tableMeta:{}};
@@ -172,24 +176,21 @@ function deleteCast(id){
   if(confirm(c.name+'を削除しますか？')){state.casts=state.casts.filter(x=>x.id!==id);save()}
 }
 
-let pressTimer=null,longPressed=false;
-function startPress(id){
-  longPressed=false;
-  pressTimer=setTimeout(()=>{longPressed=true;openState(id)},550)
+let pressTimer=null,longPressed=false,startX=0,startY=0,moved=false;
+function startPress(id,e){
+  longPressed=false;moved=false;
+  let p=e.touches?e.touches[0]:e;startX=p.clientX;startY=p.clientY;
+  pressTimer=setTimeout(()=>{if(!moved){longPressed=true;openState(id)}},600)
 }
-function endPress(id){
-  clearTimeout(pressTimer);
-  if(!longPressed)cycleSimple(id)
+function movePress(e){
+  let p=e.touches?e.touches[0]:e;
+  if(Math.abs(p.clientX-startX)>8||Math.abs(p.clientY-startY)>8){
+    moved=true;clearTimeout(pressTimer)
+  }
 }
+function endPress(){clearTimeout(pressTimer)}
 function cancelPress(){clearTimeout(pressTimer)}
 
-function cycleSimple(id){
-  let c=state.casts.find(x=>x.id===id);if(!c||!c.attend)return;
-  if(c.status==='available'){c.status='help';c.tables=[]}
-  else if(c.status==='help'){c.status='available';c.tables=[]}
-  else if(c.status==='own'){c.status='available';c.tables=[]}
-  save()
-}
 function openState(id){
   selectedCastId=id;let c=state.casts.find(x=>x.id===id);stateTitle.textContent=c.name+' 状態変更';stateDialog.showModal()
 }
@@ -213,7 +214,6 @@ function saveOwnTables(){
   let c=state.casts.find(x=>x.id===selectedCastId);c.status='own';c.tables=[...selectedTables];
   ownDialog.close();save()
 }
-
 function getOwners(table){
   return state.casts.filter(c=>c.attend&&c.status==='own'&&(c.tables||[]).includes(table))
 }
@@ -232,6 +232,12 @@ function saveTableMeta(){
   tableEditDialog.close();save()
 }
 
+function priorityClass(t){return (state.tableMeta[t]||{priority:'mid'}).priority}
+function priorityText(t){
+  let p=priorityClass(t);
+  return p==='high'?'高':p==='low'?'低':'中'
+}
+
 function render(){
   let attending=state.casts.filter(c=>c.attend);
   let available=attending.filter(c=>c.status==='available').length;
@@ -239,23 +245,34 @@ function render(){
   let help=attending.filter(c=>c.status==='help').length;
   sumAttend.textContent=attending.length;sumAvailable.textContent=available;sumOwn.textContent=own;sumHelp.textContent=help;
 
-  castGrid.innerHTML=attending.length?attending.map(c=>{
+  castList.innerHTML=attending.length?attending.map(c=>{
     let count=(c.tables||[]).length;
-    let label=c.status==='available'?'ヘルプ可能':c.status==='help'?'ヘルプ中':count>1?`${count}被り ${c.tables.join('・')}`:`自席 ${c.tables.join('・')}`;
-    return `<div class="cast ${c.status}" 
-      onmousedown="startPress('${c.id}')" onmouseup="endPress('${c.id}')" onmouseleave="cancelPress()"
-      ontouchstart="startPress('${c.id}')" ontouchend="endPress('${c.id}')" ontouchcancel="cancelPress()">
-      <div class="name">${esc(c.name)}</div><div class="state">${esc(label)}</div></div>`
+    let tables=(c.tables||[]).map(t=>`<span class="table-tag ${priorityClass(t)}">${t} ${priorityText(t)}</span>`).join('');
+    let sub=c.status==='available'?'今すぐヘルプ可能':
+      c.status==='help'?'ヘルプ着席中':
+      count>1?`${count}被り`:'自席あり';
+    let pill=c.status==='available'?'<span class="status-pill available">ヘルプ可能</span>':
+      c.status==='help'?'<span class="status-pill help">ヘルプ中</span>':'';
+    return `<div class="cast-row ${c.status==='help'?'help':''}"
+      onmousedown="startPress('${c.id}',event)" onmousemove="movePress(event)" onmouseup="endPress()" onmouseleave="cancelPress()"
+      ontouchstart="startPress('${c.id}',event)" ontouchmove="movePress(event)" ontouchend="endPress()" ontouchcancel="cancelPress()">
+      <div class="cast-main">
+        <div class="cast-name">${esc(c.name)}</div>
+        <div class="cast-sub">${esc(sub)}</div>
+        ${c.status==='own'?`<div class="table-tags">${tables}</div>`:''}
+      </div>
+      ${pill}
+    </div>`
   }).join(''):'<div class="empty">本日出勤を設定してください</div>';
 
   let usedTables=TABLES.filter(t=>getOwners(t).length);
   tableList.innerHTML=usedTables.length?usedTables.map(t=>{
     let owners=getOwners(t),m=state.tableMeta[t]||{priority:'mid',tags:[]};
-    let pLabel=m.priority==='high'?'🔴 高':m.priority==='low'?'🟢 低':'🟡 中';
+    let pLabel=m.priority==='high'?'高':m.priority==='low'?'低':'中';
     return `<div class="table-card ${m.priority}" onclick="openTableMeta('${t}')">
       <div class="table-top"><div><div class="table-name">${t}</div><div class="meta">担当：${owners.map(o=>esc(o.name)).join('・')}</div></div>
       <div class="badge ${m.priority==='high'?'red':m.priority==='low'?'green':'yellow'}">${pLabel}</div></div>
-      <div class="badges">${(m.tags||[]).map(x=>`<span class="badge blue">${esc(x)}</span>`).join('')||'<span class="badge">属性なし</span>'}</div>
+      <div class="badges">${(m.tags||[]).map(x=>`<span class="badge">${esc(x)}</span>`).join('')||'<span class="badge">属性なし</span>'}</div>
     </div>`
   }).join(''):'<div class="empty">自席卓はまだありません</div>';
 
@@ -269,7 +286,7 @@ function showView(v){
     document.getElementById('nav'+x).classList.toggle('on',x.toLowerCase()===v)
   });render()
 }
-function showInfo(){alert('長押し：ヘルプ可能 / 自席あり / ヘルプ中 を選択\\n\\n1タップ：ヘルプ可能 ⇄ ヘルプ中 を素早く切替\\n\\n自席卓カードをタップ：優先度・属性を設定')}
+function showInfo(){alert('キャスト操作は長押しのみです。\\nスクロール中は操作されません。\\n自席ありを選ぶと複数卓登録できます。\\n卓番の色は各卓の優先度です。')}
 render();
 </script>
 </body>
