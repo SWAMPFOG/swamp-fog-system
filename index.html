@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.37 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.38 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -167,9 +167,123 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 }
 </style>
 
+
+<style id="v11238-compact-direct-table">
+/* Ver.11.2.38
+   稼働中は卓情報を最小化してキャスト一覧の縦領域を最大化。
+   送り・場内は一時終了後のみ表示。 */
+
+#directBoard .direct-table{
+  padding:7px !important;
+}
+
+/* 卓情報を圧縮 */
+#directBoard .direct-table-head{
+  padding:4px 6px 5px !important;
+  margin:0 !important;
+  border-bottom:1px solid var(--line) !important;
+}
+#directBoard .direct-table-title{
+  min-height:26px !important;
+  gap:6px !important;
+}
+#directBoard .direct-table-title b{
+  font-size:20px !important;
+  line-height:1 !important;
+}
+#directBoard .direct-table-title span{
+  font-size:9px !important;
+  padding:3px 6px !important;
+}
+#directBoard .direct-timer{
+  font-size:23px !important;
+  line-height:1.05 !important;
+  margin:3px 0 0 !important;
+}
+#directBoard .direct-meta{
+  font-size:9px !important;
+  line-height:1.2 !important;
+  margin-top:2px !important;
+}
+
+/* 通常時の案内を薄く・低く */
+#directBoard .tap-start-guide{
+  margin-top:4px !important;
+  padding:4px 6px !important;
+  min-height:0 !important;
+  border-radius:7px !important;
+  font-size:9px !important;
+  line-height:1.15 !important;
+}
+
+/* 現在着席欄も圧縮 */
+#directBoard .direct-current{
+  margin-top:4px !important;
+  padding:5px 7px !important;
+  min-height:0 !important;
+  font-size:9px !important;
+  line-height:1.2 !important;
+}
+#directBoard .direct-current > b{
+  margin-bottom:2px !important;
+  font-size:9px !important;
+}
+#directBoard .current-cast-list{
+  gap:4px !important;
+  margin-top:2px !important;
+}
+#directBoard .current-cast-chip{
+  padding:3px 6px !important;
+  font-size:9px !important;
+  line-height:1 !important;
+}
+
+/* キャスト一覧を広く */
+#directBoard .direct-list{
+  padding:5px 5px calc(52px + env(safe-area-inset-bottom)) !important;
+}
+#directBoard .direct-rank{
+  margin:6px 2px 3px !important;
+  font-size:9px !important;
+}
+#directBoard .direct-cast{
+  min-height:38px !important;
+  margin-bottom:5px !important;
+  padding:7px 8px !important;
+}
+#directBoard .direct-cast b{
+  font-size:13px !important;
+}
+
+/* 終了後だけ現れる送り・場内 */
+#directBoard .direct-outcome-actions{
+  padding:5px 0 !important;
+  gap:6px !important;
+}
+#directBoard .direct-outcome-actions .direct-send-open,
+#directBoard .direct-outcome-actions .direct-inhouse-open{
+  min-height:36px !important;
+  font-size:12px !important;
+}
+
+/* 一時終了時は、空のキャスト領域に無駄な高さを使わない */
+#directBoard .direct-table-ended .direct-list{
+  flex:0 0 auto !important;
+  min-height:0 !important;
+  padding:4px !important;
+}
+#directBoard .direct-table-ended .direct-empty{
+  padding:5px !important;
+  font-size:9px !important;
+}
+#directBoard .direct-table-ended .direct-footer{
+  display:none !important;
+}
+</style>
+
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.37 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.38 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="all-timers-wrap"><div class="all-timers-title"><b>全卓タイマー</b><span>タップで該当卓へ</span></div><div id="allTimersBar" class="all-timers-bar"></div></div>
@@ -1115,7 +1229,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.37 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.38 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -1165,7 +1279,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
       const pendingHtml=pending.length?`<div class="direct-pending"><b>選択中 ${pending.length}名</b><br>${esc(pending.map(c=>c.name).join('・'))}</div>`:'';
       const canUndo=t.lastSeatAt&&p.stage!=='over'&&current.length;
       const currentHtml=current.length?current.map(c=>`<button type="button" class="current-cast-chip" data-simple-undo="${c.id}" data-simple-undo-table="${t.id}" ${canUndo?'':'disabled'}>${esc(c.name)}${canUndo?'　取消':''}</button>`).join(''):'空席';
-      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button><div class="direct-outcome-actions"><button type="button" class="direct-send-open" data-quick-send="${t.id}">送り</button><button type="button" class="direct-inhouse-open" data-quick-inhouse="${t.id}">場内</button></div><div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
+      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button>${t.rotationEnded?`<div class="direct-outcome-actions"><button type="button" class="direct-send-open" data-quick-send="${t.id}">送り</button><button type="button" class="direct-inhouse-open" data-quick-inhouse="${t.id}">場内</button></div>`:''}<div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
     }).join('');
     // DOM差し替え後に、直前のスクロール位置を復元する。
     box.scrollLeft=boardScrollLeft;
@@ -1959,7 +2073,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.37 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.38 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
