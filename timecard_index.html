@@ -1,0 +1,4155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>SWAMP-FOG- TIME CARD v10</title>
+
+<style>
+:root{
+  --bg:#0a0a0b;
+  --panel:#151517;
+  --panel2:#1d1d20;
+  --text:#f5f5f5;
+  --muted:#9b9ba1;
+  --line:#2a2a2f;
+  --accent:#d7b56d;
+  --ok:#45c47c;
+  --warn:#f2b84b;
+  --bad:#ef6464;
+  --blue:#60a5fa;
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  padding-bottom:80px;
+}
+
+.wrap{
+  max-width:980px;
+  margin:0 auto;
+  padding:14px;
+}
+
+.top{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:rgba(10,10,11,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px;
+}
+
+.brand h1{
+  font-size:18px;
+  margin:0;
+  letter-spacing:.08em;
+}
+
+.clock{
+  font-variant-numeric:tabular-nums;
+  color:var(--accent);
+  font-weight:700;
+}
+
+.tabs{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  padding:0 10px 10px;
+}
+
+.tab{
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--muted);
+  padding:10px 6px;
+  border-radius:10px;
+  font-weight:700;
+  font-size:12px;
+}
+
+.tab.active{
+  background:var(--accent);
+  color:#111;
+  border-color:var(--accent);
+}
+
+.view{
+  display:none;
+}
+
+.view.active{
+  display:block;
+}
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px;
+  margin:12px 0;
+}
+
+.title{
+  font-size:14px;
+  font-weight:800;
+  margin:0 0 10px;
+}
+
+.sub{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+label{
+  font-size:12px;
+  color:var(--muted);
+  display:block;
+  margin-bottom:6px;
+}
+
+select,
+input,
+button,
+textarea{
+  font:inherit;
+}
+
+select,
+input[type=time],
+input[type=date],
+input[type=month],
+input[type=password],
+input[type=text],
+textarea{
+  width:100%;
+  background:var(--panel2);
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:13px;
+}
+
+.btn{
+  width:100%;
+  border:none;
+  border-radius:14px;
+  padding:15px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.btn-primary{
+  background:var(--accent);
+  color:#111;
+}
+
+.btn-secondary{
+  background:var(--panel2);
+  color:var(--text);
+  border:1px solid var(--line);
+}
+
+.smallbtn{
+  border:none;
+  border-radius:10px;
+  padding:9px 11px;
+  background:var(--panel2);
+  color:var(--text);
+  border:1px solid var(--line);
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr 140px auto;
+  gap:8px;
+}
+
+.editrow{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.person{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 0;
+  border-bottom:1px solid var(--line);
+}
+
+.person:last-child{
+  border-bottom:none;
+}
+
+.name{
+  font-weight:800;
+}
+
+.meta{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:4px;
+  line-height:1.5;
+}
+
+.badge{
+  display:inline-block;
+  padding:6px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.b-ok{
+  background:rgba(69,196,124,.15);
+  color:var(--ok);
+}
+
+.b-warn{
+  background:rgba(242,184,75,.15);
+  color:var(--warn);
+}
+
+.b-bad{
+  background:rgba(239,100,100,.15);
+  color:var(--bad);
+}
+
+.b-blue{
+  background:rgba(96,165,250,.15);
+  color:var(--blue);
+}
+
+.notice{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px;
+  margin-top:10px;
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+.stat{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px;
+}
+
+.stat b{
+  display:block;
+  font-size:22px;
+  color:var(--accent);
+}
+
+.stat span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.tablewrap{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+table{
+  width:100%;
+  min-width:900px;
+  border-collapse:collapse;
+  font-size:12px;
+}
+
+th,
+td{
+  text-align:left;
+  padding:10px 8px;
+  border-bottom:1px solid var(--line);
+  white-space:nowrap;
+}
+
+th{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.hidden{
+  display:none !important;
+}
+
+.camera{
+  position:fixed;
+  inset:0;
+  background:#000;
+  z-index:100;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+
+.camera.active{
+  display:flex;
+}
+
+.camera video,
+.camera img{
+  width:100%;
+  max-width:520px;
+  max-height:65vh;
+  object-fit:cover;
+  border-radius:18px;
+  background:#111;
+}
+
+.camera-actions{
+  width:100%;
+  max-width:520px;
+  margin-top:14px;
+  display:grid;
+  gap:8px;
+}
+
+.photo-modal{
+  position:fixed;
+  inset:0;
+  z-index:110;
+  background:rgba(0,0,0,.94);
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.photo-modal.active{
+  display:flex;
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:28px;
+  transform:translate(-50%,20px);
+  background:#fff;
+  color:#111;
+  padding:11px 16px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+  z-index:200;
+  white-space:nowrap;
+  max-width:90vw;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+.admin-lock{
+  max-width:460px;
+  margin:30px auto;
+}
+
+@media(max-width:640px){
+  .wrap{
+    padding:10px;
+  }
+
+  .brand{
+    padding:12px 10px;
+  }
+
+  .brand h1{
+    font-size:15px;
+  }
+
+  .tabs{
+    padding:0 8px 8px;
+  }
+
+  .tab{
+    font-size:11px;
+    padding:9px 3px;
+  }
+
+  .row{
+    grid-template-columns:1fr;
+  }
+
+  .editrow{
+    grid-template-columns:1fr;
+  }
+
+  .person{
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="top">
+  <div class="brand">
+    <h1>SWAMP-FOG- TIME CARD</h1>
+    <div id="clock" class="clock">--:--:--</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="stamp">出勤</button>
+    <button class="tab" data-tab="today">本日</button>
+    <button class="tab" data-tab="monthly">月間</button>
+    <button class="tab" data-tab="admin">管理</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section id="stamp" class="view active">
+
+  <div class="card">
+    <h2 class="title">出勤打刻</h2>
+    <div class="sub">
+      自分の名前を選択して、本人確認写真を撮影してから出勤を確定してください。
+    </div>
+
+    <div style="margin-top:14px">
+      <label>キャスト</label>
+      <select id="castSelect"></select>
+    </div>
+
+    <div id="scheduleInfo" class="notice">
+      本日の出勤時間：--:--
+    </div>
+
+    <button id="openCamera"
+            class="btn btn-primary"
+            style="margin-top:12px">
+      カメラを起動して出勤
+    </button>
+  </div>
+
+  <div class="card">
+    <h2 class="title">遅刻判定</h2>
+    <div class="sub">
+      設定された出勤予定時刻を1分でも過ぎた場合、自動的に遅刻として記録します。
+      同伴日は同伴予定時刻、ミーティング等は例外出勤時刻を基準に判定します。
+    </div>
+  </div>
+
+</section>
+
+
+<section id="today" class="view">
+
+  <div class="card">
+    <h2 class="title">本日の出勤状況</h2>
+
+    <div class="stats">
+      <div class="stat">
+        <b id="todayPresent">0</b>
+        <span>出勤済み</span>
+      </div>
+
+      <div class="stat">
+        <b id="todayLate">0</b>
+        <span>遅刻</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="todayList"></div>
+  </div>
+
+</section>
+
+
+<section id="monthly" class="view">
+
+  <div class="card">
+    <h2 class="title">月間勤怠</h2>
+
+    <input type="month" id="monthPicker">
+
+    <div class="stats" style="margin-top:12px">
+
+      <div class="stat">
+        <b id="mPresent">0</b>
+        <span>出勤日数</span>
+      </div>
+
+      <div class="stat">
+        <b id="mLate">0</b>
+        <span>遅刻回数</span>
+      </div>
+
+      <div class="stat">
+        <b id="mLateMins">0分</b>
+        <span>遅刻合計</span>
+      </div>
+
+      <div class="stat">
+        <b id="mAbsent">0</b>
+        <span>欠勤合計</span>
+      </div>
+
+      <div class="stat">
+        <b id="mSameDay">0</b>
+        <span>当日欠勤</span>
+      </div>
+
+      <div class="stat">
+        <b id="mNoShow">0</b>
+        <span>無断欠勤</span>
+      </div>
+
+      <div class="stat">
+        <b id="mSick">0</b>
+        <span>病欠</span>
+      </div>
+
+      <div class="stat">
+        <b id="mSickPending">0</b>
+        <span>診断書未提出</span>
+      </div>
+
+      <div class="stat">
+        <b id="mPaid">0</b>
+        <span>有休</span>
+      </div>
+
+      <div class="stat">
+        <b id="mPenalty">0pt</b>
+        <span>勤怠ポイント</span>
+      </div>
+
+      <div class="stat">
+        <b id="mPaidUsed">0pt</b>
+        <span>有休pt消化</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th>キャスト</th>
+            <th>予定</th>
+            <th>打刻</th>
+            <th>勤怠</th>
+            <th>遅刻</th>
+            <th>勤怠pt</th>
+            <th>有休消化</th>
+            <th>写真</th>
+            <th>修正</th>
+          </tr>
+        </thead>
+
+        <tbody id="monthRows"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+<section id="admin" class="view">
+
+  <div id="adminLock" class="card admin-lock">
+    <h2 class="title">管理者ログイン</h2>
+
+    <div class="sub">
+      初期パスワード：0000
+    </div>
+
+    <input
+      type="password"
+      id="adminPass"
+      placeholder="パスワード"
+      style="margin-top:12px"
+    />
+
+    <button
+      id="adminLogin"
+      class="btn btn-primary"
+      style="margin-top:10px"
+    >
+      ログイン
+    </button>
+  </div>
+
+
+  <div id="adminArea" class="hidden">
+
+    <!-- キャスト管理 -->
+    <div class="card">
+      <h2 class="title">キャスト・出勤時間設定</h2>
+
+      <div class="sub">
+        通常出勤時間は18:00／19:00／19:30。デフォルトは19:00です。
+      </div>
+
+      <div class="row" style="margin-top:12px;margin-bottom:10px">
+
+        <input
+          id="newCastName"
+          type="text"
+          placeholder="キャスト名"
+        />
+
+        <select id="newCastTime">
+          <option value="18:00">18:00</option>
+          <option value="19:00" selected>19:00</option>
+          <option value="19:30">19:30</option>
+        </select>
+
+        <button id="addCast" class="smallbtn">
+          追加
+        </button>
+
+      </div>
+
+
+      <!-- 一括追加 -->
+      <div
+        style="
+          margin-top:14px;
+          padding-top:14px;
+          border-top:1px solid var(--line);
+        "
+      >
+
+        <div
+          class="title"
+          style="font-size:13px;margin-bottom:8px"
+        >
+          キャスト一括追加
+        </div>
+
+        <div class="sub">
+          1行に1名ずつ入力してください。
+          登録済みの同名キャストは自動でスキップします。
+        </div>
+
+        <textarea
+          id="bulkCastNames"
+          rows="7"
+          placeholder="黄昏&#10;愛斗&#10;ひろ&#10;れいや&#10;はじめ"
+          style="
+            margin-top:10px;
+            resize:vertical;
+            min-height:140px;
+          "
+        ></textarea>
+
+        <div style="margin-top:8px">
+
+          <label>
+            一括追加するキャストの標準出勤時間
+          </label>
+
+          <select id="bulkCastTime">
+            <option value="18:00">18:00</option>
+            <option value="19:00" selected>19:00</option>
+            <option value="19:30">19:30</option>
+          </select>
+
+        </div>
+
+        <button
+          id="bulkAddCast"
+          class="btn btn-primary"
+          style="margin-top:10px;padding:12px"
+        >
+          まとめて追加
+        </button>
+
+        <div
+          id="bulkAddResult"
+          class="notice hidden"
+        ></div>
+
+      </div>
+
+      <div
+        id="castAdminList"
+        style="margin-top:14px"
+      ></div>
+
+    </div>
+
+
+    <!-- 日別出勤設定 -->
+    <div class="card">
+
+      <h2 class="title">
+        出勤予定・日別設定
+      </h2>
+
+      <div class="sub">
+        通常出勤・同伴・例外出勤・公休・有休を日ごとに設定できます。
+        同伴は20:30／21:00、ミーティング等は例外出勤で任意時刻を設定できます。
+      </div>
+
+      <div
+        class="editrow"
+        style="margin-top:10px"
+      >
+
+        <input
+          type="date"
+          id="dailyDate"
+        />
+
+        <select id="dailyCast"></select>
+
+      </div>
+
+
+      <div
+        class="editrow"
+        style="margin-top:8px"
+      >
+
+        <select id="dailyStatus">
+
+          <option value="出勤予定">
+            通常出勤
+          </option>
+
+          <option value="同伴">
+            同伴
+          </option>
+
+          <option value="例外出勤">
+            例外出勤（ミーティング等）
+          </option>
+
+          <option value="公休">
+            公休
+          </option>
+
+          <option value="有休">
+            有休
+          </option>
+
+        </select>
+
+        <input
+          type="time"
+          id="dailyTime"
+        />
+
+      </div>
+
+
+      <button
+        id="saveDaily"
+        class="btn btn-primary"
+        style="margin-top:8px;padding:11px"
+      >
+        この日の予定を保存
+      </button>
+
+
+      <button
+        id="clearDaily"
+        class="btn btn-secondary"
+        style="margin-top:8px;padding:11px"
+      >
+        この日の個別設定を解除
+      </button>
+
+
+      <div
+        id="dailyInfo"
+        class="notice"
+      >
+        個別設定：なし
+      </div>
+
+    </div>
+
+
+    <!-- 店休日 -->
+    <div class="card">
+
+      <h2 class="title">
+        店休日設定
+      </h2>
+
+      <div class="sub">
+        店休日は全キャストの勤怠判定対象外です。
+        店休日でも出勤が必要なキャストは、
+        日別設定から「例外出勤」を設定してください。
+      </div>
+
+
+      <div
+        class="editrow"
+        style="margin-top:10px"
+      >
+
+        <input
+          type="date"
+          id="holidayDate"
+        />
+
+        <button
+          id="addHoliday"
+          class="smallbtn"
+        >
+          店休日にする
+        </button>
+
+      </div>
+
+
+      <div style="margin-top:10px">
+
+        <label>
+          店休日をまとめて追加
+          （1行1日 / YYYY-MM-DD）
+        </label>
+
+        <textarea
+          id="holidayBulk"
+          rows="5"
+          placeholder="2026-08-10&#10;2026-08-17"
+          style="
+            resize:vertical;
+            min-height:110px;
+          "
+        ></textarea>
+
+      </div>
+
+
+      <button
+        id="bulkAddHoliday"
+        class="btn btn-primary"
+        style="margin-top:8px;padding:11px"
+      >
+        まとめて店休日登録
+      </button>
+
+
+      <div
+        id="holidayList"
+        style="margin-top:12px"
+      ></div>
+
+    </div>
+
+
+    <!-- 勤怠修正 -->
+    <div class="card">
+
+      <h2 class="title">
+        勤怠登録・修正
+      </h2>
+
+      <div class="sub">
+        過去の勤怠データは管理者のみ変更できます。
+        変更内容は修正履歴に残ります。
+      </div>
+
+
+      <div
+        class="editrow"
+        style="margin-top:10px"
+      >
+
+        <input
+          type="date"
+          id="editDate"
+        />
+
+        <select id="editCast"></select>
+
+      </div>
+
+
+      <div
+        class="editrow"
+        style="margin-top:8px"
+      >
+
+        <input
+          type="time"
+          id="editTime"
+        />
+
+        <select id="editStatus">
+
+          <option value="出勤">
+            出勤
+          </option>
+
+          <option value="遅刻">
+            遅刻
+          </option>
+
+          <option value="当日欠勤">
+            当日欠勤
+          </option>
+
+          <option value="無断欠勤">
+            無断欠勤
+          </option>
+
+          <option value="病欠">
+            病欠
+          </option>
+
+          <option value="有休">
+            有休
+          </option>
+
+          <option value="公休">
+            公休
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- 診断書 -->
+      <div
+        id="sickCertBox"
+        class="hidden"
+        style="
+          margin-top:10px;
+          padding:12px;
+          border:1px solid var(--line);
+          border-radius:12px;
+          background:var(--panel2);
+        "
+      >
+
+        <label
+          style="
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin:0;
+            color:var(--text);
+          "
+        >
+
+          <input
+            id="sickCert"
+            type="checkbox"
+            style="
+              width:20px;
+              height:20px;
+            "
+          />
+
+          診断書 提出済み
+
+        </label>
+
+        <div
+          class="sub"
+          style="margin-top:6px"
+        >
+          病欠当日は未提出のまま登録できます。
+          後日、診断書を確認したら「提出済み」に変更してください。
+        </div>
+
+      </div>
+
+
+      <div style="margin-top:10px">
+
+        <label>
+          修正理由
+        </label>
+
+        <input
+          id="editReason"
+          type="text"
+          placeholder="例：打刻忘れ、診断書提出確認など"
+        />
+
+      </div>
+
+
+      <button
+        id="saveEdit"
+        class="btn btn-primary"
+        style="margin-top:10px"
+      >
+        勤怠を保存・修正
+      </button>
+
+    </div>
+
+
+    <!-- 修正履歴 -->
+    <div class="card">
+
+      <h2 class="title">
+        修正履歴
+      </h2>
+
+      <div
+        id="historyList"
+      ></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+
+<!-- カメラ画面 -->
+<div
+  id="cameraBox"
+  class="camera"
+>
+
+  <video
+    id="video"
+    autoplay
+    playsinline
+  ></video>
+
+  <img
+    id="shot"
+    class="hidden"
+    alt="撮影写真"
+  />
+
+  <canvas
+    id="canvas"
+    class="hidden"
+  ></canvas>
+
+
+  <div class="camera-actions">
+
+    <button
+      id="capture"
+      class="btn btn-primary"
+    >
+      撮影
+    </button>
+
+    <button
+      id="retake"
+      class="btn btn-secondary hidden"
+    >
+      撮り直す
+    </button>
+
+    <button
+      id="confirmStamp"
+      class="btn btn-primary hidden"
+    >
+      この写真で出勤確定
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- 写真確認 -->
+<div
+  id="photoModal"
+  class="photo-modal"
+>
+
+  <img
+    id="photoView"
+    alt="打刻写真"
+    style="
+      max-width:92vw;
+      max-height:72vh;
+      border-radius:16px;
+    "
+  />
+
+  <div
+    id="photoMeta"
+    style="
+      margin:12px 0;
+      color:#fff;
+      font-weight:700;
+      text-align:center;
+    "
+  ></div>
+
+  <button
+    id="closePhoto"
+    class="btn btn-secondary"
+    style="max-width:360px"
+  >
+    閉じる
+  </button>
+
+</div>
+
+
+<div
+  id="toast"
+  class="toast"
+></div>
+<script>
+const KEY='swampFogTimecardV10';
+
+const OLD_KEYS=[
+  'swampFogTimecardV9',
+  'swampFogTimecardV8',
+  'swampFogTimecardV7',
+  'swampFogTimecardV6',
+  'swampFogTimecardV5',
+  'swampFogTimecardV4',
+  'swampFogTimecardV3',
+  'swampFogTimecardV2',
+  'swampFogTimecardV1'
+];
+
+const defaultCasts=[
+  {id:'c1',name:'黄昏',time:'19:00'},
+  {id:'c2',name:'トーマス',time:'19:00'},
+  {id:'c3',name:'たいむ',time:'19:00'},
+  {id:'c4',name:'りす',time:'19:00'},
+  {id:'c5',name:'ゆう',time:'19:00'}
+];
+
+let db=JSON.parse(
+  localStorage.getItem(KEY)||'null'
+);
+
+if(!db){
+  for(const k of OLD_KEYS){
+    db=JSON.parse(
+      localStorage.getItem(k)||'null'
+    );
+
+    if(db) break;
+  }
+}
+
+db=db||{
+  casts:defaultCasts,
+  records:[],
+  history:[],
+  adminPass:'0000',
+  scheduleOverrides:{},
+  dayStatus:{},
+  storeHolidays:[]
+};
+
+if(!db.scheduleOverrides){
+  db.scheduleOverrides={};
+}
+
+if(!db.dayStatus){
+  db.dayStatus={};
+}
+
+if(!db.storeHolidays){
+  db.storeHolidays=[];
+}
+
+let stream=null;
+let photoData='';
+
+const $=id=>
+  document.getElementById(id);
+
+const save=()=>
+  localStorage.setItem(
+    KEY,
+    JSON.stringify(db)
+  );
+
+const pad=n=>
+  String(n).padStart(2,'0');
+
+
+function todayStr(d=new Date()){
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+
+function timeStr(d=new Date()){
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+
+function toast(t){
+
+  $('toast').textContent=t;
+
+  $('toast').classList.add('show');
+
+  setTimeout(
+    ()=>$('toast').classList.remove('show'),
+    1800
+  );
+}
+
+
+function castName(id){
+
+  return db.casts.find(
+    c=>c.id===id
+  )?.name||'削除済み';
+}
+
+
+function castObj(id){
+
+  return db.casts.find(
+    c=>c.id===id
+  );
+}
+
+
+function mins(t){
+
+  if(!t) return 0;
+
+  let [a,b]=t
+    .split(':')
+    .map(Number);
+
+  return a*60+b;
+}
+
+
+/* =========================
+   遅刻計算
+========================= */
+
+function lateMinutes(
+  time,
+  scheduled
+){
+
+  if(!time||!scheduled){
+    return 0;
+  }
+
+  return Math.max(
+    0,
+    mins(time)-mins(scheduled)
+  );
+}
+
+
+function lateText(r){
+
+  const n=
+    r?.lateMinutes??
+    lateMinutes(
+      r?.time,
+      r?.scheduled
+    );
+
+  return n>0
+    ? `遅刻 ${n}分`
+    : '';
+}
+
+
+/* =========================
+   勤怠ポイント
+========================= */
+
+function pointEffect(
+  status,
+  late=0
+){
+
+  if(status==='遅刻'){
+    return -1;
+  }
+
+  if(status==='当日欠勤'){
+    return -3;
+  }
+
+  if(status==='無断欠勤'){
+    return -5;
+  }
+
+  return 0;
+}
+
+
+/* =========================
+   有休ポイント必要数
+
+   遅刻
+   1〜60分 → 1pt
+   61〜120分 → 2pt
+
+   当日欠勤
+   → 3pt
+========================= */
+
+function paidNeeded(
+  status,
+  late=0
+){
+
+  if(status==='遅刻'){
+
+    return Math.max(
+      1,
+      Math.ceil(late/60)
+    );
+  }
+
+  if(status==='当日欠勤'){
+    return 3;
+  }
+
+  return 0;
+}
+
+
+/* =========================
+   勤怠ポイント自動処理
+========================= */
+
+function applyPointsToRecord(r){
+
+  const c=castObj(
+    r.castId
+  );
+
+  r.penaltyPoints=
+    pointEffect(
+      r.status,
+      r.lateMinutes||0
+    );
+
+  r.paidPointsUsed=0;
+
+
+  /*
+    有休保持者の場合
+
+    遅刻
+    当日欠勤
+
+    は有休ポイントから
+    自動消化
+  */
+
+  if(
+    c?.hasPaidPoints &&
+    [
+      '遅刻',
+      '当日欠勤'
+    ].includes(r.status)
+  ){
+
+    const need=
+      paidNeeded(
+        r.status,
+        r.lateMinutes||0
+      );
+
+    const use=
+      Math.min(
+        c.paidPoints||0,
+        need
+      );
+
+    c.paidPoints=
+      (c.paidPoints||0)
+      -use;
+
+    r.paidPointsUsed=use;
+
+
+    /*
+      必要な有休ポイントを
+      全て消化できた場合
+      勤怠マイナスなし
+    */
+
+    if(use>=need){
+
+      r.penaltyPoints=0;
+
+    }
+
+    /*
+      当日欠勤で
+      有休ポイントが
+      足りなかった場合
+    */
+
+    else if(
+      r.status==='当日欠勤'
+    ){
+
+      r.penaltyPoints=
+        -(need-use);
+
+    }
+
+  }
+
+}
+
+
+/* =========================
+   ステータス色
+========================= */
+
+function statusClass(s){
+
+  if(s==='出勤'){
+    return 'b-ok';
+  }
+
+  if(s==='遅刻'){
+    return 'b-warn';
+  }
+
+  if(
+    [
+      '当日欠勤',
+      '無断欠勤'
+    ].includes(s)
+  ){
+    return 'b-bad';
+  }
+
+  return 'b-blue';
+}
+
+
+/* =========================
+   当日の勤怠取得
+========================= */
+
+function recFor(
+  date,
+  castId
+){
+
+  return db.records.find(
+    r=>
+      r.date===date &&
+      r.castId===castId
+  );
+}
+
+
+/* =========================
+   店休日判定
+========================= */
+
+function isStoreHoliday(date){
+
+  return db.storeHolidays
+    .includes(date);
+}
+
+
+/* =========================
+   日別ステータス
+
+   店休日の場合でも
+   例外出勤だけ許可
+========================= */
+
+function dayStatusFor(
+  date,
+  castId
+){
+
+  const personal=
+    db.dayStatus
+      ?.[date]
+      ?.[castId];
+
+
+  if(
+    isStoreHoliday(date) &&
+    personal!=='例外出勤'
+  ){
+
+    return '店休日';
+  }
+
+
+  return personal
+    ||'出勤予定';
+}
+
+
+/* =========================
+   予定出勤時間
+========================= */
+
+function scheduledFor(
+  date,
+  castId
+){
+
+  const c=
+    castObj(castId);
+
+  const st=
+    dayStatusFor(
+      date,
+      castId
+    );
+
+  const ov=
+    db.scheduleOverrides
+      ?.[date]
+      ?.[castId];
+
+
+  /*
+    同伴
+    デフォルト20:30
+  */
+
+  if(st==='同伴'){
+
+    return ov||'20:30';
+
+  }
+
+
+  /*
+    ミーティングなど
+    例外出勤
+  */
+
+  if(st==='例外出勤'){
+
+    return ov
+      ||c?.time
+      ||'19:00';
+
+  }
+
+
+  /*
+    通常出勤
+  */
+
+  return ov
+    ||c?.time
+    ||'19:00';
+}
+
+
+/* =========================
+   キャスト選択欄更新
+========================= */
+
+function fillSelects(){
+
+  const opts=
+    db.casts.map(
+      c=>
+        `<option value="${c.id}">
+          ${c.name}
+        </option>`
+    ).join('');
+
+
+  $('castSelect').innerHTML=opts;
+
+  $('editCast').innerHTML=opts;
+
+  $('dailyCast').innerHTML=opts;
+
+
+  updateScheduleInfo();
+
+  updateDailyInfo();
+}
+
+
+/* =========================
+   本人画面
+   今日の予定表示
+========================= */
+
+function updateScheduleInfo(){
+
+  const cid=
+    $('castSelect').value;
+
+  const d=
+    todayStr();
+
+  const st=
+    dayStatusFor(
+      d,
+      cid
+    );
+
+  const t=
+    scheduledFor(
+      d,
+      cid
+    );
+
+
+  if(
+    [
+      '公休',
+      '有休',
+      '店休日'
+    ].includes(st)
+  ){
+
+    $('scheduleInfo')
+      .textContent=
+        `本日は${st}です`;
+
+    return;
+  }
+
+
+  const label=
+    st==='同伴'
+      ?'同伴予定'
+      :st==='例外出勤'
+      ?'例外出勤'
+      :'本日の出勤時間';
+
+
+  $('scheduleInfo')
+    .textContent=
+      `${label}：${t||'--:--'}`;
+}
+
+
+/* =========================
+   日別設定画面
+========================= */
+
+function updateDailyInfo(){
+
+  if(
+    !$('dailyDate') ||
+    !$('dailyCast')
+  ){
+    return;
+  }
+
+
+  const d=
+    $('dailyDate').value;
+
+  const cid=
+    $('dailyCast').value;
+
+
+  if(!d||!cid){
+    return;
+  }
+
+
+  const st=
+    dayStatusFor(
+      d,
+      cid
+    );
+
+  const base=
+    castObj(cid)?.time
+    ||'19:00';
+
+  const custom=
+    db.scheduleOverrides
+      ?.[d]
+      ?.[cid];
+
+
+  $('dailyStatus').value=st;
+
+
+  /*
+    同伴
+  */
+
+  if(st==='同伴'){
+
+    $('dailyTime').disabled=false;
+
+    $('dailyTime').step=1800;
+
+    $('dailyTime').value=
+      custom||'20:30';
+
+    $('dailyInfo')
+      .textContent=
+        `${d}：同伴 ${
+          custom||'20:30'
+        }（選択目安 20:30 / 21:00）`;
+
+  }
+
+
+  /*
+    例外出勤
+  */
+
+  else if(
+    st==='例外出勤'
+  ){
+
+    $('dailyTime').disabled=false;
+
+    $('dailyTime').step=60;
+
+    $('dailyTime').value=
+      custom||base;
+
+    $('dailyInfo')
+      .textContent=
+        `${d}：例外出勤 ${
+          custom||base
+        }（任意時刻）`;
+
+  }
+
+
+  /*
+    通常出勤
+  */
+
+  else if(
+    st==='出勤予定'
+  ){
+
+    $('dailyTime').disabled=false;
+
+    $('dailyTime').step=1800;
+
+    $('dailyTime').value=
+      custom||base;
+
+    $('dailyInfo')
+      .textContent=
+        `${d}：通常出勤 ${
+          custom||base
+        }（標準 ${base}）`;
+
+  }
+
+
+  /*
+    公休・有休・店休日
+  */
+
+  else{
+
+    $('dailyTime').disabled=true;
+
+    $('dailyTime').value='';
+
+    $('dailyInfo')
+      .textContent=
+        `${d}：${st}${
+          st==='店休日'
+            ?'（例外出勤を設定すると出勤可能）'
+            :''
+        }`;
+
+  }
+
+}
+
+
+/* =========================
+   今日の出勤一覧
+========================= */
+
+function renderToday(){
+
+  const d=
+    todayStr();
+
+  let present=0;
+
+  let late=0;
+
+
+  $('todayList').innerHTML=
+    db.casts.map(c=>{
+
+      const r=
+        recFor(
+          d,
+          c.id
+        );
+
+      const plan=
+        dayStatusFor(
+          d,
+          c.id
+        );
+
+      const sch=
+        scheduledFor(
+          d,
+          c.id
+        );
+
+
+      const workDay=
+        [
+          '出勤予定',
+          '同伴',
+          '例外出勤'
+        ].includes(plan);
+
+
+      let s=
+        workDay
+          ?'未出勤'
+          :plan;
+
+
+      let b=
+        workDay
+          ?'b-blue'
+          :statusClass(plan);
+
+
+      let m=
+        workDay
+          ? `${
+              plan==='同伴'
+                ?'同伴 '
+                :plan==='例外出勤'
+                ?'例外 '
+                :'予定 '
+            }${sch}`
+          :`本日は${plan}`;
+
+
+      /*
+        予定時刻を過ぎても
+        打刻がない場合
+      */
+
+      if(
+        !r &&
+        workDay &&
+        mins(
+          timeStr(new Date())
+        )>mins(sch)
+      ){
+
+        s='要確認';
+
+        b='b-warn';
+
+        m=
+          `予定 ${sch} / `+
+          `予定時刻を過ぎています`;
+
+      }
+
+
+      /*
+        打刻あり
+      */
+
+      if(r){
+
+        s=r.status;
+
+        b=statusClass(s);
+
+
+        if(
+          [
+            '出勤',
+            '遅刻'
+          ].includes(s)
+        ){
+
+          present++;
+
+
+          if(s==='遅刻'){
+            late++;
+          }
+
+
+          const lt=
+            s==='遅刻'
+              ?` / ${lateText(r)}`
+              :'';
+
+
+          m=
+            `予定 ${
+              r.scheduled||c.time
+            } / `+
+            `打刻 ${
+              r.time||'--:--'
+            }${lt}`;
+
+        }
+
+      }
+
+
+      return `
+        <div class="person">
+
+          <div style="flex:1">
+
+            <div class="name">
+              ${c.name}
+            </div>
+
+            <div class="meta">
+              ${m}
+            </div>
+
+          </div>
+
+          <span class="badge ${b}">
+            ${s}
+          </span>
+
+        </div>
+      `;
+
+    }).join('');
+
+
+  $('todayPresent')
+    .textContent=
+      present;
+
+  $('todayLate')
+    .textContent=
+      late;
+
+}
+
+
+/* =========================
+   月間勤怠
+========================= */
+
+function renderMonth(){
+
+  const m=
+    $('monthPicker').value;
+
+
+  const rows=
+    db.records
+      .filter(
+        r=>r.date.startsWith(m)
+      )
+      .sort(
+        (a,b)=>
+          a.date.localeCompare(b.date)
+          ||
+          castName(a.castId)
+            .localeCompare(
+              castName(b.castId),
+              'ja'
+            )
+      );
+
+
+  $('mPresent').textContent=
+    rows.filter(
+      r=>
+        [
+          '出勤',
+          '遅刻'
+        ].includes(r.status)
+    ).length;
+
+
+  $('mLate').textContent=
+    rows.filter(
+      r=>r.status==='遅刻'
+    ).length;
+
+
+  $('mLateMins').textContent=
+    rows
+      .filter(
+        r=>r.status==='遅刻'
+      )
+      .reduce(
+        (a,r)=>
+          a+
+          (
+            r.lateMinutes
+            ??
+            lateMinutes(
+              r.time,
+              r.scheduled
+            )
+          ),
+        0
+      )
+    +'分';
+
+
+  $('mAbsent').textContent=
+    rows.filter(
+      r=>
+        [
+          '当日欠勤',
+          '無断欠勤',
+          '病欠'
+        ].includes(r.status)
+    ).length;
+
+
+  $('mSameDay').textContent=
+    rows.filter(
+      r=>r.status==='当日欠勤'
+    ).length;
+
+
+  $('mNoShow').textContent=
+    rows.filter(
+      r=>r.status==='無断欠勤'
+    ).length;
+
+
+  $('mSick').textContent=
+    rows.filter(
+      r=>r.status==='病欠'
+    ).length;
+
+
+  $('mSickPending').textContent=
+    rows.filter(
+      r=>
+        r.status==='病欠'
+        &&
+        !r.medicalCertificate
+    ).length;
+
+
+  $('mPaid').textContent=
+    rows.filter(
+      r=>r.status==='有休'
+    ).length;
+
+
+  $('mPenalty').textContent=
+    rows.reduce(
+      (a,r)=>
+        a+
+        (
+          r.penaltyPoints
+          ??
+          pointEffect(
+            r.status,
+            r.lateMinutes||0
+          )
+        ),
+      0
+    )+'pt';
+
+
+  $('mPaidUsed').textContent=
+    rows.reduce(
+      (a,r)=>
+        a+
+        (
+          r.paidPointsUsed||0
+        ),
+      0
+    )+'pt';
+
+
+  $('monthRows').innerHTML=
+    rows.map(r=>`
+
+      <tr>
+
+        <td>
+          ${r.date}
+        </td>
+
+        <td>
+          ${castName(r.castId)}
+        </td>
+
+        <td>
+          ${r.scheduled||'-'}
+        </td>
+
+        <td>
+          ${r.time||'-'}
+        </td>
+
+        <td>
+
+          <span
+            class="badge
+            ${statusClass(r.status)}"
+          >
+
+            ${r.status}
+
+            ${
+              r.status==='病欠'
+                ?(
+                  r.medicalCertificate
+                    ?'（診断書提出済）'
+                    :'（診断書未提出）'
+                )
+                :''
+            }
+
+          </span>
+
+        </td>
+
+        <td>
+
+          ${
+            r.status==='遅刻'
+              ?(
+                r.lateMinutes
+                ??
+                lateMinutes(
+                  r.time,
+                  r.scheduled
+                )
+              )+'分'
+              :'-'
+          }
+
+        </td>
+
+        <td>
+
+          ${
+            r.penaltyPoints
+            ??
+            pointEffect(
+              r.status,
+              r.lateMinutes||0
+            )
+          }pt
+
+        </td>
+
+        <td>
+
+          ${
+            r.paidPointsUsed
+              ?`${r.paidPointsUsed}pt`
+              :'-'
+          }
+
+        </td>
+
+        <td>
+
+          ${
+            r.photo
+              ?`
+                <button
+                  class="smallbtn"
+                  data-photo="${r.id}"
+                >
+                  確認
+                </button>
+              `
+              :'-'
+          }
+
+        </td>
+
+        <td>
+          ${r.edited?'あり':'-'}
+        </td>
+
+      </tr>
+
+    `).join('')
+    ||
+    `
+      <tr>
+        <td colspan="10">
+          データなし
+        </td>
+      </tr>
+    `;
+
+
+  document
+    .querySelectorAll(
+      '[data-photo]'
+    )
+    .forEach(
+      el=>
+        el.onclick=
+          ()=>showPhoto(
+            el.dataset.photo
+          )
+    );
+
+}
+  /* =========================
+   キャスト管理表示
+========================= */
+
+function renderCastAdmin(){
+
+  $('castAdminList').innerHTML=
+    db.casts.map(c=>`
+
+      <div class="person">
+
+        <div style="flex:1">
+
+          <div class="name">
+            ${c.name}
+          </div>
+
+          <div class="meta">
+            標準出勤 ${c.time}
+            /
+            有休 ${
+              c.hasPaidPoints
+                ?'保持'
+                :'なし'
+            }
+            ${
+              c.hasPaidPoints
+                ?`（残 ${c.paidPoints||0}pt）`
+                :''
+            }
+          </div>
+
+        </div>
+
+
+        <select
+          data-time="${c.id}"
+          style="width:105px;padding:8px"
+        >
+
+          <option
+            value="18:00"
+            ${c.time==='18:00'?'selected':''}
+          >
+            18:00
+          </option>
+
+          <option
+            value="19:00"
+            ${c.time==='19:00'?'selected':''}
+          >
+            19:00
+          </option>
+
+          <option
+            value="19:30"
+            ${c.time==='19:30'?'selected':''}
+          >
+            19:30
+          </option>
+
+        </select>
+
+
+        <button
+          class="smallbtn"
+          data-pto="${c.id}"
+        >
+          ${
+            c.hasPaidPoints
+              ?'有休設定'
+              :'有休追加'
+          }
+        </button>
+
+
+        <button
+          class="smallbtn"
+          data-del="${c.id}"
+        >
+          削除
+        </button>
+
+      </div>
+
+    `).join('');
+
+
+  /*
+    標準出勤時間変更
+  */
+
+  document
+    .querySelectorAll('[data-time]')
+    .forEach(el=>{
+
+      el.onchange=()=>{
+
+        const c=
+          castObj(
+            el.dataset.time
+          );
+
+        c.time=
+          el.value;
+
+        save();
+
+        renderToday();
+
+        updateScheduleInfo();
+
+        toast(
+          '出勤時間を変更しました'
+        );
+
+      };
+
+    });
+
+
+  /*
+    有休ポイント設定
+  */
+
+  document
+    .querySelectorAll('[data-pto]')
+    .forEach(el=>{
+
+      el.onclick=()=>{
+
+        const c=
+          castObj(
+            el.dataset.pto
+          );
+
+
+        const val=
+          prompt(
+            `${c.name} の有休ポイント残高を入力してください。\n「なし」と入力すると有休保持を解除します。`,
+            c.hasPaidPoints
+              ?String(c.paidPoints||0)
+              :'0'
+          );
+
+
+        if(val===null){
+          return;
+        }
+
+
+        if(
+          val.trim()==='なし'
+        ){
+
+          c.hasPaidPoints=false;
+
+          c.paidPoints=0;
+
+        }
+
+        else{
+
+          const n=
+            Number(val);
+
+
+          if(
+            !Number.isFinite(n)
+            ||
+            n<0
+          ){
+
+            return toast(
+              '0以上の数字を入力してください'
+            );
+
+          }
+
+
+          c.hasPaidPoints=true;
+
+          c.paidPoints=
+            Math.floor(n);
+
+        }
+
+
+        save();
+
+        renderAll();
+
+        toast(
+          '有休ポイント設定を更新しました'
+        );
+
+      };
+
+    });
+
+
+  /*
+    キャスト削除
+  */
+
+  document
+    .querySelectorAll('[data-del]')
+    .forEach(el=>{
+
+      el.onclick=()=>{
+
+        if(
+          confirm(
+            'このキャストを削除しますか？'
+          )
+        ){
+
+          db.casts=
+            db.casts.filter(
+              c=>
+                c.id!==
+                el.dataset.del
+            );
+
+          save();
+
+          renderAll();
+
+        }
+
+      };
+
+    });
+
+}
+
+
+/* =========================
+   店休日一覧
+========================= */
+
+function renderHolidays(){
+
+  if(!$('holidayList')){
+    return;
+  }
+
+
+  const rows=
+    [...db.storeHolidays]
+      .sort();
+
+
+  $('holidayList').innerHTML=
+    rows.length
+      ?rows.map(d=>`
+
+        <div class="person">
+
+          <div style="flex:1">
+
+            <div class="name">
+              ${d}
+            </div>
+
+            <div class="meta">
+              店休日
+            </div>
+
+          </div>
+
+          <button
+            class="smallbtn"
+            data-hdel="${d}"
+          >
+            解除
+          </button>
+
+        </div>
+
+      `).join('')
+
+      :`
+        <div class="sub">
+          店休日は未登録です。
+        </div>
+      `;
+
+
+  document
+    .querySelectorAll(
+      '[data-hdel]'
+    )
+    .forEach(el=>{
+
+      el.onclick=()=>{
+
+        db.storeHolidays=
+          db.storeHolidays.filter(
+            d=>
+              d!==
+              el.dataset.hdel
+          );
+
+        save();
+
+        renderAll();
+
+        toast(
+          '店休日を解除しました'
+        );
+
+      };
+
+    });
+
+}
+
+
+/* =========================
+   修正履歴
+========================= */
+
+function renderHistory(){
+
+  $('historyList').innerHTML=
+    [...db.history]
+      .reverse()
+      .slice(0,50)
+      .map(h=>`
+
+        <div class="person">
+
+          <div>
+
+            <div class="name">
+              ${h.date}
+              ${castName(h.castId)}
+            </div>
+
+            <div class="meta">
+              ${h.before}
+              →
+              ${h.after}
+
+              <br>
+
+              ${
+                h.reason
+                ||'理由なし'
+              }
+
+              /
+              ${h.at}
+            </div>
+
+          </div>
+
+        </div>
+
+      `).join('')
+
+      ||
+
+      `
+        <div class="sub">
+          修正履歴はありません。
+        </div>
+      `;
+
+}
+
+
+/* =========================
+   全画面更新
+========================= */
+
+function renderAll(){
+
+  fillSelects();
+
+  renderToday();
+
+  renderMonth();
+
+  renderCastAdmin();
+
+  renderHolidays();
+
+  renderHistory();
+
+  updateDailyInfo();
+
+}
+
+
+/* =========================
+   タブ切替
+========================= */
+
+document
+  .querySelectorAll('.tab')
+  .forEach(btn=>{
+
+    btn.onclick=()=>{
+
+      document
+        .querySelectorAll(
+          '.tab,.view'
+        )
+        .forEach(
+          x=>
+            x.classList.remove(
+              'active'
+            )
+        );
+
+
+      btn.classList.add(
+        'active'
+      );
+
+
+      $(
+        btn.dataset.tab
+      ).classList.add(
+        'active'
+      );
+
+
+      if(
+        btn.dataset.tab==='today'
+      ){
+        renderToday();
+      }
+
+
+      if(
+        btn.dataset.tab==='monthly'
+      ){
+        renderMonth();
+      }
+
+    };
+
+  });
+
+
+/* =========================
+   初期設定
+========================= */
+
+$('castSelect')
+  .onchange=
+    updateScheduleInfo;
+
+
+$('monthPicker').value=
+  todayStr().slice(0,7);
+
+
+$('monthPicker')
+  .onchange=
+    renderMonth;
+
+
+setInterval(()=>{
+
+  $('clock').textContent=
+    new Date()
+      .toLocaleTimeString(
+        'ja-JP',
+        {
+          hour12:false
+        }
+      );
+
+},1000);
+
+
+$('editDate').value=
+  todayStr();
+
+
+$('dailyDate').value=
+  todayStr();
+
+
+if($('holidayDate')){
+
+  $('holidayDate').value=
+    todayStr();
+
+}
+
+
+$('dailyDate')
+  .onchange=
+    updateDailyInfo;
+
+
+$('dailyCast')
+  .onchange=
+    updateDailyInfo;
+
+
+/* =========================
+   日別ステータス変更
+========================= */
+
+$('dailyStatus').onchange=()=>{
+
+  const st=
+    $('dailyStatus').value;
+
+  const cid=
+    $('dailyCast').value;
+
+
+  if(st==='同伴'){
+
+    $('dailyTime').value=
+      '20:30';
+
+  }
+
+  else if(
+    st==='出勤予定'
+  ){
+
+    $('dailyTime').value=
+      castObj(cid)?.time
+      ||'19:00';
+
+  }
+
+
+  updateDailyInfo();
+
+};
+
+
+/* =========================
+   病欠・診断書
+========================= */
+
+function updateSickCertBox(){
+
+  const isSick=
+    $('editStatus').value
+    ==='病欠';
+
+
+  $('sickCertBox')
+    .classList.toggle(
+      'hidden',
+      !isSick
+    );
+
+
+  if(!isSick){
+
+    $('sickCert').checked=
+      false;
+
+  }
+
+}
+
+
+$('editStatus')
+  .onchange=
+    updateSickCertBox;
+
+
+updateSickCertBox();
+
+
+/* =========================
+   カメラ起動
+========================= */
+
+$('openCamera').onclick=
+  async()=>{
+
+    const cid=
+      $('castSelect').value;
+
+    const d=
+      todayStr();
+
+
+    const dayStatus=
+      dayStatusFor(
+        d,
+        cid
+      );
+
+
+    if(
+      [
+        '公休',
+        '有休',
+        '店休日'
+      ].includes(dayStatus)
+    ){
+
+      toast(
+        `本日は${dayStatus}設定です`
+      );
+
+      return;
+
+    }
+
+
+    if(
+      recFor(
+        d,
+        cid
+      )
+    ){
+
+      toast(
+        '本日はすでに記録があります'
+      );
+
+      return;
+
+    }
+
+
+    try{
+
+      stream=
+        await navigator
+          .mediaDevices
+          .getUserMedia({
+
+            video:{
+              facingMode:'user'
+            },
+
+            audio:false
+
+          });
+
+
+      $('video').srcObject=
+        stream;
+
+
+      $('cameraBox')
+        .classList.add(
+          'active'
+        );
+
+
+      $('video')
+        .classList.remove(
+          'hidden'
+        );
+
+
+      $('shot')
+        .classList.add(
+          'hidden'
+        );
+
+
+      $('capture')
+        .classList.remove(
+          'hidden'
+        );
+
+
+      $('retake')
+        .classList.add(
+          'hidden'
+        );
+
+
+      $('confirmStamp')
+        .classList.add(
+          'hidden'
+        );
+
+
+      photoData='';
+
+    }
+
+    catch(e){
+
+      alert(
+        'カメラを起動できません。Safariのカメラ許可を確認してください。'
+      );
+
+    }
+
+  };
+
+
+/* =========================
+   写真撮影
+========================= */
+
+$('capture').onclick=()=>{
+
+  const v=
+    $('video');
+
+  const c=
+    $('canvas');
+
+
+  c.width=
+    v.videoWidth;
+
+
+  c.height=
+    v.videoHeight;
+
+
+  c.getContext('2d')
+    .drawImage(
+      v,
+      0,
+      0
+    );
+
+
+  photoData=
+    c.toDataURL(
+      'image/jpeg',
+      .72
+    );
+
+
+  $('shot').src=
+    photoData;
+
+
+  $('video')
+    .classList.add(
+      'hidden'
+    );
+
+
+  $('shot')
+    .classList.remove(
+      'hidden'
+    );
+
+
+  $('capture')
+    .classList.add(
+      'hidden'
+    );
+
+
+  $('retake')
+    .classList.remove(
+      'hidden'
+    );
+
+
+  $('confirmStamp')
+    .classList.remove(
+      'hidden'
+    );
+
+};
+
+
+/* =========================
+   撮り直し
+========================= */
+
+$('retake').onclick=()=>{
+
+  $('video')
+    .classList.remove(
+      'hidden'
+    );
+
+
+  $('shot')
+    .classList.add(
+      'hidden'
+    );
+
+
+  $('capture')
+    .classList.remove(
+      'hidden'
+    );
+
+
+  $('retake')
+    .classList.add(
+      'hidden'
+    );
+
+
+  $('confirmStamp')
+    .classList.add(
+      'hidden'
+    );
+
+
+  photoData='';
+
+};
+
+
+/* =========================
+   出勤確定
+========================= */
+
+$('confirmStamp').onclick=()=>{
+
+  const cast=
+    castObj(
+      $('castSelect').value
+    );
+
+
+  const now=
+    new Date();
+
+
+  const t=
+    timeStr(now);
+
+
+  const d=
+    todayStr(now);
+
+
+  const scheduled=
+    scheduledFor(
+      d,
+      cast.id
+    );
+
+
+  const status=
+    mins(t)>mins(scheduled)
+      ?'遅刻'
+      :'出勤';
+
+
+  const late=
+    lateMinutes(
+      t,
+      scheduled
+    );
+
+
+  const nr={
+
+    id:
+      crypto.randomUUID?.()
+      ||
+      Date.now().toString(),
+
+    date:d,
+
+    castId:cast.id,
+
+    scheduled,
+
+    workType:
+      dayStatusFor(
+        d,
+        cast.id
+      ),
+
+    time:t,
+
+    status,
+
+    lateMinutes:late,
+
+    photo:photoData,
+
+    createdAt:
+      now.toISOString(),
+
+    edited:false,
+
+    note:''
+
+  };
+
+
+  applyPointsToRecord(
+    nr
+  );
+
+
+  db.records.push(
+    nr
+  );
+
+
+  save();
+
+
+  if(stream){
+
+    stream
+      .getTracks()
+      .forEach(
+        x=>x.stop()
+      );
+
+  }
+
+
+  $('cameraBox')
+    .classList.remove(
+      'active'
+    );
+
+
+  photoData='';
+
+
+  renderAll();
+
+
+  toast(
+    `${cast.name} ${t} ${status}${
+      late
+        ?`（${late}分）`
+        :''
+    }`
+  );
+
+};
+
+
+/* =========================
+   管理者ログイン
+========================= */
+
+$('adminLogin').onclick=()=>{
+
+  if(
+    $('adminPass').value
+    ===db.adminPass
+  ){
+
+    $('adminLock')
+      .classList.add(
+        'hidden'
+      );
+
+
+    $('adminArea')
+      .classList.remove(
+        'hidden'
+      );
+
+
+    renderCastAdmin();
+
+    renderHistory();
+
+  }
+
+  else{
+
+    toast(
+      'パスワードが違います'
+    );
+
+  }
+
+};
+
+
+/* =========================
+   キャスト個別追加
+========================= */
+
+$('addCast').onclick=()=>{
+
+  const name=
+    $('newCastName')
+      .value
+      .trim();
+
+
+  const time=
+    $('newCastTime')
+      .value;
+
+
+  if(!name){
+
+    return toast(
+      '名前を入力してください'
+    );
+
+  }
+
+
+  if(
+    db.casts.some(
+      c=>
+        c.name.trim()
+        ===name
+    )
+  ){
+
+    return toast(
+      '同じ名前のキャストが登録済みです'
+    );
+
+  }
+
+
+  db.casts.push({
+
+    id:
+      'c'+Date.now(),
+
+    name,
+
+    time,
+
+    hasPaidPoints:false,
+
+    paidPoints:0
+
+  });
+
+
+  $('newCastName').value='';
+
+
+  save();
+
+  renderAll();
+
+
+  toast(
+    'キャストを追加しました'
+  );
+
+};
+
+
+/* =========================
+   キャスト一括追加
+========================= */
+
+$('bulkAddCast').onclick=()=>{
+
+  const raw=
+    $('bulkCastNames')
+      .value;
+
+
+  const time=
+    $('bulkCastTime')
+      .value
+    ||'19:00';
+
+
+  const names=
+    raw
+      .split(/\r?\n/)
+      .map(
+        x=>x.trim()
+      )
+      .filter(Boolean);
+
+
+  if(!names.length){
+
+    return toast(
+      'キャスト名を入力してください'
+    );
+
+  }
+
+
+  const existing=
+    new Set(
+      db.casts.map(
+        c=>c.name.trim()
+      )
+    );
+
+
+  const seen=
+    new Set();
+
+
+  const add=[];
+
+  const skipped=[];
+
+
+  names.forEach(name=>{
+
+    if(
+      existing.has(name)
+      ||
+      seen.has(name)
+    ){
+
+      skipped.push(
+        name
+      );
+
+      return;
+
+    }
+
+
+    seen.add(
+      name
+    );
+
+
+    add.push({
+
+      id:
+        'c'
+        +Date.now()
+        +'_'
+        +add.length,
+
+      name,
+
+      time,
+
+      hasPaidPoints:false,
+
+      paidPoints:0
+
+    });
+
+  });
+
+
+  db.casts.push(
+    ...add
+  );
+
+
+  save();
+
+  renderAll();
+
+
+  $('bulkCastNames').value='';
+
+
+  $('bulkAddResult')
+    .classList.remove(
+      'hidden'
+    );
+
+
+  $('bulkAddResult')
+    .textContent=
+      `${add.length}名追加 / ${skipped.length}名スキップ`;
+
+
+  toast(
+    `${add.length}名追加しました`
+  );
+
+};
+
+
+/* =========================
+   日別設定保存
+========================= */
+
+$('saveDaily').onclick=()=>{
+
+  const d=
+    $('dailyDate').value;
+
+  const cid=
+    $('dailyCast').value;
+
+  const st=
+    $('dailyStatus').value;
+
+  const t=
+    $('dailyTime').value;
+
+
+  if(
+    !d
+    ||
+    !cid
+  ){
+
+    return toast(
+      '日付・キャストを選択してください'
+    );
+
+  }
+
+
+  db.dayStatus[d]=
+    db.dayStatus[d]
+    ||{};
+
+
+  db.dayStatus[d][cid]=
+    st;
+
+
+  if(
+    [
+      '出勤予定',
+      '同伴',
+      '例外出勤'
+    ].includes(st)
+  ){
+
+    if(!t){
+
+      return toast(
+        '出勤時間を選択してください'
+      );
+
+    }
+
+
+    db.scheduleOverrides[d]=
+      db.scheduleOverrides[d]
+      ||{};
+
+
+    db.scheduleOverrides[d][cid]=
+      t;
+
+  }
+
+  else{
+
+    if(
+      db.scheduleOverrides
+        ?.[d]
+        ?.[cid]
+    ){
+
+      delete db
+        .scheduleOverrides[d][cid];
+
+    }
+
+  }
+
+
+  save();
+
+  renderAll();
+
+
+  toast(
+    '予定を保存しました'
+  );
+
+};
+
+
+/* =========================
+   日別設定解除
+========================= */
+
+$('clearDaily').onclick=()=>{
+
+  const d=
+    $('dailyDate').value;
+
+  const cid=
+    $('dailyCast').value;
+
+
+  let changed=false;
+
+
+  if(
+    db.scheduleOverrides
+      ?.[d]
+      ?.[cid]
+  ){
+
+    delete db
+      .scheduleOverrides[d][cid];
+
+
+    if(
+      !Object.keys(
+        db.scheduleOverrides[d]
+      ).length
+    ){
+
+      delete db
+        .scheduleOverrides[d];
+
+    }
+
+
+    changed=true;
+
+  }
+
+
+  if(
+    db.dayStatus
+      ?.[d]
+      ?.[cid]
+  ){
+
+    delete db
+      .dayStatus[d][cid];
+
+
+    if(
+      !Object.keys(
+        db.dayStatus[d]
+      ).length
+    ){
+
+      delete db
+        .dayStatus[d];
+
+    }
+
+
+    changed=true;
+
+  }
+
+
+  save();
+
+  renderAll();
+
+
+  toast(
+    changed
+      ?'個別設定を解除しました'
+      :'個別設定はありません'
+  );
+
+};
+
+
+/* =========================
+   店休日追加
+========================= */
+
+$('addHoliday').onclick=()=>{
+
+  const d=
+    $('holidayDate').value;
+
+
+  if(!d){
+
+    return toast(
+      '日付を選択してください'
+    );
+
+  }
+
+
+  if(
+    !db.storeHolidays
+      .includes(d)
+  ){
+
+    db.storeHolidays.push(
+      d
+    );
+
+  }
+
+
+  save();
+
+  renderAll();
+
+
+  toast(
+    `${d} を店休日に設定しました`
+  );
+
+};
+
+
+/* =========================
+   店休日一括追加
+========================= */
+
+$('bulkAddHoliday').onclick=()=>{
+
+  const vals=
+    $('holidayBulk')
+      .value
+      .split(/\r?\n/)
+      .map(
+        x=>x.trim()
+      )
+      .filter(Boolean);
+
+
+  if(!vals.length){
+
+    return toast(
+      '日付を入力してください'
+    );
+
+  }
+
+
+  let add=0;
+
+  let skip=0;
+
+
+  vals.forEach(d=>{
+
+    if(
+      !/^\d{4}-\d{2}-\d{2}$/
+        .test(d)
+    ){
+
+      skip++;
+
+      return;
+
+    }
+
+
+    if(
+      db.storeHolidays
+        .includes(d)
+    ){
+
+      skip++;
+
+      return;
+
+    }
+
+
+    db.storeHolidays.push(
+      d
+    );
+
+
+    add++;
+
+  });
+
+
+  save();
+
+  renderAll();
+
+
+  toast(
+    `店休日 ${add}日追加 / ${skip}件スキップ`
+  );
+
+};
+
+
+/* =========================
+   勤怠修正保存
+========================= */
+
+$('saveEdit').onclick=()=>{
+
+  const date=
+    $('editDate').value;
+
+  const castId=
+    $('editCast').value;
+
+  const newTime=
+    $('editTime').value;
+
+  const status=
+    $('editStatus').value;
+
+  const reason=
+    $('editReason')
+      .value
+      .trim();
+
+  const medicalCertificate=
+    $('sickCert').checked;
+
+
+  if(
+    !date
+    ||
+    !castId
+  ){
+
+    return toast(
+      '日付・キャストを選択してください'
+    );
+
+  }
+
+
+  let r=
+    recFor(
+      date,
+      castId
+    );
+
+
+  const before=
+    r
+      ?`${r.status} ${r.time||''}`
+      :'記録なし';
+
+
+  const scheduled=
+    scheduledFor(
+      date,
+      castId
+    );
+
+
+  const needsTime=
+    [
+      '出勤',
+      '遅刻'
+    ].includes(status);
+
+
+  if(
+    needsTime
+    &&
+    !newTime
+  ){
+
+    return toast(
+      '出勤時刻を入力してください'
+    );
+
+  }
+
+
+  const late=
+    status==='遅刻'
+      ?lateMinutes(
+        newTime,
+        scheduled
+      )
+      :0;
+
+
+  if(!r){
+
+    r={
+
+      id:
+        'r'+Date.now(),
+
+      date,
+
+      castId,
+
+      scheduled,
+
+      time:
+        needsTime
+          ?newTime
+          :'',
+
+      status,
+
+      lateMinutes:late,
+
+      medicalCertificate:
+        status==='病欠'
+        &&
+        medicalCertificate,
+
+      photo:'',
+
+      createdAt:
+        new Date()
+          .toISOString(),
+
+      edited:true,
+
+      note:reason,
+
+      penaltyPoints:0,
+
+      paidPointsUsed:0
+
+    };
+
+
+    /*
+      管理画面から作成した
+      新規勤怠にも
+      ポイント処理
+    */
+
+    applyPointsToRecord(
+      r
+    );
+
+
+    db.records.push(
+      r
+    );
+
+  }
+
+  else{
+
+    /*
+      既存記録の有休ポイントを
+      いったん戻す
+    */
+
+    const c=
+      castObj(
+        castId
+      );
+
+
+    if(
+      c
+      &&
+      r.paidPointsUsed
+    ){
+
+      c.paidPoints=
+        (c.paidPoints||0)
+        +
+        r.paidPointsUsed;
+
+    }
+
+
+    r.time=
+      needsTime
+        ?newTime
+        :'';
+
+
+    r.status=
+      status;
+
+
+    r.scheduled=
+      scheduled;
+
+
+    r.lateMinutes=
+      late;
+
+
+    r.medicalCertificate=
+      status==='病欠'
+      &&
+      medicalCertificate;
+
+
+    r.edited=true;
+
+
+    r.note=
+      reason;
+
+
+    applyPointsToRecord(
+      r
+    );
+
+  }
+
+
+  const after=
+    `${status} ${
+      needsTime
+        ?newTime
+        :''
+    }`;
+
+
+  db.history.push({
+
+    date,
+
+    castId,
+
+    before,
+
+    after,
+
+    reason,
+
+    at:
+      new Date()
+        .toLocaleString(
+          'ja-JP'
+        )
+
+  });
+
+
+  save();
+
+  renderAll();
+
+
+  $('editReason').value='';
+
+
+  toast(
+    '勤怠を保存しました'
+  );
+
+};
+
+
+/* =========================
+   写真確認
+========================= */
+
+function showPhoto(id){
+
+  const r=
+    db.records.find(
+      x=>x.id===id
+    );
+
+
+  if(
+    !r
+    ||
+    !r.photo
+  ){
+
+    return;
+  }
+
+
+  $('photoView').src=
+    r.photo;
+
+
+  $('photoMeta').textContent=
+    `${r.date} ${
+      castName(r.castId)
+    } / ${
+      r.time||'--:--'
+    } / ${
+      r.status
+    }`;
+
+
+  $('photoModal')
+    .classList.add(
+      'active'
+    );
+
+}
+
+
+$('closePhoto').onclick=()=>{
+
+  $('photoModal')
+    .classList.remove(
+      'active'
+    );
+
+};
+
+
+/* =========================
+   旧データ互換
+========================= */
+
+db.casts.forEach(c=>{
+
+  if(
+    c.hasPaidPoints==null
+  ){
+
+    c.hasPaidPoints=false;
+
+  }
+
+
+  if(
+    c.paidPoints==null
+  ){
+
+    c.paidPoints=0;
+
+  }
+
+});
+
+
+db.records.forEach(r=>{
+
+  if(
+    r.medicalCertificate==null
+  ){
+
+    r.medicalCertificate=false;
+
+  }
+
+
+  if(
+    r.status==='遅刻'
+    &&
+    r.lateMinutes==null
+  ){
+
+    r.lateMinutes=
+      lateMinutes(
+        r.time,
+        r.scheduled
+      );
+
+  }
+
+
+  if(
+    r.status!=='遅刻'
+  ){
+
+    r.lateMinutes=0;
+
+  }
+
+
+  if(
+    r.penaltyPoints==null
+  ){
+
+    r.penaltyPoints=
+      pointEffect(
+        r.status,
+        r.lateMinutes||0
+      );
+
+  }
+
+
+  if(
+    r.paidPointsUsed==null
+  ){
+
+    r.paidPointsUsed=0;
+
+  }
+
+});
+
+
+save();
+
+
+/* =========================
+   起動
+========================= */
+
+renderAll();
+
+</script>
+
+</body>
+</html>
