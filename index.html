@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.43 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.44 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -169,7 +169,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11238-compact-direct-table">
-/* Ver.11.2.43
+/* Ver.11.2.44
    稼働中は卓情報を最小化してキャスト一覧の縦領域を最大化。
    送り・場内は一時終了後のみ表示。 */
 
@@ -283,7 +283,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11239-summary-remove">
-/* Ver.11.2.43: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
+/* Ver.11.2.44: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
 header .summary{
   display:none !important;
 }
@@ -342,7 +342,7 @@ header .clock{
 
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.43 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.44 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="all-timers-wrap"><div class="all-timers-title"><b>全卓タイマー</b><span>タップで該当卓へ</span></div><div id="allTimersBar" class="all-timers-bar"></div></div>
@@ -1279,7 +1279,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.43 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.44 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2123,7 +2123,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.43 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.44 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -2710,7 +2710,7 @@ html body .monthly-grid .monthly-row input[type="number"][data-month-field]:focu
 
 
 <style id="v11241-fixed-layout-timer-safe">
-/* Ver.11.2.43
+/* Ver.11.2.44
    上部の全卓タイマーを必ず全表示。
    その下に卓別見出し＋卓カードを固定し、
    各卓で縦に動くのはキャスト一覧だけ。 */
@@ -3040,5 +3040,178 @@ header .brand{height:38px !important;min-height:38px !important;}
   min-height:0 !important;
 }
 </style>
+
+
+<style id="v11244-timer-navigation-gesture">
+/* 上部タイマーは卓移動用 */
+#homePage .all-timer-chip{
+  cursor:pointer !important;
+}
+
+/* 卓情報内タイマーだけ停止/再開対象と分かるように */
+#directBoard .direct-timer{
+  cursor:pointer !important;
+  user-select:none !important;
+  -webkit-user-select:none !important;
+  touch-action:manipulation !important;
+}
+#directBoard .direct-timer.paused{
+  outline:1px solid #ffd25766 !important;
+  border-radius:7px !important;
+}
+
+/* キャスト一覧上で縦・横ジェスチャーを受けられるように */
+#directBoard .direct-list{
+  touch-action:pan-y !important;
+}
+</style>
+
+<script id="v11244-navigation-pause-separation">
+(function(){
+  function getTableFromElement(el){
+    const card=el && el.closest ? el.closest('.direct-table[data-direct-table]') : null;
+    return card ? state.tables.find(t=>t.id===card.dataset.directTable) : null;
+  }
+
+  function goToTable(tid){
+    const board=document.querySelector('#directBoard');
+    if(!board)return;
+    const card=board.querySelector(`.direct-table[data-direct-table="${CSS.escape(tid)}"]`);
+    if(!card)return;
+    const left=Math.max(0, card.offsetLeft - 10);
+    board.scrollTo({left,behavior:'smooth'});
+  }
+
+  /* 上部タイマー：停止ではなく該当卓へ移動 */
+  function bindTopTimerNavigation(){
+    const bar=document.querySelector('#allTimersBar');
+    if(!bar)return;
+    bar.querySelectorAll('[data-timer-pause]').forEach(chip=>{
+      chip.onclick=(e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        goToTable(chip.dataset.timerPause);
+      };
+    });
+  }
+
+  /* 既存の上部タイマー描画後に、クリック動作だけ卓移動へ差し替える */
+  const prevRenderAllTimers=window.renderAllTimers;
+  window.renderAllTimers=function(){
+    if(prevRenderAllTimers)prevRenderAllTimers();
+    bindTopTimerNavigation();
+  };
+
+  /* renderAllTimers がすでに一度走っているケースにも即反映 */
+  bindTopTimerNavigation();
+
+  /* 卓情報内のタイマーをタップした時だけ停止/再開 */
+  document.addEventListener('click',function(e){
+    const timer=e.target.closest && e.target.closest('#directBoard .direct-timer');
+    if(!timer)return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+
+    const t=getTableFromElement(timer);
+    if(!t)return;
+
+    if(t.rotationEnded){
+      toast(t.no+' は回し一時終了中です');
+      return;
+    }
+    if(!t.lastSeatAt){
+      toast(t.no+' はタイマー未開始です');
+      return;
+    }
+
+    if(t.pausedAt){
+      resumeRotationTimer(t);
+      toast(t.no+' タイマー再開');
+    }else{
+      pauseRotationTimer(t);
+      toast(t.no+' タイマー一時停止');
+    }
+
+    renderAllTimers();
+    render();
+  },true);
+
+  /* キャスト一覧付近を横スワイプ → 卓一覧を横移動
+     縦方向の動きが大きい時は通常のキャストスクロールを維持 */
+  const board=document.querySelector('#directBoard');
+  if(board){
+    let gesture=null;
+    let suppressClickUntil=0;
+
+    board.addEventListener('touchstart',function(e){
+      const list=e.target.closest && e.target.closest('.direct-list');
+      if(!list || e.touches.length!==1)return;
+      const touch=e.touches[0];
+      gesture={
+        list,
+        startX:touch.clientX,
+        startY:touch.clientY,
+        startScrollLeft:board.scrollLeft,
+        horizontal:false
+      };
+    },{passive:true});
+
+    board.addEventListener('touchmove',function(e){
+      if(!gesture || e.touches.length!==1)return;
+      const touch=e.touches[0];
+      const dx=touch.clientX-gesture.startX;
+      const dy=touch.clientY-gesture.startY;
+
+      if(!gesture.horizontal){
+        if(Math.abs(dx)>10 && Math.abs(dx)>Math.abs(dy)+4){
+          gesture.horizontal=true;
+        }else if(Math.abs(dy)>10 && Math.abs(dy)>Math.abs(dx)){
+          gesture=null;
+          return;
+        }
+      }
+
+      if(gesture && gesture.horizontal){
+        e.preventDefault();
+        board.scrollLeft=gesture.startScrollLeft-dx;
+      }
+    },{passive:false});
+
+    const finishGesture=function(){
+      if(gesture && gesture.horizontal){
+        suppressClickUntil=Date.now()+350;
+      }
+      gesture=null;
+    };
+    board.addEventListener('touchend',finishGesture,{passive:true});
+    board.addEventListener('touchcancel',finishGesture,{passive:true});
+
+    /* 横スワイプ直後にキャスト名が誤タップされるのを防止 */
+    board.addEventListener('click',function(e){
+      if(Date.now()<suppressClickUntil && e.target.closest('.direct-list')){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      }
+    },true);
+  }
+
+  /* ライブ更新時に卓情報タイマーの停止見た目も反映 */
+  const prevLive=window.updateLiveOnly;
+  window.updateLiveOnly=function(){
+    if(prevLive)prevLive();
+    document.querySelectorAll('#directBoard .direct-table[data-direct-table]').forEach(card=>{
+      const t=state.tables.find(x=>x.id===card.dataset.directTable);
+      const timer=card.querySelector('.direct-timer');
+      if(timer)timer.classList.toggle('paused',!!t?.pausedAt);
+    });
+    bindTopTimerNavigation();
+  };
+
+  renderAllTimers();
+})();
+</script>
 
 </body></html>
