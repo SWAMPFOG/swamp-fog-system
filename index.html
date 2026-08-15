@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.41 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.43 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -169,7 +169,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11238-compact-direct-table">
-/* Ver.11.2.41
+/* Ver.11.2.43
    稼働中は卓情報を最小化してキャスト一覧の縦領域を最大化。
    送り・場内は一時終了後のみ表示。 */
 
@@ -283,7 +283,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11239-summary-remove">
-/* Ver.11.2.41: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
+/* Ver.11.2.43: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
 header .summary{
   display:none !important;
 }
@@ -342,7 +342,7 @@ header .clock{
 
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.41 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.43 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="all-timers-wrap"><div class="all-timers-title"><b>全卓タイマー</b><span>タップで該当卓へ</span></div><div id="allTimersBar" class="all-timers-bar"></div></div>
@@ -383,7 +383,7 @@ const sample={casts:[
 {id:'c1',name:'れい',rank:'S',team:'#9b6cff'},{id:'c2',name:'ゆうせい',rank:'S',team:'#4fc3f7'},{id:'c3',name:'のあ',rank:'S',team:'#ff7da8'},{id:'c4',name:'たいが',rank:'A',team:'#65d58a'},{id:'c5',name:'かぐや',rank:'A',team:'#ffd15c'},{id:'c6',name:'りょうすけ',rank:'B',team:'#ff9966'},{id:'c7',name:'なつき',rank:'C',team:'#7da1ff'}],tables:[],refusals:{},history:[],settings:{sendLimit:2}};
 let state=load(),selectedCast=null,selectedTable=null,editTableId=null,longTimer=null;
 function clone(x){return JSON.parse(JSON.stringify(x))}
-function normalize(s){s=s&&typeof s==='object'?s:clone(sample);s.casts=Array.isArray(s.casts)?s.casts:[];s.tables=Array.isArray(s.tables)?s.tables:[];s.refusals=s.refusals||{};s.history=Array.isArray(s.history)?s.history:[];s.settings={sendLimit:2,...(s.settings||{})};s.casts.forEach((c,i)=>Object.assign(c,{id:c.id||'c'+Date.now()+i,rank:c.rank||'C',team:c.team||'#777777',working:c.working!==false,sends:Number(c.sends)||0,penalty:!!c.penalty,inHouse:!!c.inHouse,ngTables:Array.isArray(c.ngTables)?c.ngTables:[],currentTable:c.currentTable||null,preparingFor:c.preparingFor||null,order:Number.isFinite(c.order)?c.order:i}));s.tables.forEach(t=>{let companion=t.plan==='お連れ様';Object.assign(t,{active:t.active!==false,seated:Array.isArray(t.seated)?t.seated:[],senders:Array.isArray(t.senders)?t.senders:[],senderPending:Array.isArray(t.senderPending)?t.senderPending:[],lastSeatAt:t.lastSeatAt||null,ownerId:t.ownerId||'',timerMode:t.timerMode||'manual',autoTimer:t.autoTimer!==undefined?!!t.autoTimer:(t.timerMode==='auto'),targetEnabled:!!t.targetEnabled,alertEnabled:!!t.alertEnabled,targetMin:Number(t.targetMin)||50,cycleSec:Number(t.cycleSec)||Math.round((Number(t.cycle)||3)*60),lead:Number(t.lead)||90,rotationSize:[1,2,3].includes(Number(t.rotationSize))?Number(t.rotationSize):2,currentCastIds:Array.isArray(t.currentCastIds)?t.currentCastIds:(t.currentCastId?[t.currentCastId]:[]),companionPicks:Array.isArray(t.companionPicks)?t.companionPicks:[],companionApplicants:Array.isArray(t.companionApplicants)?t.companionApplicants:[],companionIncludeS:!!t.companionIncludeS,vipExceptions:Array.isArray(t.vipExceptions)?t.vipExceptions:[],groupNo:Number(t.groupNo)||0,autoHandledAt:Number(t.autoHandledAt)||0,rotationEnded:!!t.rotationEnded});delete t.currentCastId;t.cycle=t.cycleSec/60});return s}
+function normalize(s){s=s&&typeof s==='object'?s:clone(sample);s.casts=Array.isArray(s.casts)?s.casts:[];s.tables=Array.isArray(s.tables)?s.tables:[];s.refusals=s.refusals||{};s.history=Array.isArray(s.history)?s.history:[];s.settings={sendLimit:2,...(s.settings||{})};s.casts.forEach((c,i)=>Object.assign(c,{id:c.id||'c'+Date.now()+i,rank:c.rank||'C',team:c.team||'#777777',working:c.working!==false,sends:Number(c.sends)||0,penalty:!!c.penalty,inHouse:!!c.inHouse,ngTables:Array.isArray(c.ngTables)?c.ngTables:[],currentTable:c.currentTable||null,preparingFor:c.preparingFor||null,order:Number.isFinite(c.order)?c.order:i}));s.tables.forEach(t=>{let companion=t.plan==='お連れ様';Object.assign(t,{active:t.active!==false,seated:Array.isArray(t.seated)?t.seated:[],senders:Array.isArray(t.senders)?t.senders:[],senderPending:Array.isArray(t.senderPending)?t.senderPending:[],lastSeatAt:t.lastSeatAt||null,ownerId:t.ownerId||'',timerMode:t.timerMode||'manual',autoTimer:t.autoTimer!==undefined?!!t.autoTimer:(t.timerMode==='auto'),targetEnabled:!!t.targetEnabled,alertEnabled:!!t.alertEnabled,targetMin:Number(t.targetMin)||50,cycleSec:Number(t.cycleSec)||Math.round((Number(t.cycle)||3)*60),lead:Number(t.lead)||90,rotationSize:[1,2,3].includes(Number(t.rotationSize))?Number(t.rotationSize):2,currentCastIds:Array.isArray(t.currentCastIds)?t.currentCastIds:(t.currentCastId?[t.currentCastId]:[]),companionPicks:Array.isArray(t.companionPicks)?t.companionPicks:[],companionApplicants:Array.isArray(t.companionApplicants)?t.companionApplicants:[],companionIncludeS:!!t.companionIncludeS,vipExceptions:Array.isArray(t.vipExceptions)?t.vipExceptions:[],groupNo:Number(t.groupNo)||0,autoHandledAt:Number(t.autoHandledAt)||0,rotationEnded:!!t.rotationEnded,pausedAt:Number(t.pausedAt)||0,totalPaused:Number(t.totalPaused)||0,extraSec:Number(t.extraSec)||0,pausedAt:Number(t.pausedAt)||0,totalPaused:Number(t.totalPaused)||0,extraSec:Number(t.extraSec)||0});delete t.currentCastId;t.cycle=t.cycleSec/60});return s}
 function operationFromState(s){
   return {
     refusals:clone(s.refusals||{}),
@@ -403,7 +403,7 @@ function operationFromState(s){
 function splitState(s){
   const operations=operationFromState(s);
   const casts=(s.casts||[]).map(c=>({id:c.id,name:c.name,rank:c.rank,team:c.team,order:c.order}));
-  const tables=(s.tables||[]).map(t=>{const x=clone(t);['active','seated','senders','senderPending','lastSeatAt','currentCastIds','groupNo','autoHandledAt','rotationEnded'].forEach(k=>delete x[k]);return x});
+  const tables=(s.tables||[]).map(t=>{const x=clone(t);['active','seated','senders','senderPending','lastSeatAt','currentCastIds','groupNo','autoHandledAt','rotationEnded','pausedAt','totalPaused','extraSec'].forEach(k=>delete x[k]);return x});
   return {casts,tables,operations,history:clone(s.history||[]),settings:clone(s.settings||{})}
 }
 function mergeStore(parts){
@@ -1279,7 +1279,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.41 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.43 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -1329,7 +1329,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
       const pendingHtml=pending.length?`<div class="direct-pending"><b>選択中 ${pending.length}名</b><br>${esc(pending.map(c=>c.name).join('・'))}</div>`:'';
       const canUndo=t.lastSeatAt&&p.stage!=='over'&&current.length;
       const currentHtml=current.length?current.map(c=>`<button type="button" class="current-cast-chip" data-simple-undo="${c.id}" data-simple-undo-table="${t.id}" ${canUndo?'':'disabled'}>${esc(c.name)}${canUndo?'　取消':''}</button>`).join(''):'空席';
-      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button>${t.rotationEnded?`<div class="direct-outcome-actions"><button type="button" class="direct-send-open" data-quick-send="${t.id}">送り</button><button type="button" class="direct-inhouse-open" data-quick-inhouse="${t.id}">場内</button></div>`:''}<div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
+      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button>${t.rotationEnded?`<div class="direct-outcome-actions direct-outcome-send-only"><button type="button" class="direct-send-open" data-quick-send="${t.id}">送り</button></div>`:''}<div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
     }).join('');
     // DOM差し替え後に、直前のスクロール位置を復元する。
     box.scrollLeft=boardScrollLeft;
@@ -2123,7 +2123,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.41 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.43 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -2710,7 +2710,7 @@ html body .monthly-grid .monthly-row input[type="number"][data-month-field]:focu
 
 
 <style id="v11241-fixed-layout-timer-safe">
-/* Ver.11.2.41
+/* Ver.11.2.43
    上部の全卓タイマーを必ず全表示。
    その下に卓別見出し＋卓カードを固定し、
    各卓で縦に動くのはキャスト一覧だけ。 */
@@ -2830,6 +2830,214 @@ header .brand{height:38px !important;min-height:38px !important;}
   #homePage .all-timers-bar{min-height:54px !important;}
   #homePage .all-timer-chip{padding:5px 7px !important;}
   #homePage .all-timer-chip strong{font-size:16px !important;}
+}
+</style>
+
+
+<style id="v11242-eight-timers-pause">
+/* 卓別回し内は送りのみ */
+#directBoard .direct-inhouse-open{display:none !important;}
+#directBoard .direct-outcome-send-only{
+  display:block !important;
+  padding:5px 0 !important;
+}
+#directBoard .direct-outcome-send-only .direct-send-open{
+  width:100% !important;
+  min-height:36px !important;
+}
+
+/* 全卓タイマー：iPhone幅でも8卓を4列×2段で一画面表示 */
+#homePage .all-timers-wrap{
+  flex:0 0 auto !important;
+  padding:4px 0 5px !important;
+  overflow:hidden !important;
+}
+#homePage .all-timers-title{
+  padding:0 8px 3px !important;
+  min-height:16px !important;
+}
+#homePage .all-timers-title b{font-size:11px !important;}
+#homePage .all-timers-title span{font-size:8px !important;}
+
+#homePage .all-timers-bar{
+  display:grid !important;
+  grid-template-rows:repeat(2, 43px) !important;
+  grid-auto-flow:column !important;
+  grid-auto-columns:calc((100% - 12px) / 4) !important;
+  gap:4px !important;
+  width:100% !important;
+  min-height:90px !important;
+  max-height:90px !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  padding:0 6px !important;
+  scroll-snap-type:x proximity !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+#homePage .all-timer-chip{
+  min-width:0 !important;
+  max-width:none !important;
+  width:100% !important;
+  height:43px !important;
+  border-radius:8px !important;
+  padding:3px 5px !important;
+  overflow:hidden !important;
+  scroll-snap-align:start !important;
+}
+#homePage .all-timer-chip b{
+  font-size:9px !important;
+  line-height:1 !important;
+}
+#homePage .all-timer-chip b span{
+  font-size:7px !important;
+}
+#homePage .all-timer-chip small{
+  display:none !important;
+}
+#homePage .all-timer-chip strong{
+  font-size:14px !important;
+  line-height:1.05 !important;
+  margin-top:4px !important;
+  white-space:nowrap !important;
+}
+#homePage .all-timer-chip.paused{
+  box-shadow:0 0 0 2px #ffd25755 inset !important;
+}
+
+/* 8卓タイマーの高さを先に確保した残りをキャスト一覧へ */
+#homePage #directBoard.direct-board{
+  flex:1 1 0 !important;
+  min-height:0 !important;
+}
+</style>
+
+<script id="v11242-timer-tap-pause">
+(function(){
+  const titleHint=document.querySelector('.all-timers-title span');
+  if(titleHint)titleHint.textContent='タップで一時停止／再開';
+
+  function v11242TimerStage(t,p){
+    if(t.rotationEnded)return'ended';
+    if(!t.lastSeatAt)return'idle';
+    if(t.pausedAt)return'paused';
+    return p?.stage||'normal';
+  }
+  function v11242TimerText(t,p){
+    if(t.rotationEnded)return'終了';
+    if(!t.lastSeatAt)return'未開始';
+    if(t.pausedAt)return'⏸ '+fmt(p.sec);
+    if(p?.stage==='over')return'超 '+fmt(p.sec);
+    return fmt(p?.sec||0);
+  }
+
+  window.renderAllTimers=function(){
+    const bar=document.querySelector('#allTimersBar');
+    if(!bar)return;
+    const left=bar.scrollLeft;
+    const tables=state.tables.filter(t=>t.active);
+    if(!tables.length){
+      bar.innerHTML='<div class="direct-empty" style="grid-row:1/3;grid-column:1/5;padding:24px 2px">稼働卓なし</div>';
+      return;
+    }
+    bar.innerHTML=tables.map(t=>{
+      const p=tablePhase(t),stage=v11242TimerStage(t,p);
+      return `<button type="button" class="all-timer-chip ${stage}" data-timer-pause="${t.id}">
+        <b>${esc(t.no)} <span style="color:var(--muted)">${esc(t.plan)}</span></b>
+        <strong>${esc(v11242TimerText(t,p))}</strong>
+      </button>`;
+    }).join('');
+    bar.scrollLeft=left;
+
+    bar.querySelectorAll('[data-timer-pause]').forEach(btn=>{
+      btn.onclick=(e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        const t=state.tables.find(x=>x.id===btn.dataset.timerPause);
+        if(!t)return;
+        if(t.rotationEnded){toast(t.no+' は回し一時終了中です');return}
+        if(!t.lastSeatAt){toast(t.no+' はタイマー未開始です');return}
+        if(t.pausedAt)resumeRotationTimer(t);
+        else pauseRotationTimer(t);
+      };
+    });
+  };
+
+  const prevLive=window.updateLiveOnly;
+  window.updateLiveOnly=function(){
+    if(prevLive)prevLive();
+    const bar=document.querySelector('#allTimersBar');
+    if(!bar)return;
+    state.tables.filter(t=>t.active).forEach(t=>{
+      const chip=bar.querySelector(`[data-timer-pause="${CSS.escape(t.id)}"]`);
+      if(!chip)return;
+      const p=tablePhase(t),stage=v11242TimerStage(t,p);
+      chip.className='all-timer-chip '+stage;
+      const strong=chip.querySelector('strong');
+      if(strong)strong.textContent=v11242TimerText(t,p);
+    });
+  };
+
+  renderAllTimers();
+})();
+</script>
+
+
+<style id="v11243-eight-columns-one-row">
+/* 上部タイマー：8卓を横1列で常時表示 */
+#homePage .all-timers-wrap{
+  padding:3px 0 4px !important;
+}
+#homePage .all-timers-title{
+  padding:0 5px 2px !important;
+  min-height:14px !important;
+}
+#homePage .all-timers-title b{font-size:10px !important;}
+#homePage .all-timers-title span{font-size:7px !important;}
+
+#homePage .all-timers-bar{
+  display:grid !important;
+  grid-template-rows:38px !important;
+  grid-template-columns:repeat(8,minmax(0,1fr)) !important;
+  grid-auto-flow:row !important;
+  grid-auto-columns:auto !important;
+  gap:2px !important;
+  width:100% !important;
+  min-height:40px !important;
+  max-height:40px !important;
+  overflow:hidden !important;
+  padding:0 3px !important;
+}
+#homePage .all-timer-chip{
+  min-width:0 !important;
+  width:100% !important;
+  height:38px !important;
+  padding:3px 1px !important;
+  border-radius:6px !important;
+}
+#homePage .all-timer-chip b{
+  display:block !important;
+  font-size:7px !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+#homePage .all-timer-chip b span{
+  font-size:6px !important;
+}
+#homePage .all-timer-chip strong{
+  display:block !important;
+  font-size:10px !important;
+  line-height:1 !important;
+  margin-top:5px !important;
+  white-space:nowrap !important;
+  letter-spacing:-.4px !important;
+}
+
+/* 1段になった分をキャスト一覧へ返す */
+#homePage #directBoard.direct-board{
+  flex:1 1 0 !important;
+  min-height:0 !important;
 }
 </style>
 
