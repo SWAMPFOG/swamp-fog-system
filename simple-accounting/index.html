@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0c">
-<title>SWAMP FOG 簡単会計 Ver.5</title>
+<title>SWAMP FOG 簡単会計 Ver.6</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:#f4f4f5;color:#111}
 .app{max-width:760px;margin:auto;padding-bottom:180px}header{position:sticky;top:0;z-index:20;background:#0b0b0c;color:#fff;padding:16px}
 .head{display:flex;justify-content:space-between;align-items:center}.brand{font-weight:900;letter-spacing:.08em}.brand small{display:block;font-size:10px;opacity:.7;margin-top:3px}
 .reset{background:#171719;color:#fff;border:1px solid #3b3b3d;border-radius:10px;padding:9px 12px}main{padding:14px}
-.card{background:#fff;border:1px solid #e5e5e7;border-radius:18px;padding:16px;margin-bottom:12px}.title{font-weight:900;font-size:17px;margin-bottom:12px}
+.card{background:#fff;border:1px solidA #e5e5e7;border-radius:18px;padding:16px;margin-bottom:12px}.title{font-weight:900;font-size:17px;margin-bottom:12px}
 label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}input,select,button{font:inherit}
 input[type=time],input[type=number],select{width:100%;height:48px;border:1px solid #d8d8dc;border-radius:12px;background:#fff;padding:0 12px;font-size:17px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.plans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -28,7 +28,7 @@ input[type=time],input[type=number],select{width:100%;height:48px;border:1px sol
 @media(max-width:430px){.grid,.grid2{grid-template-columns:1fr}.final .g{font-size:24px}}
 </style></head>
 <body>
-<div class="app"><header><div class="head"><div class="brand">SWAMP FOG<small>SIMPLE ACCOUNTING Ver.5</small></div><button class="reset" id="resetBtn">↻ リセット</button></div></header>
+<div class="app"><header><div class="head"><div class="brand">SWAMP FOG<small>SIMPLE ACCOUNTING Ver.6</small></div><button class="reset" id="resetBtn">↻ リセット</button></div></header>
 <main>
 <section class="card"><div class="grid2"><div><label>入店時間</label><input type="time" id="entryTime"></div><div><label>卓番</label><select id="tableNo"></select></div></div><div class="info"><div class="box"><div class="k">席種</div><div class="v" id="seatType">通常卓</div></div><div class="box"><div class="k">現在の滞在時間</div><div class="v" id="stayTime">--</div></div></div></section>
 <section class="card" id="planCard"><div class="title">プラン</div><div class="plans"><button class="plan active" data-plan="quick">クイック<span>1時間 ¥10,000</span></button><button class="plan" data-plan="free">フリータイム<span>ラストまで ¥20,000</span></button></div><div class="note" id="planNote">通常卓のみプラン選択。クイックは1時間まで¥10,000、1時間を超えたら自動でフリータイム¥20,000に切り替え。</div></section>
@@ -38,7 +38,7 @@ input[type=time],input[type=number],select{width:100%;height:48px;border:1px sol
 </main></div>
 <div class="final"><div class="final-in"><div class="final-card"><div class="l">今の合計</div><div class="g" id="grandNow">¥0</div><div class="d">最終金額・千円未満切り捨て</div></div><div class="final-card"><div class="l">ラストまでの合計</div><div class="g" id="grandLast">¥0</div><div class="d">25:00まで・千円未満切り捨て</div></div></div></div>
 <script>
-const master={"ソフトドリンク":[["ソフトドリンク",1000]],"ピッチャー":[["ピッチャー",2000]],"缶類":[["缶類（2本1セット）",3000],["レッドブル",2000]],"ビン類":[["ビン類（2本1セット）",4000]],"シャンパン":[["アスティ",50000],["オリシャン",70000],["オリシャンルミナス",100000],["オリシャンキラキラ",420000],["その他シャンパン",null]],"ボトル":[["茉莉花 / JAPAN / 鍛高譚",12000],["柚子小町 / 黒霧島",15000],["吉四六",18000],["梅酒 / 富乃宝山",30000],["角",50000]],"高級ボトル":[["バカラ",700000],["トラディション",3500000],["ジュビリー",5000000],["ロイヤルバカラ",6000000],["ヘネパラ",2500000],["ヘネパラインペリ",8000000],["リシャール",10000000],["新型リシャール",17000000],["ルイ13世",8000000]],"ショット":[["ショット",3000],["コカボム / クライナー",4000],["テキーラアネホ",8000],["テキーラ観覧車",150000],["テキーラship / アネホ観覧車",300000]]};
+const master={"ソフトドリンク":[["ソフトドリンク",1000]],"ピッチャー":[["ピッチャー",2000]],"缶類":[["缶類（2本1セット）",3000],["レッドブル",2000]],"ビン類":[["ビン類（2本1セット）",4000],["チャミスル",6000]],"シャンパン":[["アスティ",50000],["オリシャン",70000],["オリシャンルミナス",100000],["オリシャンキラキラ",420000],["その他シャンパン",null]],"ボトル":[["茉莉花 / JAPAN / 鍛高譚",12000],["柚子小町 / 黒霧島",15000],["吉四六",18000],["梅酒 / 富乃宝山",30000],["角",50000]],"高級ボトル":[["バカラ",700000],["トラディション",3500000],["ジュビリー",5000000],["ロイヤルバカラ",6000000],["ヘネパラ",2500000],["ヘネパラインペリ",8000000],["リシャール",10000000],["新型リシャール",17000000],["ルイ13世",8000000]],"ショット":[["ショット",3000],["コカボム / クライナー",4000],["テキーラアネホ",8000],["テキーラ観覧車",150000],["テキーラship / アネホ観覧車",300000]]};
 const categories=["ソフトドリンク","ピッチャー","缶類","ビン類","シャンパン","ボトル","高級ボトル","ショット"];
 const tables=[...Array.from({length:8},(_,i)=>"A"+(i+1)),...Array.from({length:3},(_,i)=>"B"+(i+1)),...Array.from({length:8},(_,i)=>"C"+(i+1)),...Array.from({length:2},(_,i)=>"D"+(i+1)),...Array.from({length:9},(_,i)=>"S"+(i+1)),"VIP","RVIP"];
 let category=categories[0],plan="quick",added=[];
