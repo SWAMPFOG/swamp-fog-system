@@ -3282,4 +3282,48 @@ header .brand{height:38px !important;min-height:38px !important;}
 })();
 </script>
 
+<style id="v11247-resume-rotation-style">
+#directBoard .direct-resume-rotation{
+ width:100%;min-height:38px;padding:8px 10px;border-radius:10px;
+ border:1px solid #34784d;background:#173523;color:#9af0b5;
+ font-size:12px;font-weight:1000;
+}
+</style>
+<script id="v11247-resume-rotation">
+(function(){
+ function addResumeButtons(){
+   document.querySelectorAll('#directBoard .direct-table[data-direct-table]').forEach(card=>{
+     const t=state.tables.find(x=>x.id===card.dataset.directTable);
+     if(!t||!t.rotationEnded||card.querySelector('[data-resume-rotation]'))return;
+     const area=card.querySelector('.direct-outcome-actions');
+     if(!area)return;
+     const b=document.createElement('button');
+     b.type='button';b.className='direct-resume-rotation';
+     b.dataset.resumeRotation=t.id;b.textContent='回しを再開';
+     area.appendChild(b);
+   });
+ }
+ document.addEventListener('click',function(e){
+   const b=e.target.closest('[data-resume-rotation]');
+   if(!b)return;
+   e.preventDefault();e.stopPropagation();
+   const t=state.tables.find(x=>x.id===b.dataset.resumeRotation);
+   if(!t||!t.rotationEnded)return;
+   t.rotationEnded=false;
+   t.lastSeatAt=null;t.pausedAt=0;t.totalPaused=0;t.extraSec=0;t.autoHandledAt=0;
+   t.pendingCastIds=[];t.pendingUpdatedAt=0;
+   state.history.push({type:'rotationResume',table:t.id,tableNo:t.no,at:Date.now()});
+   save();render();
+   toast(t.no+' の回しを再開しました');
+ });
+ const observer=new MutationObserver(addResumeButtons);
+ const start=()=>{
+   const board=document.querySelector('#directBoard');
+   if(board){observer.observe(board,{childList:true,subtree:true});addResumeButtons()}
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
+ else start();
+})();
+</script>
+
 </body></html>
