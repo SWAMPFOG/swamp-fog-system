@@ -1329,7 +1329,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
       const pendingHtml=pending.length?`<div class="direct-pending"><b>選択中 ${pending.length}名</b><br>${esc(pending.map(c=>c.name).join('・'))}</div>`:'';
       const canUndo=t.lastSeatAt&&p.stage!=='over'&&current.length;
       const currentHtml=current.length?current.map(c=>`<button type="button" class="current-cast-chip" data-simple-undo="${c.id}" data-simple-undo-table="${t.id}" ${canUndo?'':'disabled'}>${esc(c.name)}${canUndo?'　取消':''}</button>`).join(''):'空席';
-      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button>${t.rotationEnded?`<div class="direct-outcome-actions direct-outcome-send-only"><button type="button" class="direct-send-open" data-quick-send="${t.id}">送り</button></div>`:''}<div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
+      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button>${t.rotationEnded?`<div class="direct-outcome-actions direct-outcome-send-only"><button type="button" class="direct-send-open" data-quick-send="${t.id}">送り</button><button type="button" class="direct-resume-rotation" data-resume-rotation="${t.id}">回しを再開</button></div>`:''}<div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
     }).join('');
     // DOM差し替え後に、直前のスクロール位置を復元する。
     box.scrollLeft=boardScrollLeft;
@@ -3326,4 +3326,36 @@ header .brand{height:38px !important;min-height:38px !important;}
 })();
 </script>
 
+<script id="v11249-all-first-visit-tables">
+(function(){
+  const tableNos=[
+    'A1','A2','A3','A4','A5','A6','A7','A8',
+    'B1','B2','B3',
+    'C1','C2','C3','C4','C5','C6','C7','C8',
+    'D1','D2',
+    'S1','S2','S3','S4','S5','S6','S7','S8','S9',
+    'VIP','RVIP'
+  ];
+  const select=document.querySelector('#fNoSelect');
+  if(select){
+    const current=select.value;
+    select.innerHTML='<option value="">選択</option>'+
+      tableNos.map(no=>'<option value="'+no+'">'+no+'</option>').join('');
+    if(tableNos.includes(current))select.value=current;
+  }
+  const planSelect=document.querySelector('#fPlan');
+  if(planSelect){
+    planSelect.onchange=()=>{
+      const plan=planSelect.value;
+      toggleOwner();
+      document.querySelector('#fNo').value='';
+      document.querySelector('#fNoSelect').value='';
+      document.querySelector('#fCycle').value='180';
+      document.querySelector('#fTarget').value=50;
+      updateTimerPreview();
+      if(plan!=='お連れ様')toast('初回卓はA〜D・S・VIP・RVIPから選択できます');
+    };
+  }
+})();
+</script>
 </body></html>
