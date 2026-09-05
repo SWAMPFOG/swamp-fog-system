@@ -2,62 +2,1946 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#0b0b0c">
-<title>SWAMP FOG 簡単会計 Ver.6</title>
+<title>SWAMP FOG 簡単会計 Ver.7</title>
+
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:#f4f4f5;color:#111}
-.app{max-width:760px;margin:auto;padding-bottom:180px}header{position:sticky;top:0;z-index:20;background:#0b0b0c;color:#fff;padding:16px}
-.head{display:flex;justify-content:space-between;align-items:center}.brand{font-weight:900;letter-spacing:.08em}.brand small{display:block;font-size:10px;opacity:.7;margin-top:3px}
-.reset{background:#171719;color:#fff;border:1px solid #3b3b3d;border-radius:10px;padding:9px 12px}main{padding:14px}
-.card{background:#fff;border:1px solidA #e5e5e7;border-radius:18px;padding:16px;margin-bottom:12px}.title{font-weight:900;font-size:17px;margin-bottom:12px}
-label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}input,select,button{font:inherit}
-input[type=time],input[type=number],select{width:100%;height:48px;border:1px solid #d8d8dc;border-radius:12px;background:#fff;padding:0 12px;font-size:17px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.plans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.plan{border:1px solid #ddd;border-radius:14px;background:#fff;padding:14px 8px;font-weight:900}.plan span{display:block;margin-top:4px}.plan.active{background:#111;color:#fff}
-.info{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.box{background:#fafafa;border:1px solid #eee;border-radius:14px;padding:12px}.k{font-size:12px;color:#666}.v{font-weight:900;font-size:20px;margin-top:4px}
-.cats{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}.cat{flex:0 0 auto;border:1px solid #ddd;background:#fff;border-radius:999px;padding:10px 13px;font-weight:800}.cat.active{background:#111;color:#fff}
-.grid{display:grid;grid-template-columns:1.4fr .8fr;gap:10px;margin-top:12px}.qty{display:grid;grid-template-columns:42px 1fr 42px;border:1px solid #ddd;border-radius:12px;overflow:hidden}.qty button{border:0;background:#f2f2f3;font-size:22px}.qty input{border:0;border-radius:0;text-align:center}
-.custom{display:none;margin-top:10px}.custom.show{display:block}.preview{margin-top:10px;padding:12px 14px;border-radius:12px;background:#faf7ea;border:1px solid #eee2b5;font-weight:900}
-.add{width:100%;height:50px;border:0;border-radius:14px;background:#111;color:#fff;font-weight:900;margin-top:10px}
-.row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #eee}.name{font-weight:850}.meta{font-size:12px;color:#777}.amount{font-weight:900}.del{border:0;background:#f2f2f3;border-radius:9px;width:34px;height:34px}.empty{text-align:center;color:#888;padding:12px 0}
-.totals{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{background:#fafafa;border:1px solid #eee;border-radius:14px;padding:13px;text-align:center}.mini .v{font-size:23px;font-weight:950;margin-top:4px}
-.calcbox{margin-top:10px;border:1px solid #eee;border-radius:14px;padding:13px;background:#fbfbfb}.calcrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed #e4e4e4}.calcrow:last-child{border-bottom:0}
-.note{font-size:12px;color:#777;line-height:1.5;margin-top:9px}.final{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#0b0b0c;color:#fff;padding:12px 14px}
-.final-in{max-width:760px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px}.final-card{border:1px solid #2d2d30;border-radius:14px;padding:11px 12px;background:#141416}.final .l{font-size:12px;font-weight:800}.final .g{font-size:29px;font-weight:950;color:#f0cf64;margin-top:4px}.final .d{font-size:10px;color:#aaa;margin-top:3px}
-@media(max-width:430px){.grid,.grid2{grid-template-columns:1fr}.final .g{font-size:24px}}
-</style></head>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+  background:#f3f3f4;
+  color:#111;
+}
+button,input,select{font:inherit}
+.app{max-width:760px;margin:auto}
+
+/* ===== 上部固定合計 ===== */
+.top{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:#0b0b0c;
+  color:#fff;
+  padding:10px 12px 11px;
+  box-shadow:0 6px 24px rgba(0,0,0,.2);
+}
+.topline{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:9px;
+}
+.brand{
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:.06em;
+}
+.brand small{
+  font-size:9px;
+  opacity:.6;
+  margin-left:6px;
+}
+.reset{
+  border:1px solid #3b3b3d;
+  background:#171719;
+  color:#fff;
+  border-radius:10px;
+  padding:8px 10px;
+  font-size:12px;
+  font-weight:800;
+}
+.totals-top{
+  display:grid;
+  grid-template-columns:1.35fr 1fr;
+  gap:8px;
+}
+.totalbox{
+  border:1px solid #2c2c2f;
+  background:#141416;
+  border-radius:13px;
+  padding:9px 11px;
+}
+.totalbox .label{
+  font-size:11px;
+  font-weight:800;
+  color:#c7c7cc;
+}
+.totalbox .amount{
+  font-weight:950;
+  color:#e6c65f;
+  font-size:30px;
+  line-height:1.08;
+  margin-top:3px;
+  white-space:nowrap;
+}
+.totalbox.secondary .amount{font-size:24px}
+.totalbox .sub{
+  font-size:9px;
+  color:#8f8f96;
+  margin-top:3px;
+}
+
+/* ===== 共通 ===== */
+main{padding:12px}
+.card{
+  background:#fff;
+  border:1px solid #e5e5e7;
+  border-radius:17px;
+  padding:14px;
+  margin-bottom:10px;
+}
+.card-title{
+  font-size:15px;
+  font-weight:950;
+  margin-bottom:11px;
+}
+label{
+  display:block;
+  font-size:11px;
+  font-weight:850;
+  color:#444;
+  margin-bottom:5px;
+}
+input[type=time],
+input[type=number],
+select{
+  width:100%;
+  height:45px;
+  border:1px solid #d7d7db;
+  border-radius:11px;
+  background:#fff;
+  padding:0 10px;
+  font-size:16px;
+}
+
+/* ===== 卓情報 ===== */
+.setup{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:9px;
+}
+.timewrap{
+  display:grid;
+  grid-template-columns:1fr 54px;
+  gap:6px;
+}
+.nowbtn{
+  border:0;
+  border-radius:11px;
+  background:#111;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+}
+.seatline{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:9px;
+}
+.stat{
+  background:#fafafa;
+  border:1px solid #ededee;
+  border-radius:11px;
+  padding:9px 10px;
+}
+.stat .k{
+  font-size:10px;
+  color:#777;
+}
+.stat .v{
+  font-size:15px;
+  font-weight:950;
+  margin-top:2px;
+}
+
+/* ===== プラン ===== */
+.plan-wrap{margin-top:10px}
+.plans{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.plan{
+  border:1px solid #d8d8dc;
+  background:#fff;
+  border-radius:12px;
+  padding:11px 8px;
+  font-weight:900;
+  font-size:13px;
+}
+.plan span{
+  display:block;
+  font-size:11px;
+  margin-top:3px;
+  color:#666;
+}
+.plan.active{
+  background:#111;
+  color:#fff;
+}
+.plan.active span{color:#ccc}
+.plan:disabled{opacity:.35}
+.plan-status{
+  margin-top:8px;
+  font-size:11px;
+  font-weight:800;
+  color:#555;
+}
+.auto-switch{color:#b26e00}
+
+/* ===== よく使う ===== */
+.quick-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:9px;
+}
+.hint{
+  font-size:10px;
+  color:#888;
+}
+.quick-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+}
+.quick-btn,
+.product-btn{
+  position:relative;
+  border:1px solid #dedee1;
+  background:#fff;
+  border-radius:12px;
+  padding:11px 7px;
+  text-align:left;
+  min-height:58px;
+}
+.quick-btn .n,
+.product-btn .n{
+  font-size:12px;
+  font-weight:950;
+  line-height:1.2;
+}
+.quick-btn .p,
+.product-btn .p{
+  font-size:10px;
+  color:#73737a;
+  margin-top:4px;
+  font-weight:700;
+}
+.badge{
+  position:absolute;
+  right:6px;
+  top:6px;
+  min-width:20px;
+  height:20px;
+  padding:0 5px;
+  border-radius:10px;
+  background:#111;
+  color:#fff;
+  font-size:11px;
+  font-weight:950;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+.has .badge{display:flex}
+
+/* ===== カテゴリ ===== */
+.tabs{
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  padding-bottom:7px;
+}
+.tab{
+  flex:0 0 auto;
+  border:1px solid #ddd;
+  background:#fff;
+  border-radius:999px;
+  padding:9px 12px;
+  font-size:12px;
+  font-weight:900;
+}
+.tab.active{
+  background:#111;
+  color:#fff;
+}
+.products{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+/* ===== その他シャンパン ===== */
+.custom-panel{
+  display:none;
+  margin-top:9px;
+  padding:11px;
+  border-radius:12px;
+  background:#faf7ea;
+  border:1px solid #eee2b5;
+}
+.custom-panel.show{display:block}
+.custom-grid{
+  display:grid;
+  grid-template-columns:1fr 70px;
+  gap:7px;
+}
+.custom-add{
+  border:0;
+  border-radius:10px;
+  background:#111;
+  color:#fff;
+  font-weight:950;
+}
+
+/* ===== 追加済み ===== */
+.added-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.added-count{
+  font-size:11px;
+  color:#777;
+}
+.empty{
+  text-align:center;
+  color:#999;
+  padding:11px 0;
+  font-size:12px;
+}
+.item{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:8px;
+  padding:9px 0;
+  border-bottom:1px solid #eee;
+}
+.item .name{
+  font-size:12px;
+  font-weight:900;
+}
+.item .meta{
+  font-size:10px;
+  color:#777;
+  margin-top:3px;
+}
+.controls{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.controls button{
+  width:34px;
+  height:34px;
+  border:0;
+  border-radius:9px;
+  background:#f1f1f2;
+  font-size:19px;
+  font-weight:900;
+}
+.controls .count{
+  min-width:24px;
+  text-align:center;
+  font-size:13px;
+  font-weight:950;
+}
+
+/* ===== 内訳 ===== */
+.details-btn{
+  width:100%;
+  border:0;
+  background:#f1f1f2;
+  border-radius:11px;
+  padding:11px;
+  font-weight:900;
+  font-size:12px;
+}
+.details{
+  display:none;
+  margin-top:10px;
+}
+.details.open{display:block}
+.detailrow{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:7px 0;
+  border-bottom:1px dashed #e3e3e5;
+  font-size:12px;
+}
+.rule{
+  font-size:10px;
+  color:#777;
+  line-height:1.55;
+  margin-top:9px;
+}
+
+.flash{animation:flash .18s ease}
+@keyframes flash{
+  0%{transform:scale(.97);background:#eee}
+  100%{transform:scale(1)}
+}
+
+@media(max-width:420px){
+  .totalbox .amount{font-size:27px}
+  .totalbox.secondary .amount{font-size:21px}
+}
+</style>
+</head>
+
 <body>
-<div class="app"><header><div class="head"><div class="brand">SWAMP FOG<small>SIMPLE ACCOUNTING Ver.6</small></div><button class="reset" id="resetBtn">↻ リセット</button></div></header>
+
+<div class="app">
+
+<header class="top">
+
+<div class="topline">
+  <div class="brand">
+    SWAMP FOG
+    <small>簡単会計 Ver.7</small>
+  </div>
+
+  <button class="reset" id="resetBtn">
+    ↻ リセット
+  </button>
+</div>
+
+<div class="totals-top">
+
+  <div class="totalbox">
+    <div class="label">今の合計</div>
+    <div class="amount" id="grandNow">¥0</div>
+    <div class="sub">千円未満切り捨て</div>
+  </div>
+
+  <div class="totalbox secondary">
+    <div class="label">ラストまで</div>
+    <div class="amount" id="grandLast">¥0</div>
+    <div class="sub">25:00まで</div>
+  </div>
+
+</div>
+
+</header>
+
 <main>
-<section class="card"><div class="grid2"><div><label>入店時間</label><input type="time" id="entryTime"></div><div><label>卓番</label><select id="tableNo"></select></div></div><div class="info"><div class="box"><div class="k">席種</div><div class="v" id="seatType">通常卓</div></div><div class="box"><div class="k">現在の滞在時間</div><div class="v" id="stayTime">--</div></div></div></section>
-<section class="card" id="planCard"><div class="title">プラン</div><div class="plans"><button class="plan active" data-plan="quick">クイック<span>1時間 ¥10,000</span></button><button class="plan" data-plan="free">フリータイム<span>ラストまで ¥20,000</span></button></div><div class="note" id="planNote">通常卓のみプラン選択。クイックは1時間まで¥10,000、1時間を超えたら自動でフリータイム¥20,000に切り替え。</div></section>
-<section class="card"><div class="title">ドリンク追加</div><div class="cats" id="cats"></div><div class="grid"><div><label>商品</label><select id="product"></select></div><div><label>数量</label><div class="qty"><button id="minus">−</button><input id="qty" type="number" min="1" value="1"><button id="plus">＋</button></div></div></div><div class="custom" id="customWrap"><label>その他シャンパン 金額</label><input id="customPrice" type="number" min="0" step="1000" placeholder="金額を直接入力"></div><div class="preview" id="preview"></div><button class="add" id="add">＋ 追加</button></section>
-<section class="card"><div class="title">追加済み</div><div id="list"></div></section>
-<section class="card"><div class="totals"><div class="mini"><div class="k">ドリンク小計</div><div class="v" id="subtotal">¥0</div></div><div class="mini"><div class="k">ドリンク TAX40%込み</div><div class="v" id="taxed">¥0</div></div></div><div class="calcbox"><div class="calcrow"><span>現在の席料金</span><strong id="seatNow">¥0</strong></div><div class="calcrow"><span>ラストまでの席料金</span><strong id="seatLast">¥0</strong></div><div class="calcrow"><span>TC + 指名料</span><strong id="extraBase">¥0</strong></div><div class="calcrow"><span>TC + 指名料 TAX40%込み</span><strong id="extraTaxed">¥0</strong></div></div><div class="note">営業時間 20:00〜25:00。通常卓のクイックは1時間まで¥10,000、1時間を超えたらフリータイム¥20,000へ自動切替。SEMI-VIP/VIPは時間制で端数を次の1時間として計算。通常卓以外はTC ¥2,000 + 指名料 ¥2,000を1会計につき1回加算し、この料金にもTAX40%。最終合計は1,000円単位で切り下げ。</div></section>
-</main></div>
-<div class="final"><div class="final-in"><div class="final-card"><div class="l">今の合計</div><div class="g" id="grandNow">¥0</div><div class="d">最終金額・千円未満切り捨て</div></div><div class="final-card"><div class="l">ラストまでの合計</div><div class="g" id="grandLast">¥0</div><div class="d">25:00まで・千円未満切り捨て</div></div></div></div>
+
+<!-- 卓情報 -->
+<section class="card">
+
+<div class="setup">
+
+<div>
+<label>入店時間</label>
+
+<div class="timewrap">
+<input type="time" id="entryTime">
+<button class="nowbtn" id="nowBtn">今</button>
+</div>
+
+</div>
+
+<div>
+<label>卓番</label>
+<select id="tableNo"></select>
+</div>
+
+</div>
+
+<div class="seatline">
+
+<div class="stat">
+<div class="k">席種</div>
+<div class="v" id="seatType">通常卓</div>
+</div>
+
+<div class="stat">
+<div class="k">滞在時間</div>
+<div class="v" id="stayTime">--</div>
+</div>
+
+</div>
+
+<div class="plan-wrap" id="planWrap">
+
+<label>プラン</label>
+
+<div class="plans">
+
+<button class="plan active" data-plan="quick">
+クイック
+<span>1時間 ¥10,000</span>
+</button>
+
+<button class="plan" data-plan="free">
+フリータイム
+<span>¥20,000</span>
+</button>
+
+</div>
+
+<div class="plan-status" id="planStatus">
+クイック選択中
+</div>
+
+</div>
+
+</section>
+
+
+<!-- よく使う -->
+<section class="card">
+
+<div class="quick-title">
+
+<div class="card-title" style="margin:0">
+よく使う
+</div>
+
+<div class="hint">
+タップで +1
+</div>
+
+</div>
+
+<div class="quick-grid" id="quickGrid"></div>
+
+</section>
+
+
+<!-- メニュー -->
+<section class="card">
+
+<div class="quick-title">
+
+<div class="card-title" style="margin:0">
+メニュー
+</div>
+
+<div class="hint">
+カテゴリ → 商品タップ
+</div>
+
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="products" id="products"></div>
+
+<div class="custom-panel" id="customPanel">
+
+<label>その他シャンパン 金額</label>
+
+<div class="custom-grid">
+
+<input
+type="number"
+id="customPrice"
+min="0"
+step="1000"
+placeholder="金額"
+>
+
+<button class="custom-add" id="customAdd">
+追加
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- 追加済み -->
+<section class="card">
+
+<div class="added-head">
+
+<div class="card-title" style="margin:0">
+追加済み
+</div>
+
+<div class="added-count" id="addedCount">
+0点
+</div>
+
+</div>
+
+<div id="addedList"></div>
+
+</section>
+
+
+<!-- 内訳 -->
+<section class="card">
+
+<button class="details-btn" id="detailsBtn">
+内訳を見る
+</button>
+
+<div class="details" id="details">
+
+<div class="detailrow">
+<span>ドリンク小計</span>
+<strong id="subtotal">¥0</strong>
+</div>
+
+<div class="detailrow">
+<span>ドリンク TAX40%込み</span>
+<strong id="drinkTaxed">¥0</strong>
+</div>
+
+<div class="detailrow">
+<span>現在の席料金</span>
+<strong id="seatNow">¥0</strong>
+</div>
+
+<div class="detailrow">
+<span>ラストまでの席料金</span>
+<strong id="seatLast">¥0</strong>
+</div>
+
+<div class="detailrow">
+<span>TC + 指名料</span>
+<strong id="extraBase">¥0</strong>
+</div>
+
+<div class="detailrow">
+<span>TC + 指名料 TAX40%込み</span>
+<strong id="extraTaxed">¥0</strong>
+</div>
+
+<div class="rule">
+営業時間 20:00〜25:00。<br>
+通常卓クイックは1時間まで¥10,000、
+1時間超でフリータイム¥20,000へ自動切替。<br>
+SEMI-VIP / VIPは端数時間を切り上げ。<br>
+通常卓以外はTC¥2,000＋指名料¥2,000を
+1会計につき1回加算し、TAX40%対象。<br>
+最終合計は千円未満切り捨て。
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+
 <script>
-const master={"ソフトドリンク":[["ソフトドリンク",1000]],"ピッチャー":[["ピッチャー",2000]],"缶類":[["缶類（2本1セット）",3000],["レッドブル",2000]],"ビン類":[["ビン類（2本1セット）",4000],["チャミスル",6000]],"シャンパン":[["アスティ",50000],["オリシャン",70000],["オリシャンルミナス",100000],["オリシャンキラキラ",420000],["その他シャンパン",null]],"ボトル":[["茉莉花 / JAPAN / 鍛高譚",12000],["柚子小町 / 黒霧島",15000],["吉四六",18000],["梅酒 / 富乃宝山",30000],["角",50000]],"高級ボトル":[["バカラ",700000],["トラディション",3500000],["ジュビリー",5000000],["ロイヤルバカラ",6000000],["ヘネパラ",2500000],["ヘネパラインペリ",8000000],["リシャール",10000000],["新型リシャール",17000000],["ルイ13世",8000000]],"ショット":[["ショット",3000],["コカボム / クライナー",4000],["テキーラアネホ",8000],["テキーラ観覧車",150000],["テキーラship / アネホ観覧車",300000]]};
-const categories=["ソフトドリンク","ピッチャー","缶類","ビン類","シャンパン","ボトル","高級ボトル","ショット"];
-const tables=[...Array.from({length:8},(_,i)=>"A"+(i+1)),...Array.from({length:3},(_,i)=>"B"+(i+1)),...Array.from({length:8},(_,i)=>"C"+(i+1)),...Array.from({length:2},(_,i)=>"D"+(i+1)),...Array.from({length:9},(_,i)=>"S"+(i+1)),"VIP","RVIP"];
-let category=categories[0],plan="quick",added=[];
-const $=id=>document.getElementById(id),yen=n=>"¥"+Math.round(Number(n)||0).toLocaleString("ja-JP"),floor1000=n=>Math.floor(n/1000)*1000;
-function seatKind(t){if(/^D[12]$/.test(t))return"SEMI-VIP";if(t==="VIP")return"VIP";if(t==="RVIP")return"RVIP";return"通常卓";}
-function norm(h,m){let x=h*60+m;if(h<5)x+=1440;return x}function nowM(){const d=new Date();return norm(d.getHours(),d.getMinutes())}function entryM(){if(!$("entryTime").value)return null;const [h,m]=$("entryTime").value.split(":").map(Number);return norm(h,m)}
-function elapsed(){const e=entryM();if(e===null)return 0;let n=nowM();if(n<1200)n=1200;if(n>1500)n=1500;return Math.max(0,n-e)}function toLast(){const e=entryM();return e===null?0:Math.max(0,1500-e)}
-function seatCharge(mins){const k=seatKind($("tableNo").value);if(k==="RVIP")return 280000;if(k==="VIP")return Math.max(1,Math.ceil(mins/60))*42000;if(k==="SEMI-VIP")return Math.max(1,Math.ceil(mins/60))*14000;if(plan==="free")return 20000;return mins>60?20000:10000}
-function updateSeat(){const k=seatKind($("tableNo").value);$("seatType").textContent=k;const dis=k!=="通常卓";document.querySelectorAll(".plan").forEach(b=>b.disabled=dis);$("planCard").style.opacity=dis?".55":"1";$("planNote").textContent=dis?`${k}は席種料金を自動計算。TC・指名料も自動加算。`:"通常卓のみプラン選択。クイックは1時間まで¥10,000、1時間を超えたら自動でフリータイム¥20,000に切り替え。"}
-function renderTables(){$("tableNo").innerHTML=tables.map(t=>`<option>${t}</option>`).join("")}function renderCats(){$("cats").innerHTML=categories.map(c=>`<button class="cat ${c===category?"active":""}" data-c="${c}">${c}</button>`).join("");document.querySelectorAll(".cat").forEach(b=>b.onclick=()=>{category=b.dataset.c;renderCats();renderProducts()})}
-function renderProducts(){$("product").innerHTML=master[category].map((p,i)=>`<option value="${i}">${p[0]}${p[1]!=null?"（"+yen(p[1])+"）":""}</option>`).join("");updatePreview()}function selected(){return master[category][Number($("product").value||0)]}
-function updatePreview(){const p=selected(),custom=p[1]===null;$("customWrap").classList.toggle("show",custom);const price=custom?(Number($("customPrice").value)||0):p[1],q=Math.max(1,Number($("qty").value)||1);$("preview").textContent="追加金額 "+yen(price*q)}
-function renderList(){$("list").innerHTML=added.length?added.map((x,i)=>`<div class="row"><div><div class="name">${x.name}</div><div class="meta">${yen(x.price)} × ${x.qty}</div></div><div class="amount">${yen(x.price*x.qty)}</div><button class="del" onclick="removeItem(${i})">×</button></div>`).join(""):'<div class="empty">まだ追加されていません</div>';recalc()}
-function recalc(){const sub=added.reduce((s,x)=>s+x.price*x.qty,0),drinkTaxed=Math.floor(sub*1.4),em=elapsed(),lm=toLast(),ns=seatCharge(em),ls=seatCharge(lm),extra=seatKind($("tableNo").value)==="通常卓"?0:4000,extraT=Math.floor(extra*1.4);$("subtotal").textContent=yen(sub);$("taxed").textContent=yen(drinkTaxed);$("seatNow").textContent=yen(ns);$("seatLast").textContent=yen(ls);$("extraBase").textContent=yen(extra);$("extraTaxed").textContent=yen(extraT);$("grandNow").textContent=yen(floor1000(ns+drinkTaxed+extraT));$("grandLast").textContent=yen(floor1000(ls+drinkTaxed+extraT));$("stayTime").textContent=$("entryTime").value?`${Math.floor(em/60)}時間${em%60}分`:"--"}
-function removeItem(i){added.splice(i,1);renderList()}
-document.querySelectorAll(".plan").forEach(b=>b.onclick=()=>{if(b.disabled)return;document.querySelectorAll(".plan").forEach(x=>x.classList.remove("active"));b.classList.add("active");plan=b.dataset.plan;recalc()});
-$("tableNo").onchange=()=>{updateSeat();recalc()};$("entryTime").onchange=recalc;$("product").onchange=updatePreview;$("customPrice").oninput=updatePreview;$("qty").oninput=updatePreview;
-$("minus").onclick=()=>{$("qty").value=Math.max(1,(Number($("qty").value)||1)-1);updatePreview()};$("plus").onclick=()=>{$("qty").value=(Number($("qty").value)||1)+1;updatePreview()};
-$("add").onclick=()=>{const p=selected();let price=p[1]===null?(Number($("customPrice").value)||0):p[1],q=Math.max(1,Number($("qty").value)||1);if(p[1]===null&&price<=0){alert("その他シャンパンの金額を入力してください");return}const same=added.find(x=>x.name===p[0]&&x.price===price);if(same)same.qty+=q;else added.push({name:p[0],price,qty:q});$("qty").value=1;if(p[1]===null)$("customPrice").value="";updatePreview();renderList()};
-$("resetBtn").onclick=()=>{if(!confirm("入力内容をリセットしますか？"))return;added=[];plan="quick";category=categories[0];$("entryTime").value="";$("qty").value=1;$("customPrice").value="";$("tableNo").selectedIndex=0;document.querySelectorAll(".plan").forEach(x=>x.classList.toggle("active",x.dataset.plan==="quick"));renderCats();renderProducts();updateSeat();renderList()};
-renderTables();renderCats();renderProducts();updateSeat();renderList();setInterval(recalc,30000);
-</script></body></html>
+
+/* =========================
+   商品マスター
+========================= */
+
+const master={
+
+"ソフトドリンク":[
+["ソフトドリンク",1000]
+],
+
+"ピッチャー":[
+["ピッチャー",2000]
+],
+
+"缶類":[
+["缶類（2本1セット）",3000],
+["レッドブル",2000]
+],
+
+"ビン類":[
+["ビン類（2本1セット）",4000],
+["チャミスル",6000]
+],
+
+"シャンパン":[
+["アスティ",50000],
+["オリシャン",70000],
+["オリシャンルミナス",100000],
+["オリシャンキラキラ",420000],
+["その他シャンパン",null]
+],
+
+"ボトル":[
+["茉莉花 / JAPAN / 鍛高譚",12000],
+["柚子小町 / 黒霧島",15000],
+["吉四六",18000],
+["梅酒 / 富乃宝山",30000],
+["角",50000]
+],
+
+"高級ボトル":[
+["バカラ",700000],
+["トラディション",3500000],
+["ジュビリー",5000000],
+["ロイヤルバカラ",6000000],
+["ヘネパラ",2500000],
+["ヘネパラインペリ",8000000],
+["リシャール",10000000],
+["新型リシャール",17000000],
+["ルイ13世",8000000]
+],
+
+"ショット":[
+["ショット",3000],
+["コカボム / クライナー",4000],
+["テキーラアネホ",8000],
+["テキーラ観覧車",150000],
+["テキーラship / アネホ観覧車",300000]
+]
+
+};
+
+
+const categories=[
+"ソフトドリンク",
+"ピッチャー",
+"缶類",
+"ビン類",
+"シャンパン",
+"ボトル",
+"高級ボトル",
+"ショット"
+];
+
+
+const quickItems=[
+["ソフトドリンク",1000],
+["ピッチャー",2000],
+["缶類（2本1セット）",3000],
+["レッドブル",2000],
+["ビン類（2本1セット）",4000],
+["チャミスル",6000]
+];
+
+
+const tables=[
+...Array.from({length:8},(_,i)=>"A"+(i+1)),
+...Array.from({length:3},(_,i)=>"B"+(i+1)),
+...Array.from({length:8},(_,i)=>"C"+(i+1)),
+...Array.from({length:2},(_,i)=>"D"+(i+1)),
+...Array.from({length:9},(_,i)=>"S"+(i+1)),
+"VIP",
+"RVIP"
+];
+
+
+let category="ソフトドリンク";
+let plan="quick";
+let added=[];
+
+
+const $=id=>document.getElementById(id);
+
+const yen=n=>
+"¥"+Math.round(Number(n)||0).toLocaleString("ja-JP");
+
+const floor1000=n=>
+Math.floor((Number(n)||0)/1000)*1000;
+
+
+/* =========================
+   席種
+========================= */
+
+function seatKind(t){
+
+if(/^D[12]$/.test(t)){
+return "SEMI-VIP";
+}
+
+if(t==="VIP"){
+return "VIP";
+}
+
+if(t==="RVIP"){
+return "RVIP";
+}
+
+return "通常卓";
+
+}
+
+
+/* =========================
+   時間計算
+========================= */
+
+function norm(h,m){
+
+let x=h*60+m;
+
+if(h<5){
+x+=1440;
+}
+
+return x;
+
+}
+
+
+function nowMinutes(){
+
+const d=new Date();
+
+return norm(
+d.getHours(),
+d.getMinutes()
+);
+
+}
+
+
+function entryMinutes(){
+
+if(!$("entryTime").value){
+return null;
+}
+
+const [h,m]=
+$("entryTime")
+.value
+.split(":")
+.map(Number);
+
+return norm(h,m);
+
+}
+
+
+function elapsedMinutes(){
+
+const e=entryMinutes();
+
+if(e===null){
+return null;
+}
+
+let n=nowMinutes();
+
+if(n<1200){
+n=1200;
+}
+
+if(n>1500){
+n=1500;
+}
+
+return Math.max(
+0,
+n-e
+);
+
+}
+
+
+function minutesToLast(){
+
+const e=entryMinutes();
+
+if(e===null){
+return null;
+}
+
+return Math.max(
+0,
+1500-e
+);
+
+}
+
+
+/* =========================
+   席料金
+========================= */
+
+function seatCharge(mins){
+
+if(mins===null){
+return 0;
+}
+
+const k=
+seatKind(
+$("tableNo").value
+);
+
+
+if(k==="RVIP"){
+return 280000;
+}
+
+
+if(k==="VIP"){
+
+return Math.max(
+1,
+Math.ceil(mins/60)
+)*42000;
+
+}
+
+
+if(k==="SEMI-VIP"){
+
+return Math.max(
+1,
+Math.ceil(mins/60)
+)*14000;
+
+}
+
+
+if(plan==="free"){
+return 20000;
+}
+
+
+/*
+通常卓クイック
+
+60分以内
+¥10,000
+
+60分超
+自動でフリー
+¥20,000
+*/
+
+return mins>60
+?20000
+:10000;
+
+}
+
+
+/* =========================
+   商品
+========================= */
+
+function getQty(name,price){
+
+const x=
+added.find(
+i=>
+i.name===name &&
+i.price===price
+);
+
+return x
+?x.qty
+:0;
+
+}
+
+
+function addItem(
+name,
+price,
+qty=1
+){
+
+const x=
+added.find(
+i=>
+i.name===name &&
+i.price===price
+);
+
+
+if(x){
+
+x.qty+=qty;
+
+}else{
+
+added.push({
+name,
+price,
+qty
+});
+
+}
+
+
+added=
+added.filter(
+i=>i.qty>0
+);
+
+
+renderAllItems();
+
+recalc();
+
+}
+
+
+function changeItem(
+name,
+price,
+delta
+){
+
+const x=
+added.find(
+i=>
+i.name===name &&
+i.price===price
+);
+
+
+if(!x && delta>0){
+
+added.push({
+name,
+price,
+qty:delta
+});
+
+}else if(x){
+
+x.qty+=delta;
+
+}
+
+
+added=
+added.filter(
+i=>i.qty>0
+);
+
+
+renderAllItems();
+
+recalc();
+
+}
+
+
+function flash(el){
+
+el.classList.remove("flash");
+
+void el.offsetWidth;
+
+el.classList.add("flash");
+
+}
+
+
+/* =========================
+   卓番表示
+========================= */
+
+function renderTables(){
+
+$("tableNo").innerHTML=
+tables
+.map(
+t=>
+`<option value="${t}">
+${t}
+</option>`
+)
+.join("");
+
+}
+
+
+/* =========================
+   席UI
+========================= */
+
+function updateSeatUI(){
+
+const kind=
+seatKind(
+$("tableNo").value
+);
+
+$("seatType").textContent=
+kind;
+
+
+const normal=
+kind==="通常卓";
+
+
+document
+.querySelectorAll(".plan")
+.forEach(
+b=>b.disabled=!normal
+);
+
+
+$("planWrap").style.opacity=
+normal
+?"1"
+:".55";
+
+
+if(!normal){
+
+$("planStatus").textContent=
+`${kind}料金を自動計算
+（TC・指名料も自動加算）`;
+
+$("planStatus").className=
+"plan-status";
+
+}else{
+
+updatePlanStatus();
+
+}
+
+}
+
+
+/* =========================
+   プラン表示
+========================= */
+
+function updatePlanStatus(){
+
+if(
+seatKind(
+$("tableNo").value
+)!=="通常卓"
+){
+return;
+}
+
+
+const em=
+elapsedMinutes();
+
+
+if(plan==="free"){
+
+$("planStatus").textContent=
+"フリータイム ¥20,000";
+
+$("planStatus").className=
+"plan-status";
+
+}
+
+else if(
+em!==null &&
+em>60
+){
+
+$("planStatus").textContent=
+"1時間超過 → 自動でフリータイム ¥20,000";
+
+$("planStatus").className=
+"plan-status auto-switch";
+
+}
+
+else{
+
+$("planStatus").textContent=
+"クイック ¥10,000";
+
+$("planStatus").className=
+"plan-status";
+
+}
+
+}
+
+
+/* =========================
+   よく使う
+========================= */
+
+function renderQuick(){
+
+$("quickGrid").innerHTML=
+
+quickItems.map(
+([name,price])=>{
+
+const q=
+getQty(
+name,
+price
+);
+
+return `
+
+<button
+class="quick-btn ${q?"has":""}"
+data-name="${name}"
+data-price="${price}"
+>
+
+<div class="badge">
+${q}
+</div>
+
+<div class="n">
+${name}
+</div>
+
+<div class="p">
+${yen(price)}
+</div>
+
+</button>
+
+`;
+
+}
+).join("");
+
+
+document
+.querySelectorAll(".quick-btn")
+.forEach(
+b=>{
+
+b.onclick=()=>{
+
+addItem(
+b.dataset.name,
+Number(b.dataset.price),
+1
+);
+
+flash(b);
+
+};
+
+}
+);
+
+}
+
+
+/* =========================
+   カテゴリ
+========================= */
+
+function renderTabs(){
+
+$("tabs").innerHTML=
+
+categories.map(
+c=>
+
+`<button
+class="tab ${c===category?"active":""}"
+data-cat="${c}"
+>
+${c}
+</button>`
+
+).join("");
+
+
+document
+.querySelectorAll(".tab")
+.forEach(
+b=>{
+
+b.onclick=()=>{
+
+category=
+b.dataset.cat;
+
+renderTabs();
+
+renderProducts();
+
+};
+
+}
+);
+
+}
+
+
+/* =========================
+   商品一覧
+========================= */
+
+function renderProducts(){
+
+const list=
+master[category];
+
+
+$("products").innerHTML=
+
+list.map(
+([name,price])=>{
+
+
+if(price===null){
+
+return `
+
+<button
+class="product-btn"
+data-custom="1"
+>
+
+<div class="n">
+${name}
+</div>
+
+<div class="p">
+金額を直接入力
+</div>
+
+</button>
+
+`;
+
+}
+
+
+const q=
+getQty(
+name,
+price
+);
+
+
+return `
+
+<button
+class="product-btn ${q?"has":""}"
+data-name="${name}"
+data-price="${price}"
+>
+
+<div class="badge">
+${q}
+</div>
+
+<div class="n">
+${name}
+</div>
+
+<div class="p">
+${yen(price)}
+</div>
+
+</button>
+
+`;
+
+}
+).join("");
+
+
+$("customPanel")
+.classList
+.remove("show");
+
+
+document
+.querySelectorAll(".product-btn")
+.forEach(
+b=>{
+
+
+if(b.dataset.custom){
+
+b.onclick=()=>{
+
+$("customPanel")
+.classList
+.toggle("show");
+
+
+if(
+$("customPanel")
+.classList
+.contains("show")
+){
+
+$("customPrice")
+.focus();
+
+}
+
+};
+
+}
+
+else{
+
+b.onclick=()=>{
+
+addItem(
+b.dataset.name,
+Number(b.dataset.price),
+1
+);
+
+flash(b);
+
+};
+
+}
+
+}
+);
+
+}
+
+
+/* =========================
+   追加済み
+========================= */
+
+function renderAdded(){
+
+const totalQty=
+added.reduce(
+(s,x)=>s+x.qty,
+0
+);
+
+
+$("addedCount").textContent=
+`${totalQty}点`;
+
+
+if(!added.length){
+
+$("addedList").innerHTML=
+'<div class="empty">まだ追加されていません</div>';
+
+return;
+
+}
+
+
+$("addedList").innerHTML=
+
+added.map(
+x=>
+
+`
+
+<div class="item">
+
+<div>
+
+<div class="name">
+${x.name}
+</div>
+
+<div class="meta">
+${yen(x.price)}
+×
+${x.qty}
+=
+${yen(x.price*x.qty)}
+</div>
+
+</div>
+
+
+<div class="controls">
+
+<button
+class="minus-item"
+data-name="${x.name}"
+data-price="${x.price}"
+>
+−
+</button>
+
+<div class="count">
+${x.qty}
+</div>
+
+<button
+class="plus-item"
+data-name="${x.name}"
+data-price="${x.price}"
+>
+＋
+</button>
+
+</div>
+
+</div>
+
+`
+
+).join("");
+
+
+document
+.querySelectorAll(".minus-item")
+.forEach(
+b=>
+
+b.onclick=()=>{
+
+changeItem(
+b.dataset.name,
+Number(b.dataset.price),
+-1
+);
+
+}
+
+);
+
+
+document
+.querySelectorAll(".plus-item")
+.forEach(
+b=>
+
+b.onclick=()=>{
+
+changeItem(
+b.dataset.name,
+Number(b.dataset.price),
+1
+);
+
+}
+
+);
+
+}
+
+
+function renderAllItems(){
+
+renderQuick();
+
+renderProducts();
+
+renderAdded();
+
+}
+
+
+/* =========================
+   会計計算
+========================= */
+
+function recalc(){
+
+const sub=
+added.reduce(
+(s,x)=>
+s+x.price*x.qty,
+0
+);
+
+
+/*
+ドリンク
+TAX 40%
+*/
+
+const drinkTaxed=
+Math.floor(
+sub*1.4
+);
+
+
+const em=
+elapsedMinutes();
+
+const lm=
+minutesToLast();
+
+
+const nowSeat=
+seatCharge(em);
+
+const lastSeat=
+seatCharge(lm);
+
+
+/*
+通常卓以外
+
+TC 2,000
+指名料 2,000
+
+1会計につき1回
+*/
+
+const nonNormal=
+seatKind(
+$("tableNo").value
+)!=="通常卓";
+
+
+const extraBase=
+nonNormal
+?4000
+:0;
+
+
+const extraTaxed=
+Math.floor(
+extraBase*1.4
+);
+
+
+$("subtotal").textContent=
+yen(sub);
+
+$("drinkTaxed").textContent=
+yen(drinkTaxed);
+
+$("seatNow").textContent=
+yen(nowSeat);
+
+$("seatLast").textContent=
+yen(lastSeat);
+
+$("extraBase").textContent=
+yen(extraBase);
+
+$("extraTaxed").textContent=
+yen(extraTaxed);
+
+
+const hasEntry=
+entryMinutes()!==null;
+
+
+/*
+最終金額
+
+千円未満
+切り捨て
+*/
+
+$("grandNow").textContent=
+
+hasEntry
+
+?yen(
+floor1000(
+nowSeat+
+drinkTaxed+
+extraTaxed
+)
+)
+
+:"¥0";
+
+
+$("grandLast").textContent=
+
+hasEntry
+
+?yen(
+floor1000(
+lastSeat+
+drinkTaxed+
+extraTaxed
+)
+)
+
+:"¥0";
+
+
+if(em===null){
+
+$("stayTime").textContent=
+"--";
+
+}else{
+
+$("stayTime").textContent=
+
+`${Math.floor(em/60)}
+時間
+${em%60}分`;
+
+}
+
+
+updatePlanStatus();
+
+}
+
+
+/* =========================
+   プラン操作
+========================= */
+
+document
+.querySelectorAll(".plan")
+.forEach(
+b=>{
+
+b.onclick=()=>{
+
+if(b.disabled){
+return;
+}
+
+
+document
+.querySelectorAll(".plan")
+.forEach(
+x=>
+x.classList.remove("active")
+);
+
+
+b.classList.add("active");
+
+
+plan=
+b.dataset.plan;
+
+
+recalc();
+
+};
+
+}
+);
+
+
+/* =========================
+   卓変更
+========================= */
+
+$("tableNo").onchange=()=>{
+
+updateSeatUI();
+
+recalc();
+
+};
+
+
+/* =========================
+   入店時間
+========================= */
+
+$("entryTime").onchange=
+recalc;
+
+
+/* =========================
+   「今」ボタン
+========================= */
+
+$("nowBtn").onclick=()=>{
+
+const d=
+new Date();
+
+
+let h=
+d.getHours();
+
+let m=
+d.getMinutes();
+
+
+/*
+営業時間前なら
+20:00
+*/
+
+if(
+h>=5 &&
+h<20
+){
+
+h=20;
+
+m=0;
+
+}
+
+
+$("entryTime").value=
+
+`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+
+
+recalc();
+
+};
+
+
+/* =========================
+   その他シャンパン
+========================= */
+
+$("customAdd").onclick=()=>{
+
+const price=
+Number(
+$("customPrice").value
+)||0;
+
+
+if(price<=0){
+
+alert(
+"金額を入力してください"
+);
+
+return;
+
+}
+
+
+addItem(
+"その他シャンパン",
+price,
+1
+);
+
+
+$("customPrice").value=
+"";
+
+
+$("customPanel")
+.classList
+.remove("show");
+
+};
+
+
+/* =========================
+   内訳
+========================= */
+
+$("detailsBtn").onclick=()=>{
+
+$("details")
+.classList
+.toggle("open");
+
+
+$("detailsBtn").textContent=
+
+$("details")
+.classList
+.contains("open")
+
+?"内訳を閉じる"
+
+:"内訳を見る";
+
+};
+
+
+/* =========================
+   リセット
+========================= */
+
+$("resetBtn").onclick=()=>{
+
+if(
+!confirm(
+"この会計をリセットしますか？"
+)
+){
+
+return;
+
+}
+
+
+added=[];
+
+plan="quick";
+
+category=
+"ソフトドリンク";
+
+
+$("entryTime").value=
+"";
+
+
+$("tableNo").selectedIndex=
+0;
+
+
+$("customPrice").value=
+"";
+
+
+document
+.querySelectorAll(".plan")
+.forEach(
+x=>
+
+x.classList.toggle(
+"active",
+x.dataset.plan==="quick"
+)
+
+);
+
+
+updateSeatUI();
+
+renderTabs();
+
+renderAllItems();
+
+recalc();
+
+};
+
+
+/* =========================
+   初期化
+========================= */
+
+renderTables();
+
+renderTabs();
+
+renderAllItems();
+
+updateSeatUI();
+
+recalc();
+
+
+/*
+30秒ごとに
+滞在時間・料金を更新
+*/
+
+setInterval(
+recalc,
+30000
+);
+
+</script>
+
+</body>
+</html>
