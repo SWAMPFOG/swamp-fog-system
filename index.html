@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.48 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.49 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -169,7 +169,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11238-compact-direct-table">
-/* Ver.11.2.48
+/* Ver.11.2.49
    稼働中は卓情報を最小化してキャスト一覧の縦領域を最大化。
    送り・場内は一時終了後のみ表示。 */
 
@@ -283,7 +283,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11239-summary-remove">
-/* Ver.11.2.48: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
+/* Ver.11.2.49: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
 header .summary{
   display:none !important;
 }
@@ -342,7 +342,7 @@ header .clock{
 
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.48 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.49 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="all-timers-wrap"><div class="all-timers-title"><b>全卓タイマー</b><span>タップで該当卓へ</span></div><div id="allTimersBar" class="all-timers-bar"></div></div>
@@ -1279,7 +1279,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.48 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.49 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2130,7 +2130,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.48 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.49 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -2717,7 +2717,7 @@ html body .monthly-grid .monthly-row input[type="number"][data-month-field]:focu
 
 
 <style id="v11241-fixed-layout-timer-safe">
-/* Ver.11.2.48
+/* Ver.11.2.49
    上部の全卓タイマーを必ず全表示。
    その下に卓別見出し＋卓カードを固定し、
    各卓で縦に動くのはキャスト一覧だけ。 */
@@ -3290,23 +3290,6 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
-<script id="v11247-s-first">
-(function(){
- function sFirst(){
-  const sel=document.querySelector('#fNoSelect'); if(!sel)return;
-  const value=sel.value, opts=[...sel.options];
-  const rank=v=>{v=(v||'').trim().toUpperCase();const m=/^S([1-9])$/.exec(v);return m?Number(m[1]):100;};
-  opts.sort((a,b)=>rank(a.value||a.textContent)-rank(b.value||b.textContent));
-  opts.forEach(o=>sel.appendChild(o));
-  if([...sel.options].some(o=>o.value===value))sel.value=value;
- }
- const old=window.openTableModal;
- if(typeof old==='function')window.openTableModal=function(id=null){old(id);sFirst();};
- sFirst();
-})();
-</script>
-
-
 <style id="v11248-vip-exception">
 #directBoard .vip-quick-exception{
   width:100%;
@@ -3321,5 +3304,46 @@ header .brand{height:38px !important;min-height:38px !important;}
   font-weight:900;
 }
 </style>
+
+
+<script id="v11249-s-first-all-tables">
+(function(){
+  let busy=false;
+  function reorderAllTableOptions(){
+    if(busy) return;
+    const sel=document.querySelector('#fNoSelect');
+    if(!sel) return;
+    busy=true;
+    const current=sel.value;
+    const opts=[...sel.options].map((o,i)=>({o,i}));
+    const rank=(entry)=>{
+      const v=String(entry.o.value||entry.o.textContent||'').trim().toUpperCase();
+      const m=/^S([1-9])$/.exec(v);
+      return m ? Number(m[1]) : 1000 + entry.i;
+    };
+    opts.sort((a,b)=>rank(a)-rank(b)).forEach(x=>sel.appendChild(x.o));
+    if([...sel.options].some(o=>o.value===current)) sel.value=current;
+    busy=false;
+  }
+
+  const oldOpen=window.openTableModal;
+  if(typeof oldOpen==='function'){
+    window.openTableModal=function(id=null){
+      oldOpen(id);
+      setTimeout(reorderAllTableOptions,0);
+    };
+  }
+
+  document.addEventListener('focusin',e=>{
+    if(e.target && e.target.id==='fNoSelect') reorderAllTableOptions();
+  });
+
+  const observer=new MutationObserver(()=>{
+    const sel=document.querySelector('#fNoSelect');
+    if(sel) setTimeout(reorderAllTableOptions,0);
+  });
+  observer.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
 
 </body></html>
