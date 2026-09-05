@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.46 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.48 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -169,7 +169,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11238-compact-direct-table">
-/* Ver.11.2.46
+/* Ver.11.2.48
    稼働中は卓情報を最小化してキャスト一覧の縦領域を最大化。
    送り・場内は一時終了後のみ表示。 */
 
@@ -283,7 +283,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11239-summary-remove">
-/* Ver.11.2.46: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
+/* Ver.11.2.48: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
 header .summary{
   display:none !important;
 }
@@ -342,7 +342,7 @@ header .clock{
 
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.46 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.48 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="all-timers-wrap"><div class="all-timers-title"><b>全卓タイマー</b><span>タップで該当卓へ</span></div><div id="allTimersBar" class="all-timers-bar"></div></div>
@@ -452,11 +452,11 @@ function isVipException(c,t){return t.plan==='VIP'&&(t.vipExceptions||[]).includ
 function vipExceptionLabel(c,t){return isVipException(c,t)?'VIP例外':''}
 function openVipExceptions(tableId){
   const t=state.tables.find(x=>x.id===tableId&&x.active);if(!t||t.plan!=='VIP')return;
-  const list=state.casts.filter(c=>['B','C'].includes(c.rank)).sort((a,b)=>rankPriority(a.rank)-rankPriority(b.rank)||(a.order??0)-(b.order??0));
-  openUtility(t.no+'・VIP例外キャスト',`<div class="notice">B・Cランクを、このVIP卓だけ着席可能にします。勤怠ペナルティ・休み・卓別NG・着席拒否などは引き続き優先されます。</div><div class="info-card" style="margin-top:10px">${list.map(c=>`<label class="switch-row"><span><b>${esc(c.name)}</b>　${c.rank}ランク</span><input class="vipExCheck" type="checkbox" value="${c.id}" ${(t.vipExceptions||[]).includes(c.id)?'checked':''}></label>`).join('')||'<p class="hint">B・Cランクの登録がありません</p>'}</div><button class="primary" id="saveVipExceptions">保存</button>`);
+  const list=state.casts.filter(c=>c.rank!=='S').sort((a,b)=>rankPriority(a.rank)-rankPriority(b.rank)||(a.order??0)-(b.order??0));
+  openUtility(t.no+'・VIP例外キャスト',`<div class="notice">A・B・Cランクを、このVIP卓だけ着席可能にします。勤怠ペナルティ・休み・卓別NG・着席拒否などは引き続き優先されます。</div><div class="info-card" style="margin-top:10px">${list.map(c=>`<label class="switch-row"><span><b>${esc(c.name)}</b>　${c.rank}ランク</span><input class="vipExCheck" type="checkbox" value="${c.id}" ${(t.vipExceptions||[]).includes(c.id)?'checked':''}></label>`).join('')||'<p class="hint">A・B・Cランクの登録がありません</p>'}</div><button class="primary" id="saveVipExceptions">保存</button>`);
   const btn=document.querySelector('#saveVipExceptions');if(btn)btn.onclick=()=>{t.vipExceptions=[...document.querySelectorAll('.vipExCheck:checked')].map(x=>x.value);save();closeUtility();render();toast('VIP例外を保存しました')};
 }
-function staticBlockReason(c,t){if(!c.working)return'本日休み';if((t.seated||[]).includes(c.id))return'着席済み';if(state.refusals[c.id+'|'+t.id])return'着席拒否';if(c.ngTables.includes(t.id))return'卓別NG';if(isCompanion(t)&&t.ownerId&&t.ownerId===c.id)return'お連れ様担当本人';if(isCompanion(t)&&t.ownerId&&!companionCategory(c,t))return'お連れ様候補外';if(t.plan==='VIP'&&!['S','A'].includes(c.rank)&&!(t.vipExceptions||[]).includes(c.id))return'VIP対象外';if(c.penalty&&!isCompanion(t)&&!(t.restrictionOverrides||[]).includes(c.id))return'勤怠ペナルティ（お連れ様以外不可）';if(isInHouseRestricted(c)&&!isCompanion(t)&&t.plan!=='VIP')return'場内中（1時間目）';if(c.sends>=state.settings.sendLimit&&!isCompanion(t)&&t.plan!=='VIP'&&!(t.restrictionOverrides||[]).includes(c.id))return'送り上限';return''}
+function staticBlockReason(c,t){if(!c.working)return'本日休み';if((t.seated||[]).includes(c.id))return'着席済み';if(state.refusals[c.id+'|'+t.id])return'着席拒否';if(c.ngTables.includes(t.id))return'卓別NG';if(isCompanion(t)&&t.ownerId&&t.ownerId===c.id)return'お連れ様担当本人';if(isCompanion(t)&&t.ownerId&&!companionCategory(c,t))return'お連れ様候補外';if(t.plan==='VIP'&&c.rank!=='S'&&!(t.vipExceptions||[]).includes(c.id))return'VIP対象外';if(c.penalty&&!isCompanion(t)&&!(t.restrictionOverrides||[]).includes(c.id))return'勤怠ペナルティ（お連れ様以外不可）';if(isInHouseRestricted(c)&&!isCompanion(t)&&t.plan!=='VIP')return'場内中（1時間目）';if(c.sends>=state.settings.sendLimit&&!isCompanion(t)&&t.plan!=='VIP'&&!(t.restrictionOverrides||[]).includes(c.id))return'送り上限';return''}
 function eligibleCountFor(plan,ownerId=''){let temp={id:'preview',plan,ownerId,seated:[]};return state.casts.filter(c=>!staticBlockReason(c,temp)).length}
 function tableStats(t){let total=state.casts.filter(c=>!staticBlockReason(c,t)).length,done=(t.seated||[]).length,remaining=Math.max(0,total-done),size=t.rotationSize||2,totalTurns=Math.ceil(total/size),doneTurns=Math.floor(done/size),remainingTurns=Math.ceil(remaining/size);return{total,done,remaining,size,totalTurns,doneTurns,remainingTurns}}
 function calculateCycleSec(plan,targetMin,count,rotationSize=2){let fallback=plan==='お連れ様'?300:180,turns=Math.ceil(count/Math.max(1,rotationSize));if(!turns)return fallback;return Math.max(60,Math.min(600,Math.round(targetMin*60/turns)))}
@@ -472,7 +472,7 @@ function inHouseRestrictionRemaining(c){
   if(!isInHouseRestricted(c))return 0;
   return Math.max(0,60*60*1000-(now()-c.inHouseSince));
 }
-function blockReason(c,t){if(!c.working)return'本日休み';if(c.currentTable)return'着席中';if(c.preparingFor&&c.preparingFor!==t.id)return'別卓で準備中 '+tableNo(c.preparingFor);if(preparingCasts(t).length>=(t.rotationSize||2)&&c.preparingFor!==t.id)return'準備枠満員 '+preparingCasts(t).map(x=>x.name).join('・');if((t.seated||[]).includes(c.id))return'着席済み';if(state.refusals[c.id+'|'+t.id])return'着席拒否';if(c.ngTables.includes(t.id))return'卓別NG';if(isCompanion(t)&&t.ownerId&&t.ownerId===c.id)return'お連れ様担当本人';if(isCompanion(t)&&t.ownerId&&!companionCategory(c,t))return'お連れ様候補外';if(t.plan==='VIP'&&!['S','A'].includes(c.rank)&&!(t.vipExceptions||[]).includes(c.id))return'VIP対象外';if(c.penalty&&!isCompanion(t)&&!(t.restrictionOverrides||[]).includes(c.id))return'勤怠ペナルティ（お連れ様以外不可）';if(isInHouseRestricted(c)&&!isCompanion(t)&&t.plan!=='VIP')return'場内中（1時間目）';if(c.sends>=state.settings.sendLimit&&!isCompanion(t)&&t.plan!=='VIP'&&!(t.restrictionOverrides||[]).includes(c.id))return'送り上限';return''}
+function blockReason(c,t){if(!c.working)return'本日休み';if(c.currentTable)return'着席中';if(c.preparingFor&&c.preparingFor!==t.id)return'別卓で準備中 '+tableNo(c.preparingFor);if(preparingCasts(t).length>=(t.rotationSize||2)&&c.preparingFor!==t.id)return'準備枠満員 '+preparingCasts(t).map(x=>x.name).join('・');if((t.seated||[]).includes(c.id))return'着席済み';if(state.refusals[c.id+'|'+t.id])return'着席拒否';if(c.ngTables.includes(t.id))return'卓別NG';if(isCompanion(t)&&t.ownerId&&t.ownerId===c.id)return'お連れ様担当本人';if(isCompanion(t)&&t.ownerId&&!companionCategory(c,t))return'お連れ様候補外';if(t.plan==='VIP'&&c.rank!=='S'&&!(t.vipExceptions||[]).includes(c.id))return'VIP対象外';if(c.penalty&&!isCompanion(t)&&!(t.restrictionOverrides||[]).includes(c.id))return'勤怠ペナルティ（お連れ様以外不可）';if(isInHouseRestricted(c)&&!isCompanion(t)&&t.plan!=='VIP')return'場内中（1時間目）';if(c.sends>=state.settings.sendLimit&&!isCompanion(t)&&t.plan!=='VIP'&&!(t.restrictionOverrides||[]).includes(c.id))return'送り上限';return''}
 function eligible(c,t){return !!t.active&&!blockReason(c,t)}
 function remainingTablesFor(c){return state.tables.filter(t=>t.active&&!t.rotationEnded&&!(t.seated||[]).includes(c.id)&&!staticBlockReason(c,t)).sort((a,b)=>a.entryAt-b.entryAt)}
 function candidatesFor(c){return state.tables.filter(t=>eligible(c,t)).sort((a,b)=>a.entryAt-b.entryAt)}
@@ -1279,7 +1279,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.46 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.48 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -1329,7 +1329,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
       const pendingHtml=pending.length?`<div class="direct-pending"><b>選択中 ${pending.length}名</b><br>${esc(pending.map(c=>c.name).join('・'))}</div>`:'';
       const canUndo=t.lastSeatAt&&p.stage!=='over'&&current.length;
       const currentHtml=current.length?current.map(c=>`<button type="button" class="current-cast-chip" data-simple-undo="${c.id}" data-simple-undo-table="${t.id}" ${canUndo?'':'disabled'}>${esc(c.name)}${canUndo?'　取消':''}</button>`).join(''):'空席';
-      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button>${t.rotationEnded?`<div class="direct-outcome-actions direct-outcome-send-only"><button type="button" class="direct-send-open" data-quick-send="${t.id}">送り</button><button type="button" class="direct-resume-rotation" data-resume-rotation="${t.id}">回しを再開</button></div>`:''}<div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
+      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${t.plan==='VIP'?`<button type="button" class="vip-quick-exception" data-vip-quick-exception="${t.id}">VIP例外追加</button>`:''}${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button>${t.rotationEnded?`<div class="direct-outcome-actions direct-outcome-send-only"><button type="button" class="direct-send-open" data-quick-send="${t.id}">送り</button></div>`:''}<div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
     }).join('');
     // DOM差し替え後に、直前のスクロール位置を復元する。
     box.scrollLeft=boardScrollLeft;
@@ -1337,6 +1337,13 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
       const list=card.querySelector('.direct-list');
       const saved=listScrollPositions[card.dataset.directTable];
       if(list&&Number.isFinite(saved))list.scrollTop=saved;
+    });
+    box.querySelectorAll('[data-vip-quick-exception]').forEach(btn=>{
+      btn.onclick=(e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        openVipExceptions(btn.dataset.vipQuickException);
+      };
     });
     box.querySelectorAll('[data-quick-send]').forEach(btn=>{
       btn.onclick=(e)=>{
@@ -2123,7 +2130,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.46 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.48 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -2710,7 +2717,7 @@ html body .monthly-grid .monthly-row input[type="number"][data-month-field]:focu
 
 
 <style id="v11241-fixed-layout-timer-safe">
-/* Ver.11.2.46
+/* Ver.11.2.48
    上部の全卓タイマーを必ず全表示。
    その下に卓別見出し＋卓カードを固定し、
    各卓で縦に動くのはキャスト一覧だけ。 */
@@ -3282,80 +3289,37 @@ header .brand{height:38px !important;min-height:38px !important;}
 })();
 </script>
 
-<style id="v11247-resume-rotation-style">
-#directBoard .direct-resume-rotation{
- width:100%;min-height:38px;padding:8px 10px;border-radius:10px;
- border:1px solid #34784d;background:#173523;color:#9af0b5;
- font-size:12px;font-weight:1000;
-}
-</style>
-<script id="v11247-resume-rotation">
+
+<script id="v11247-s-first">
 (function(){
- function addResumeButtons(){
-   document.querySelectorAll('#directBoard .direct-table[data-direct-table]').forEach(card=>{
-     const t=state.tables.find(x=>x.id===card.dataset.directTable);
-     if(!t||!t.rotationEnded||card.querySelector('[data-resume-rotation]'))return;
-     const area=card.querySelector('.direct-outcome-actions');
-     if(!area)return;
-     const b=document.createElement('button');
-     b.type='button';b.className='direct-resume-rotation';
-     b.dataset.resumeRotation=t.id;b.textContent='回しを再開';
-     area.appendChild(b);
-   });
+ function sFirst(){
+  const sel=document.querySelector('#fNoSelect'); if(!sel)return;
+  const value=sel.value, opts=[...sel.options];
+  const rank=v=>{v=(v||'').trim().toUpperCase();const m=/^S([1-9])$/.exec(v);return m?Number(m[1]):100;};
+  opts.sort((a,b)=>rank(a.value||a.textContent)-rank(b.value||b.textContent));
+  opts.forEach(o=>sel.appendChild(o));
+  if([...sel.options].some(o=>o.value===value))sel.value=value;
  }
- document.addEventListener('click',function(e){
-   const b=e.target.closest('[data-resume-rotation]');
-   if(!b)return;
-   e.preventDefault();e.stopPropagation();
-   const t=state.tables.find(x=>x.id===b.dataset.resumeRotation);
-   if(!t||!t.rotationEnded)return;
-   t.rotationEnded=false;
-   t.lastSeatAt=null;t.pausedAt=0;t.totalPaused=0;t.extraSec=0;t.autoHandledAt=0;
-   t.pendingCastIds=[];t.pendingUpdatedAt=0;
-   state.history.push({type:'rotationResume',table:t.id,tableNo:t.no,at:Date.now()});
-   save();render();
-   toast(t.no+' の回しを再開しました');
- });
- const observer=new MutationObserver(addResumeButtons);
- const start=()=>{
-   const board=document.querySelector('#directBoard');
-   if(board){observer.observe(board,{childList:true,subtree:true});addResumeButtons()}
- };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
- else start();
+ const old=window.openTableModal;
+ if(typeof old==='function')window.openTableModal=function(id=null){old(id);sFirst();};
+ sFirst();
 })();
 </script>
 
-<script id="v11249-all-first-visit-tables">
-(function(){
-  const tableNos=[
-    'A1','A2','A3','A4','A5','A6','A7','A8',
-    'B1','B2','B3',
-    'C1','C2','C3','C4','C5','C6','C7','C8',
-    'D1','D2',
-    'S1','S2','S3','S4','S5','S6','S7','S8','S9',
-    'VIP','RVIP'
-  ];
-  const select=document.querySelector('#fNoSelect');
-  if(select){
-    const current=select.value;
-    select.innerHTML='<option value="">選択</option>'+
-      tableNos.map(no=>'<option value="'+no+'">'+no+'</option>').join('');
-    if(tableNos.includes(current))select.value=current;
-  }
-  const planSelect=document.querySelector('#fPlan');
-  if(planSelect){
-    planSelect.onchange=()=>{
-      const plan=planSelect.value;
-      toggleOwner();
-      document.querySelector('#fNo').value='';
-      document.querySelector('#fNoSelect').value='';
-      document.querySelector('#fCycle').value='180';
-      document.querySelector('#fTarget').value=50;
-      updateTimerPreview();
-      if(plan!=='お連れ様')toast('初回卓はA〜D・S・VIP・RVIPから選択できます');
-    };
-  }
-})();
-</script>
+
+<style id="v11248-vip-exception">
+#directBoard .vip-quick-exception{
+  width:100%;
+  min-height:26px;
+  margin:3px 0 1px;
+  padding:4px 7px;
+  border-radius:7px;
+  background:#241f12;
+  border:1px solid #65582a;
+  color:#ffe18b;
+  font-size:10px;
+  font-weight:900;
+}
+</style>
+
 </body></html>
