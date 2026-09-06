@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.52 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.53 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -169,7 +169,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11238-compact-direct-table">
-/* Ver.11.2.52
+/* Ver.11.2.51
    稼働中は卓情報を最小化してキャスト一覧の縦領域を最大化。
    送り・場内は一時終了後のみ表示。 */
 
@@ -283,7 +283,7 @@ nav,nav button,.direct-cast,.simple-start-head,.fab,.menu-grid button{pointer-ev
 
 
 <style id="v11239-summary-remove">
-/* Ver.11.2.52: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
+/* Ver.11.2.51: 最上部の稼働卓・着席中・準備アラートを削除し、キャスト領域を拡大 */
 header .summary{
   display:none !important;
 }
@@ -342,7 +342,7 @@ header .clock{
 
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.52 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.53 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="all-timers-wrap"><div class="all-timers-title"><b>全卓タイマー</b><span>タップで該当卓へ</span></div><div id="allTimersBar" class="all-timers-bar"></div></div>
@@ -353,7 +353,7 @@ header .clock{
 <section id="statusPage" class="page hidden"><h2>営業状況</h2><div id="statusList" class="table-list"></div></section>
 <section id="menuPage" class="page hidden"><h2>メニュー</h2>
 <div class="menu-section"><h3>営業操作</h3><div class="menu-grid">
-<button id="undoLastTableEndBtn" class="priority-menu"><span>直前の卓終了を取消</span><small>誤って終了した直前の卓を復元</small></button><button id="restrictionMenu" class="priority-menu"><span>制限設定</span><small>着席制限を変更</small></button><button id="sendingMenu" class="priority-menu"><span>送り設定</span><small>送り指名を登録</small></button>
+<button id="restrictionMenu" class="priority-menu"><span>制限設定</span><small>着席制限を変更</small></button><button id="sendingMenu" class="priority-menu"><span>送り設定</span><small>送り指名を登録</small></button>
 <button id="intakeJudgeMenu" class="priority-menu"><span>初回受入判断</span><small>受付可能・注意・制限推奨</small></button><button id="companionOverviewMenu" class="priority-menu"><span>お連れ様候補</span><small>担当・チーム・Sランク・申告者を管理</small></button><button id="summaryMenu" class="priority-menu"><span>営業集計</span><small>誰が何卓着いたか確認</small></button><button id="monthlySummaryMenu" class="priority-menu"><span>月間集計</span><small>月別実績の入力・編集・確認</small></button><button id="historyMenu"><span>着席履歴</span></button><button id="endBusinessMenu" class="danger-menu"><span>営業終了</span></button>
 </div></div>
 <div class="menu-section"><h3>キャスト管理</h3><div class="menu-grid">
@@ -1279,7 +1279,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.52 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.53 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2130,7 +2130,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.52 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.53 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -2717,7 +2717,7 @@ html body .monthly-grid .monthly-row input[type="number"][data-month-field]:focu
 
 
 <style id="v11241-fixed-layout-timer-safe">
-/* Ver.11.2.52
+/* Ver.11.2.51
    上部の全卓タイマーを必ず全表示。
    その下に卓別見出し＋卓カードを固定し、
    各卓で縦に動くのはキャスト一覧だけ。 */
@@ -3229,11 +3229,15 @@ header .brand{height:38px !important;min-height:38px !important;}
 #homePage .all-timer-chip strong{font-size:12px!important;line-height:1!important;margin-top:4px!important;letter-spacing:-.2px!important}
 </style>
 
-<style id="v11251-undo-table-end-menu-style">
-#menuPage #undoLastTableEndBtn{display:none}
-#menuPage #undoLastTableEndBtn.show{display:block}
+<style id="v11246-undo-table-end-style">
+#undoLastTableEndBtn{
+ position:fixed;right:10px;bottom:calc(var(--nav,64px) + env(safe-area-inset-bottom) + 8px);
+ z-index:120;display:none;min-height:34px;padding:7px 10px;border-radius:10px;
+ border:1px solid #745d2a;background:#2d2514;color:#ffe08a;font-size:11px;font-weight:900;
+}
+#undoLastTableEndBtn.show{display:block}
 </style>
-
+<button type="button" id="undoLastTableEndBtn">直前の卓終了を取消</button>
 <script id="v11246-undo-table-end">
 (function(){
  let lastEnd=null;
@@ -3339,6 +3343,470 @@ header .brand{height:38px !important;min-height:38px !important;}
     if(sel) setTimeout(reorderAllTableOptions,0);
   });
   observer.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
+
+<!-- SWAMP-FLOW Ver.11.2.53 Stable / FOG-GOALS自動連動 -->
+<script id="v11251-fog-goals-sync">
+(function(){
+  'use strict';
+
+  const FOG_GOALS_URL='https://sffzcooyulzjrxkxvcrx.supabase.co';
+  const FOG_GOALS_KEY='sb_publishable_3cmJ6BW-qBh6N3ThfwebJA_iw9tR_cP';
+  const SESSION_KEY='swamp-flow-fog-goals-session-v1';
+  const EMAIL_KEY='swamp-flow-fog-goals-email-v1';
+  let pendingEndAfterLogin=false;
+  let syncing=false;
+
+  function hEsc(v){
+    return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function normName(v){
+    return String(v??'').normalize('NFKC').replace(/[\s\u3000]+/g,'').trim();
+  }
+  function businessDateFromTs(ts){
+    const d=new Date(ts||Date.now());
+    if(d.getHours()<6)d.setDate(d.getDate()-1);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function loadSession(){
+    try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch{return null}
+  }
+  function saveSession(s){
+    if(!s){localStorage.removeItem(SESSION_KEY);return}
+    if(!s.expires_at && s.expires_in)s.expires_at=Math.floor(Date.now()/1000)+Number(s.expires_in||3600);
+    localStorage.setItem(SESSION_KEY,JSON.stringify(s));
+  }
+  async function jsonFetch(url,options={}){
+    const res=await fetch(url,options);
+    const text=await res.text();
+    let body=null;
+    if(text){try{body=JSON.parse(text)}catch{body=text}}
+    if(!res.ok){
+      const msg=(body&&typeof body==='object'&&(body.msg||body.message||body.error_description||body.error))||String(body||('HTTP '+res.status));
+      const err=new Error(msg);err.status=res.status;err.body=body;throw err;
+    }
+    return body;
+  }
+  async function authToken(grantType,payload){
+    return jsonFetch(FOG_GOALS_URL+'/auth/v1/token?grant_type='+encodeURIComponent(grantType),{
+      method:'POST',
+      headers:{'apikey':FOG_GOALS_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+  }
+  async function signInFogGoals(email,password){
+    const s=await authToken('password',{email,password});
+    saveSession(s);
+    localStorage.setItem(EMAIL_KEY,email);
+    return s;
+  }
+  async function refreshFogGoalsSession(session){
+    if(!session?.refresh_token)return null;
+    try{
+      const s=await authToken('refresh_token',{refresh_token:session.refresh_token});
+      saveSession(s);return s;
+    }catch(e){saveSession(null);return null}
+  }
+  async function validSession(){
+    let s=loadSession();
+    if(!s?.access_token)return null;
+    const exp=Number(s.expires_at||0);
+    if(exp && exp>Math.floor(Date.now()/1000)+90)return s;
+    s=await refreshFogGoalsSession(s);
+    return s?.access_token?s:null;
+  }
+  async function authUser(session){
+    return jsonFetch(FOG_GOALS_URL+'/auth/v1/user',{
+      headers:{'apikey':FOG_GOALS_KEY,'Authorization':'Bearer '+session.access_token}
+    });
+  }
+  async function rest(path,options={},session){
+    const headers=Object.assign({
+      'apikey':FOG_GOALS_KEY,
+      'Authorization':'Bearer '+session.access_token,
+      'Content-Type':'application/json'
+    },options.headers||{});
+    return jsonFetch(FOG_GOALS_URL+'/rest/v1/'+path,Object.assign({},options,{headers}));
+  }
+  async function logoutFogGoals(){
+    const s=loadSession();
+    try{
+      if(s?.access_token){
+        await jsonFetch(FOG_GOALS_URL+'/auth/v1/logout',{
+          method:'POST',headers:{'apikey':FOG_GOALS_KEY,'Authorization':'Bearer '+s.access_token}
+        });
+      }
+    }catch(e){}
+    saveSession(null);
+    updateLinkButton();
+  }
+
+  async function syncFogGoals(summaryData,endedAt){
+    const session=await validSession();
+    if(!session)return{needLogin:true};
+
+    let members;
+    try{
+      members=await rest('members?select=id,name,team_id&is_active=eq.true&order=display_order.asc',{method:'GET'},session);
+    }catch(e){
+      if(e.status===401){saveSession(null);return{needLogin:true}}
+      throw e;
+    }
+    if(!Array.isArray(members))throw new Error('FOG-GOALSのメンバー一覧を取得できませんでした');
+
+    const memberBuckets=new Map();
+    members.forEach(m=>{
+      const k=normName(m.name);
+      if(!k)return;
+      if(!memberBuckets.has(k))memberBuckets.set(k,[]);
+      memberBuckets.get(k).push(m);
+    });
+    const duplicateNames=[...memberBuckets.entries()].filter(([,v])=>v.length>1).map(([k])=>k);
+    if(duplicateNames.length)throw new Error('FOG-GOALS側で同名メンバーが重複しています：'+duplicateNames.join('・'));
+
+    const sourceRows=Array.isArray(summaryData?.rows)?summaryData.rows:[];
+    const sourceMap=new Map();
+    sourceRows.forEach(r=>{
+      const name=r?.c?.name||r?.castName||'';
+      const k=normName(name);
+      if(k)sourceMap.set(k,r);
+    });
+
+    const matched=[];
+    members.forEach(m=>{
+      const src=sourceMap.get(normName(m.name));
+      if(!src)return;
+      if(!m.team_id)throw new Error(m.name+' のteam_idがFOG-GOALS側で未設定です');
+      matched.push({member:m,src});
+    });
+    if(!matched.length)throw new Error('FOG FLOWとFOG-GOALSで一致するキャスト名がありません');
+
+    const memberNameSet=new Set(members.map(m=>normName(m.name)));
+    const excludedActive=sourceRows.filter(r=>{
+      const total=Number(r.attackCount||0)+Number(r.sendCount||0)+Number(r.extensionCount||0);
+      return total>0&&!memberNameSet.has(normName(r?.c?.name||r?.castName||''));
+    }).map(r=>r?.c?.name||r?.castName||'不明');
+
+    const date=businessDateFromTs(endedAt);
+    const ids=matched.map(x=>x.member.id);
+    const existing=await rest('daily_results?select=id,member_id&business_date=eq.'+encodeURIComponent(date)+'&member_id=in.('+ids.join(',')+')',{method:'GET'},session);
+    const existingByMember=new Map((Array.isArray(existing)?existing:[]).map(r=>[r.member_id,r]));
+    const nowIso=new Date().toISOString();
+
+    for(const x of matched){
+      const counts={
+        first_contact_count:Math.max(0,Number(x.src.attackCount)||0),
+        send_count:Math.max(0,Number(x.src.sendCount)||0),
+        inhouse_count:Math.max(0,Number(x.src.extensionCount)||0),
+        updated_at:nowIso
+      };
+      const row=existingByMember.get(x.member.id);
+      if(row){
+        await rest('daily_results?id=eq.'+encodeURIComponent(row.id),{
+          method:'PATCH',headers:{'Prefer':'return=minimal'},body:JSON.stringify(counts)
+        },session);
+      }else{
+        await rest('daily_results',{
+          method:'POST',headers:{'Prefer':'return=minimal'},body:JSON.stringify(Object.assign({
+            member_id:x.member.id,
+            team_id:x.member.team_id,
+            business_date:date
+          },counts))
+        },session);
+      }
+    }
+
+    return{ok:true,date,matched:matched.length,excludedActive};
+  }
+
+  function updateLinkButton(){
+    const btn=document.querySelector('#fogGoalsLinkMenu');
+    if(!btn)return;
+    const s=loadSession();
+    const small=btn.querySelector('small');
+    const last=state?.settings?.fogGoalsLastSync;
+    if(s?.access_token){
+      small.textContent=last?.businessDate?'連携済み／最終同期 '+last.businessDate:'連携済み';
+    }else{
+      small.textContent='初回のみログインして自動同期';
+    }
+  }
+
+  async function openFogGoalsLink(autoContinue=false){
+    let user=null;
+    const s=await validSession();
+    if(s){try{user=await authUser(s)}catch(e){}}
+    if(user){
+      openUtility('FOG-GOALS連携',
+        '<div class="notice" style="border-color:#2f744c;background:#10251a;color:#a9f3c3">連携中です。</div>'+ 
+        '<div class="info-card" style="margin-top:10px"><b>'+hEsc(user.email||'ログイン済み')+'</b><p class="hint">営業終了時に、アタック・送り・場内をFOG-GOALSへ自動同期します。</p></div>'+ 
+        '<button class="danger" id="fogGoalsLogout" style="width:100%;margin-top:10px">連携ログアウト</button>');
+      document.querySelector('#fogGoalsLogout').onclick=async()=>{await logoutFogGoals();closeUtility();toast('FOG-GOALS連携を解除しました')};
+      return;
+    }
+
+    const savedEmail=localStorage.getItem(EMAIL_KEY)||'';
+    openUtility('FOG-GOALS連携',
+      '<div class="notice">FOG-GOALSで使っているログイン情報を入力してください。パスワードは保存しません。ログイン後はセッションだけ保持します。</div>'+ 
+      '<div class="form" style="margin-top:10px">'+
+      '<label>メールアドレス<input id="fogGoalsEmail" type="email" autocomplete="username" value="'+hEsc(savedEmail)+'"></label>'+ 
+      '<label>パスワード<input id="fogGoalsPassword" type="password" autocomplete="current-password"></label>'+ 
+      '<button class="primary" id="fogGoalsLogin" style="width:100%;min-height:46px">連携ログイン</button>'+ 
+      '<p class="hint" id="fogGoalsLoginStatus"></p></div>');
+
+    const btn=document.querySelector('#fogGoalsLogin');
+    btn.onclick=async()=>{
+      const email=document.querySelector('#fogGoalsEmail').value.trim();
+      const password=document.querySelector('#fogGoalsPassword').value;
+      const status=document.querySelector('#fogGoalsLoginStatus');
+      if(!email||!password){status.textContent='メールアドレスとパスワードを入力してください';return}
+      btn.disabled=true;status.textContent='ログイン中…';
+      try{
+        const session=await signInFogGoals(email,password);
+        const u=await authUser(session);
+        status.textContent='連携しました：'+(u?.email||email);
+        updateLinkButton();
+        if(autoContinue||pendingEndAfterLogin){
+          pendingEndAfterLogin=false;
+          closeUtility();
+          setTimeout(()=>runSyncedEndBusiness(true),80);
+        }else{
+          setTimeout(()=>closeUtility(),500);
+        }
+      }catch(e){
+        status.textContent='ログインできません：'+(e?.message||'不明なエラー');
+        btn.disabled=false;
+      }
+    };
+  }
+
+  function reviewDailySummary(summaryData){
+    return new Promise(resolve=>{
+      const rows=(summaryData.rows||[]).map(r=>({
+        ...r,
+        attackCount:Math.max(0,Number(r.attackCount)||0),
+        sendCount:Math.max(0,Number(r.sendCount)||0),
+        extensionCount:Math.max(0,Number(r.extensionCount)||0)
+      }));
+      openUtility('営業終了前の数字確認',
+        '<div class="notice"><b>送り・場内の入力漏れをここで修正できます。</b><br>間違いがなければそのまま「この数字で確定」を押してください。</div>'+ 
+        '<div style="margin-top:10px;display:grid;gap:7px">'+rows.map((r,i)=>
+          '<div class="info-card" style="padding:9px"><b>'+hEsc(r.c?.name||r.castName||'')+'</b>'+ 
+          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px">'+
+          '<label style="font-size:11px">アタック<input data-daily-i="'+i+'" data-daily-f="attackCount" type="number" min="0" inputmode="numeric" value="'+r.attackCount+'" style="width:100%"></label>'+ 
+          '<label style="font-size:11px">送り<input data-daily-i="'+i+'" data-daily-f="sendCount" type="number" min="0" inputmode="numeric" value="'+r.sendCount+'" style="width:100%"></label>'+ 
+          '<label style="font-size:11px">場内<input data-daily-i="'+i+'" data-daily-f="extensionCount" type="number" min="0" inputmode="numeric" value="'+r.extensionCount+'" style="width:100%"></label>'+ 
+          '</div></div>').join('')+'</div>'+ 
+        '<div class="row" style="margin-top:12px"><button class="secondary" id="dailyReviewCancel">戻る</button><button class="primary" id="dailyReviewOk">この数字で確定</button></div>');
+      document.querySelectorAll('[data-daily-i]').forEach(inp=>inp.addEventListener('input',()=>{
+        const i=Number(inp.dataset.dailyI),f=inp.dataset.dailyF;
+        rows[i][f]=Math.max(0,Number(inp.value)||0);
+      }));
+      document.querySelector('#dailyReviewCancel').onclick=()=>{closeUtility();resolve(null)};
+      document.querySelector('#dailyReviewOk').onclick=()=>{
+        const out={...summaryData,rows};
+        out.totalSeats=rows.reduce((a,r)=>a+r.attackCount,0);
+        out.totalSends=rows.reduce((a,r)=>a+r.sendCount,0);
+        out.totalExtensions=rows.reduce((a,r)=>a+r.extensionCount,0);
+        out.totalExtensionRate=out.totalSeats?out.totalExtensions/out.totalSeats*100:0;
+        rows.forEach(r=>r.extensionRate=r.attackCount?r.extensionCount/r.attackCount*100:0);
+        closeUtility();resolve(out);
+      };
+    });
+  }
+
+  const legacyEndBusiness=typeof window.endBusiness==='function'?window.endBusiness:null;
+
+  async function runSyncedEndBusiness(skipConfirm=false){
+    if(syncing)return;
+    if(!legacyEndBusiness){toast('営業終了処理が見つかりません');return}
+    if(!skipConfirm){
+      const ok=confirm('営業を終了しますか？\n\nFOG-GOALSへ「アタック・送り・場内」を同期してから営業データをリセットします。\n同期に失敗した場合はリセットしません。');
+      if(!ok)return;
+    }
+
+    const endedAt=Date.now();
+    const rawSummaryData=businessSummaryData();
+    const summaryData=await reviewDailySummary(rawSummaryData);
+    if(!summaryData)return;
+    syncing=true;
+    const endBtn=document.querySelector('#endBusinessMenu');
+    if(endBtn)endBtn.disabled=true;
+    toast('FOG-GOALSへ同期中…');
+
+    try{
+      const result=await syncFogGoals(summaryData,endedAt);
+      if(result.needLogin){
+        pendingEndAfterLogin=true;
+        syncing=false;
+        if(endBtn)endBtn.disabled=false;
+        await openFogGoalsLink(true);
+        return;
+      }
+
+      state.settings=state.settings||{};
+      state.settings.fogGoalsLastSync={
+        businessDate:result.date,
+        syncedAt:Date.now(),
+        matched:result.matched
+      };
+      save();
+
+      const oldConfirm=window.confirm;
+      const oldMonthly=window.addBusinessSummaryToMonthly;
+      window.confirm=()=>true;
+      if(typeof oldMonthly==='function')window.addBusinessSummaryToMonthly=(_raw,ts)=>oldMonthly(summaryData,ts);
+      try{legacyEndBusiness()}finally{
+        window.confirm=oldConfirm;
+        if(typeof oldMonthly==='function')window.addBusinessSummaryToMonthly=oldMonthly;
+      }
+      // 営業アーカイブも確認画面で確定した数字に合わせる
+      const archive=state?.settings?.businessArchives?.[0];
+      if(archive && Math.abs(Number(archive.endedAt||0)-endedAt)<5000){
+        archive.totalSeats=summaryData.totalSeats;
+        archive.totalSends=summaryData.totalSends;
+        archive.totalExtensions=summaryData.totalExtensions;
+        archive.totalExtensionRate=summaryData.totalExtensionRate;
+        archive.rows=summaryData.rows.map(r=>({castId:r.c?.id||r.castId,castName:r.c?.name||r.castName,tableCount:r.tableCount||0,seatCount:r.attackCount,attackCount:r.attackCount,sendCount:r.sendCount,extensionCount:r.extensionCount,extensionRate:r.extensionRate,tables:[...(r.tables||[])]}));
+        save();
+      }
+
+      const body=document.querySelector('#utilityBody');
+      if(body){
+        const extra=result.excludedActive?.length
+          ? '<div class="notice" style="margin-bottom:10px">FOG-GOALS同期：'+result.matched+'名完了。FOG-GOALS未登録のため未反映：'+hEsc(result.excludedActive.slice(0,8).join('・'))+(result.excludedActive.length>8?' ほか'+(result.excludedActive.length-8)+'名':'')+'</div>'
+          : '<div class="notice" style="margin-bottom:10px;border-color:#2f744c;background:#10251a;color:#a9f3c3">FOG-GOALS同期完了：'+result.matched+'名／営業日 '+hEsc(result.date)+'</div>';
+        body.insertAdjacentHTML('afterbegin',extra);
+      }
+      updateLinkButton();
+      toast('FOG-GOALS同期完了');
+    }catch(e){
+      console.error('FOG-GOALS sync error',e);
+      openUtility('営業終了を停止しました',
+        '<div class="notice" style="border-color:#7b2429;background:#291013;color:#ffd4d7"><b>FOG-GOALSへの同期に失敗したため、営業データはリセットしていません。</b><br><br>'+hEsc(e?.message||'不明なエラー')+'</div>'+ 
+        '<button class="secondary" id="fogGoalsRetryLink" style="width:100%;margin-top:10px">FOG-GOALS連携を確認</button>');
+      const retry=document.querySelector('#fogGoalsRetryLink');
+      if(retry)retry.onclick=()=>openFogGoalsLink(false);
+    }finally{
+      syncing=false;
+      if(endBtn)endBtn.disabled=false;
+    }
+  }
+
+  function installUi(){
+    document.title='SWAMP-FLOW Ver.11.2.53 Stable';
+    const h=document.querySelector('.brand h1');
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.53 Stable <span class="stable-badge">STABLE</span>';
+
+    const endBtn=document.querySelector('#endBusinessMenu');
+    if(endBtn)endBtn.onclick=()=>runSyncedEndBusiness(false);
+
+    if(!document.querySelector('#fogGoalsLinkMenu')){
+      const diagnostic=document.querySelector('#diagnosticMenu');
+      const grid=diagnostic?.parentElement;
+      if(grid){
+        const btn=document.createElement('button');
+        btn.id='fogGoalsLinkMenu';
+        btn.className='full';
+        btn.innerHTML='<span>FOG-GOALS連携</span><small>初回のみログインして自動同期</small>';
+        grid.insertBefore(btn,diagnostic);
+        btn.onclick=()=>openFogGoalsLink(false);
+      }
+    }
+    updateLinkButton();
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installUi,{once:true});
+  else installUi();
+})();
+
+</script>
+
+
+
+<!-- SWAMP-FLOW Ver.11.2.53 / 延長ランキング自動化 -->
+<script id="v11253-extension-ranking">
+(function(){
+  'use strict';
+  const BASELINE_KEY='extensionRankingBaseline202609v1';
+  const BASELINE_MONTH='2026-09';
+  const BASELINE=[
+    ['りょうすけ',5,1,1],['はる',19,1,1],['とうま',14,1,1],['ゆうだい',7,2,1],['はじめ',11,2,1],['れいや',12,3,1],['うぃる',16,4,1],['ゆい',18,1,0],['くろむ',14,1,0],['いちごまる',17,2,0],['れお',0,0,0],['かをる',8,2,0],['こころ',4,0,0],['れい',15,0,0],['らいと',0,0,0],['きょうたろう',15,0,0],['かぐや',2,0,0],['ひなた',8,0,0],['ちゃみ',8,0,0],['ゆうせい',17,1,0],['のあ',15,3,0],['たつや',7,1,0],['たいが',3,1,0],['そら',1,0,0],['りや',7,0,0],['にしの',16,1,0],['かずま',18,0,0],['だいや',0,0,0],['べる',18,0,0],['O',0,0,0],['なつき',18,2,0],['しすい',17,1,0],['はお',17,0,0],['まなと',0,0,0],['ゆうり',0,0,0],['じょー',0,0,0],['じよん',0,0,0],['りょうが',0,0,0],['なぎは',17,1,0],['かのん',18,0,0],['きら',15,0,0],['くらん',0,0,0]
+  ];
+  function norm(v){return String(v??'').normalize('NFKC').replace(/[\s\u3000]+/g,'').trim().toLowerCase()}
+  function num(v){return Math.max(0,Number(v)||0)}
+  function monthStore(){
+    state.settings=state.settings||{};
+    state.settings.monthlyStats=state.settings.monthlyStats||{};
+    state.settings.monthlyStats[BASELINE_MONTH]=state.settings.monthlyStats[BASELINE_MONTH]||{casts:{},updatedAt:Date.now()};
+    state.settings.monthlyStats[BASELINE_MONTH].casts=state.settings.monthlyStats[BASELINE_MONTH].casts||{};
+    return state.settings.monthlyStats[BASELINE_MONTH];
+  }
+  function applyBaselineOnce(){
+    state.settings=state.settings||{};
+    if(state.settings[BASELINE_KEY])return;
+    const month=monthStore();
+    const byName=new Map(BASELINE.map(x=>[norm(x[0]),x]));
+    state.casts.forEach(c=>{
+      const b=byName.get(norm(c.name)); if(!b)return;
+      const existing=month.casts[c.id];
+      // 既に9月累計が入っている人は二重加算しない
+      if(existing && (num(existing.attack)||num(existing.send)||num(existing.extension)))return;
+      month.casts[c.id]={castId:c.id,castName:c.name,attack:num(b[1]),send:num(b[2]),extension:num(b[3])};
+    });
+    // FLOWにまだ登録されていないメンバーも名前基準で保持
+    month.extensionRankingCarry=month.extensionRankingCarry||{};
+    BASELINE.forEach(b=>{
+      if(!state.casts.some(c=>norm(c.name)===norm(b[0])))month.extensionRankingCarry[norm(b[0])]={name:b[0],attack:num(b[1]),send:num(b[2]),extension:num(b[3])};
+    });
+    state.settings[BASELINE_KEY]={appliedAt:Date.now(),source:'9月初回延長率 ぼうずリスト.xlsx'};
+    month.updatedAt=Date.now(); save();
+  }
+  function rankingRows(key){
+    const month=state.settings?.monthlyStats?.[key]||{casts:{}};
+    const map=new Map();
+    Object.values(month.casts||{}).forEach(r=>map.set(norm(r.castName),{name:r.castName,attack:num(r.attack),send:num(r.send),extension:num(r.extension)}));
+    if(key===BASELINE_MONTH){
+      Object.values(month.extensionRankingCarry||{}).forEach(r=>{if(!map.has(norm(r.name)))map.set(norm(r.name),{...r})});
+    }
+    return [...map.values()].map(r=>({...r,rate:r.send>0?r.extension/r.send:0,eligible:r.send>=5}));
+  }
+  function rankingTSV(key){
+    const rows=rankingRows(key).sort((a,b)=>(b.eligible-a.eligible)||(b.rate-a.rate)||(b.send-a.send)||(b.attack-a.attack)||a.name.localeCompare(b.name,'ja'));
+    const lines=[['NO','メンバー','アタック数','送り','場内','延長率'].join('\t')];
+    let rank=0;
+    rows.forEach(r=>{
+      const no=r.eligible?++rank:'';
+      lines.push([no,r.name,r.attack,r.send,r.extension,(r.rate*100).toFixed(1)+'%'].join('\t'));
+    });
+    return lines.join('\n');
+  }
+  async function copyRanking(key){
+    const text=rankingTSV(key);
+    try{await copyPlainText(text,'Excel用ランキングをコピーしました')}catch{fallbackCopyText(text,'Excel用ランキングをコピーしました')}
+  }
+  function addRankingButton(){
+    const btn=document.querySelector('#monthlySummaryMenu');
+    if(!btn||document.querySelector('#extensionRankingMenu'))return;
+    const b=document.createElement('button');
+    b.id='extensionRankingMenu'; b.className='priority-menu';
+    b.innerHTML='<span>延長ランキング</span><small>Excelへ1回貼り付け</small>';
+    btn.insertAdjacentElement('afterend',b);
+    b.onclick=()=>{
+      const now=new Date(),key=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+      const rows=rankingRows(key),eligible=rows.filter(r=>r.eligible).sort((a,b)=>b.rate-a.rate||b.send-a.send);
+      openUtility('延長ランキング',
+        '<div class="notice"><b>延長率＝場内 ÷ 送り</b><br>送り5本以上のみランキング対象。下のボタンを押して、PCのExcelの先頭セルへ1回貼り付ければOKです。</div>'+ 
+        '<button class="primary" id="copyRankingExcel" style="width:100%;margin-top:10px;font-size:16px">Excel用にコピー</button>'+ 
+        '<div class="info-card" style="margin-top:10px">'+(eligible.length?eligible.map((r,i)=>'<div class="list-row"><span class="count-badge">'+(i+1)+'</span><div class="list-main"><b>'+esc(r.name)+'</b><small>AT '+r.attack+'｜送り '+r.send+'｜場内 '+r.extension+'</small></div><strong>'+((r.rate*100).toFixed(1))+'%</strong></div>').join(''):'送り5本以上の対象者はまだいません')+'</div>');
+      document.querySelector('#copyRankingExcel').onclick=()=>copyRanking(key);
+    };
+  }
+  applyBaselineOnce();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addRankingButton,{once:true}); else addRankingButton();
+  setTimeout(addRankingButton,100);
 })();
 </script>
 
