@@ -3346,4 +3346,330 @@ header .brand{height:38px !important;min-height:38px !important;}
 })();
 </script>
 
+
+<!-- SWAMP-FLOW Ver.11.2.51 Stable / FOG-GOALS自動連動 -->
+<script id="v11251-fog-goals-sync">
+(function(){
+  'use strict';
+
+  const FOG_GOALS_URL='https://sffzcooyulzjrxkxvcrx.supabase.co';
+  const FOG_GOALS_KEY='sb_publishable_3cmJ6BW-qBh6N3ThfwebJA_iw9tR_cP';
+  const SESSION_KEY='swamp-flow-fog-goals-session-v1';
+  const EMAIL_KEY='swamp-flow-fog-goals-email-v1';
+  let pendingEndAfterLogin=false;
+  let syncing=false;
+
+  function hEsc(v){
+    return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function normName(v){
+    return String(v??'').normalize('NFKC').replace(/[\s\u3000]+/g,'').trim();
+  }
+  function businessDateFromTs(ts){
+    const d=new Date(ts||Date.now());
+    if(d.getHours()<6)d.setDate(d.getDate()-1);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function loadSession(){
+    try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch{return null}
+  }
+  function saveSession(s){
+    if(!s){localStorage.removeItem(SESSION_KEY);return}
+    if(!s.expires_at && s.expires_in)s.expires_at=Math.floor(Date.now()/1000)+Number(s.expires_in||3600);
+    localStorage.setItem(SESSION_KEY,JSON.stringify(s));
+  }
+  async function jsonFetch(url,options={}){
+    const res=await fetch(url,options);
+    const text=await res.text();
+    let body=null;
+    if(text){try{body=JSON.parse(text)}catch{body=text}}
+    if(!res.ok){
+      const msg=(body&&typeof body==='object'&&(body.msg||body.message||body.error_description||body.error))||String(body||('HTTP '+res.status));
+      const err=new Error(msg);err.status=res.status;err.body=body;throw err;
+    }
+    return body;
+  }
+  async function authToken(grantType,payload){
+    return jsonFetch(FOG_GOALS_URL+'/auth/v1/token?grant_type='+encodeURIComponent(grantType),{
+      method:'POST',
+      headers:{'apikey':FOG_GOALS_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+  }
+  async function signInFogGoals(email,password){
+    const s=await authToken('password',{email,password});
+    saveSession(s);
+    localStorage.setItem(EMAIL_KEY,email);
+    return s;
+  }
+  async function refreshFogGoalsSession(session){
+    if(!session?.refresh_token)return null;
+    try{
+      const s=await authToken('refresh_token',{refresh_token:session.refresh_token});
+      saveSession(s);return s;
+    }catch(e){saveSession(null);return null}
+  }
+  async function validSession(){
+    let s=loadSession();
+    if(!s?.access_token)return null;
+    const exp=Number(s.expires_at||0);
+    if(exp && exp>Math.floor(Date.now()/1000)+90)return s;
+    s=await refreshFogGoalsSession(s);
+    return s?.access_token?s:null;
+  }
+  async function authUser(session){
+    return jsonFetch(FOG_GOALS_URL+'/auth/v1/user',{
+      headers:{'apikey':FOG_GOALS_KEY,'Authorization':'Bearer '+session.access_token}
+    });
+  }
+  async function rest(path,options={},session){
+    const headers=Object.assign({
+      'apikey':FOG_GOALS_KEY,
+      'Authorization':'Bearer '+session.access_token,
+      'Content-Type':'application/json'
+    },options.headers||{});
+    return jsonFetch(FOG_GOALS_URL+'/rest/v1/'+path,Object.assign({},options,{headers}));
+  }
+  async function logoutFogGoals(){
+    const s=loadSession();
+    try{
+      if(s?.access_token){
+        await jsonFetch(FOG_GOALS_URL+'/auth/v1/logout',{
+          method:'POST',headers:{'apikey':FOG_GOALS_KEY,'Authorization':'Bearer '+s.access_token}
+        });
+      }
+    }catch(e){}
+    saveSession(null);
+    updateLinkButton();
+  }
+
+  async function syncFogGoals(summaryData,endedAt){
+    const session=await validSession();
+    if(!session)return{needLogin:true};
+
+    let members;
+    try{
+      members=await rest('members?select=id,name,team_id&is_active=eq.true&order=display_order.asc',{method:'GET'},session);
+    }catch(e){
+      if(e.status===401){saveSession(null);return{needLogin:true}}
+      throw e;
+    }
+    if(!Array.isArray(members))throw new Error('FOG-GOALSのメンバー一覧を取得できませんでした');
+
+    const memberBuckets=new Map();
+    members.forEach(m=>{
+      const k=normName(m.name);
+      if(!k)return;
+      if(!memberBuckets.has(k))memberBuckets.set(k,[]);
+      memberBuckets.get(k).push(m);
+    });
+    const duplicateNames=[...memberBuckets.entries()].filter(([,v])=>v.length>1).map(([k])=>k);
+    if(duplicateNames.length)throw new Error('FOG-GOALS側で同名メンバーが重複しています：'+duplicateNames.join('・'));
+
+    const sourceRows=Array.isArray(summaryData?.rows)?summaryData.rows:[];
+    const sourceMap=new Map();
+    sourceRows.forEach(r=>{
+      const name=r?.c?.name||r?.castName||'';
+      const k=normName(name);
+      if(k)sourceMap.set(k,r);
+    });
+
+    const matched=[];
+    members.forEach(m=>{
+      const src=sourceMap.get(normName(m.name));
+      if(!src)return;
+      if(!m.team_id)throw new Error(m.name+' のteam_idがFOG-GOALS側で未設定です');
+      matched.push({member:m,src});
+    });
+    if(!matched.length)throw new Error('FOG FLOWとFOG-GOALSで一致するキャスト名がありません');
+
+    const memberNameSet=new Set(members.map(m=>normName(m.name)));
+    const excludedActive=sourceRows.filter(r=>{
+      const total=Number(r.attackCount||0)+Number(r.sendCount||0)+Number(r.extensionCount||0);
+      return total>0&&!memberNameSet.has(normName(r?.c?.name||r?.castName||''));
+    }).map(r=>r?.c?.name||r?.castName||'不明');
+
+    const date=businessDateFromTs(endedAt);
+    const ids=matched.map(x=>x.member.id);
+    const existing=await rest('daily_results?select=id,member_id&business_date=eq.'+encodeURIComponent(date)+'&member_id=in.('+ids.join(',')+')',{method:'GET'},session);
+    const existingByMember=new Map((Array.isArray(existing)?existing:[]).map(r=>[r.member_id,r]));
+    const nowIso=new Date().toISOString();
+
+    for(const x of matched){
+      const counts={
+        first_contact_count:Math.max(0,Number(x.src.attackCount)||0),
+        send_count:Math.max(0,Number(x.src.sendCount)||0),
+        inhouse_count:Math.max(0,Number(x.src.extensionCount)||0),
+        updated_at:nowIso
+      };
+      const row=existingByMember.get(x.member.id);
+      if(row){
+        await rest('daily_results?id=eq.'+encodeURIComponent(row.id),{
+          method:'PATCH',headers:{'Prefer':'return=minimal'},body:JSON.stringify(counts)
+        },session);
+      }else{
+        await rest('daily_results',{
+          method:'POST',headers:{'Prefer':'return=minimal'},body:JSON.stringify(Object.assign({
+            member_id:x.member.id,
+            team_id:x.member.team_id,
+            business_date:date
+          },counts))
+        },session);
+      }
+    }
+
+    return{ok:true,date,matched:matched.length,excludedActive};
+  }
+
+  function updateLinkButton(){
+    const btn=document.querySelector('#fogGoalsLinkMenu');
+    if(!btn)return;
+    const s=loadSession();
+    const small=btn.querySelector('small');
+    const last=state?.settings?.fogGoalsLastSync;
+    if(s?.access_token){
+      small.textContent=last?.businessDate?'連携済み／最終同期 '+last.businessDate:'連携済み';
+    }else{
+      small.textContent='初回のみログインして自動同期';
+    }
+  }
+
+  async function openFogGoalsLink(autoContinue=false){
+    let user=null;
+    const s=await validSession();
+    if(s){try{user=await authUser(s)}catch(e){}}
+    if(user){
+      openUtility('FOG-GOALS連携',
+        '<div class="notice" style="border-color:#2f744c;background:#10251a;color:#a9f3c3">連携中です。</div>'+ 
+        '<div class="info-card" style="margin-top:10px"><b>'+hEsc(user.email||'ログイン済み')+'</b><p class="hint">営業終了時に、アタック・送り・場内をFOG-GOALSへ自動同期します。</p></div>'+ 
+        '<button class="danger" id="fogGoalsLogout" style="width:100%;margin-top:10px">連携ログアウト</button>');
+      document.querySelector('#fogGoalsLogout').onclick=async()=>{await logoutFogGoals();closeUtility();toast('FOG-GOALS連携を解除しました')};
+      return;
+    }
+
+    const savedEmail=localStorage.getItem(EMAIL_KEY)||'';
+    openUtility('FOG-GOALS連携',
+      '<div class="notice">FOG-GOALSで使っているログイン情報を入力してください。パスワードは保存しません。ログイン後はセッションだけ保持します。</div>'+ 
+      '<div class="form" style="margin-top:10px">'+
+      '<label>メールアドレス<input id="fogGoalsEmail" type="email" autocomplete="username" value="'+hEsc(savedEmail)+'"></label>'+ 
+      '<label>パスワード<input id="fogGoalsPassword" type="password" autocomplete="current-password"></label>'+ 
+      '<button class="primary" id="fogGoalsLogin" style="width:100%;min-height:46px">連携ログイン</button>'+ 
+      '<p class="hint" id="fogGoalsLoginStatus"></p></div>');
+
+    const btn=document.querySelector('#fogGoalsLogin');
+    btn.onclick=async()=>{
+      const email=document.querySelector('#fogGoalsEmail').value.trim();
+      const password=document.querySelector('#fogGoalsPassword').value;
+      const status=document.querySelector('#fogGoalsLoginStatus');
+      if(!email||!password){status.textContent='メールアドレスとパスワードを入力してください';return}
+      btn.disabled=true;status.textContent='ログイン中…';
+      try{
+        const session=await signInFogGoals(email,password);
+        const u=await authUser(session);
+        status.textContent='連携しました：'+(u?.email||email);
+        updateLinkButton();
+        if(autoContinue||pendingEndAfterLogin){
+          pendingEndAfterLogin=false;
+          closeUtility();
+          setTimeout(()=>runSyncedEndBusiness(true),80);
+        }else{
+          setTimeout(()=>closeUtility(),500);
+        }
+      }catch(e){
+        status.textContent='ログインできません：'+(e?.message||'不明なエラー');
+        btn.disabled=false;
+      }
+    };
+  }
+
+  const legacyEndBusiness=typeof window.endBusiness==='function'?window.endBusiness:null;
+
+  async function runSyncedEndBusiness(skipConfirm=false){
+    if(syncing)return;
+    if(!legacyEndBusiness){toast('営業終了処理が見つかりません');return}
+    if(!skipConfirm){
+      const ok=confirm('営業を終了しますか？\n\nFOG-GOALSへ「アタック・送り・場内」を同期してから営業データをリセットします。\n同期に失敗した場合はリセットしません。');
+      if(!ok)return;
+    }
+
+    const endedAt=Date.now();
+    const summaryData=businessSummaryData();
+    syncing=true;
+    const endBtn=document.querySelector('#endBusinessMenu');
+    if(endBtn)endBtn.disabled=true;
+    toast('FOG-GOALSへ同期中…');
+
+    try{
+      const result=await syncFogGoals(summaryData,endedAt);
+      if(result.needLogin){
+        pendingEndAfterLogin=true;
+        syncing=false;
+        if(endBtn)endBtn.disabled=false;
+        await openFogGoalsLink(true);
+        return;
+      }
+
+      state.settings=state.settings||{};
+      state.settings.fogGoalsLastSync={
+        businessDate:result.date,
+        syncedAt:Date.now(),
+        matched:result.matched
+      };
+      save();
+
+      const oldConfirm=window.confirm;
+      window.confirm=()=>true;
+      try{legacyEndBusiness()}finally{window.confirm=oldConfirm}
+
+      const body=document.querySelector('#utilityBody');
+      if(body){
+        const extra=result.excludedActive?.length
+          ? '<div class="notice" style="margin-bottom:10px">FOG-GOALS同期：'+result.matched+'名完了。FOG-GOALS未登録のため未反映：'+hEsc(result.excludedActive.slice(0,8).join('・'))+(result.excludedActive.length>8?' ほか'+(result.excludedActive.length-8)+'名':'')+'</div>'
+          : '<div class="notice" style="margin-bottom:10px;border-color:#2f744c;background:#10251a;color:#a9f3c3">FOG-GOALS同期完了：'+result.matched+'名／営業日 '+hEsc(result.date)+'</div>';
+        body.insertAdjacentHTML('afterbegin',extra);
+      }
+      updateLinkButton();
+      toast('FOG-GOALS同期完了');
+    }catch(e){
+      console.error('FOG-GOALS sync error',e);
+      openUtility('営業終了を停止しました',
+        '<div class="notice" style="border-color:#7b2429;background:#291013;color:#ffd4d7"><b>FOG-GOALSへの同期に失敗したため、営業データはリセットしていません。</b><br><br>'+hEsc(e?.message||'不明なエラー')+'</div>'+ 
+        '<button class="secondary" id="fogGoalsRetryLink" style="width:100%;margin-top:10px">FOG-GOALS連携を確認</button>');
+      const retry=document.querySelector('#fogGoalsRetryLink');
+      if(retry)retry.onclick=()=>openFogGoalsLink(false);
+    }finally{
+      syncing=false;
+      if(endBtn)endBtn.disabled=false;
+    }
+  }
+
+  function installUi(){
+    document.title='SWAMP-FLOW Ver.11.2.51 Stable';
+    const h=document.querySelector('.brand h1');
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.51 Stable <span class="stable-badge">STABLE</span>';
+
+    const endBtn=document.querySelector('#endBusinessMenu');
+    if(endBtn)endBtn.onclick=()=>runSyncedEndBusiness(false);
+
+    if(!document.querySelector('#fogGoalsLinkMenu')){
+      const diagnostic=document.querySelector('#diagnosticMenu');
+      const grid=diagnostic?.parentElement;
+      if(grid){
+        const btn=document.createElement('button');
+        btn.id='fogGoalsLinkMenu';
+        btn.className='full';
+        btn.innerHTML='<span>FOG-GOALS連携</span><small>初回のみログインして自動同期</small>';
+        grid.insertBefore(btn,diagnostic);
+        btn.onclick=()=>openFogGoalsLink(false);
+      }
+    }
+    updateLinkButton();
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installUi,{once:true});
+  else installUi();
+})();
+
+</script>
+
 </body></html>
