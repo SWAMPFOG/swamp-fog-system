@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.55 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.56 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -340,9 +340,20 @@ header .clock{
 }
 </style>
 
+
+<style id="v11256-test-mode-style">
+.test-mode-banner{position:sticky;top:0;z-index:35;background:#6b151b;color:#fff3f4;border-bottom:1px solid #b84750;padding:7px 10px;text-align:center;font-size:11px;font-weight:950;letter-spacing:.04em}
+body.test-mode-active header{box-shadow:inset 0 0 0 2px #ff5e6866}
+.menu-grid #testModeMenu{display:block;text-align:left;background:#251115;border-color:#7b2429;min-height:70px}
+.menu-grid #testModeMenu span{display:block;font-size:16px;color:#ffb7bc}
+.menu-grid #testModeMenu small{color:#d89aa0}
+body.test-mode-active .menu-grid #testModeMenu{background:#5c171d;border-color:#d55761}
+body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
+</style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.55 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.56 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<div id="testModeBanner" class="test-mode-banner hidden">🧪 TEST MODE｜本番データ・本番月間集計・FOG-GOALSには反映されません</div>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
 <div class="all-timers-wrap"><div class="all-timers-title"><b>全卓タイマー</b><span>タップで該当卓へ</span></div><div id="allTimersBar" class="all-timers-bar"></div></div>
@@ -353,6 +364,7 @@ header .clock{
 <section id="statusPage" class="page hidden"><h2>営業状況</h2><div id="statusList" class="table-list"></div></section>
 <section id="menuPage" class="page hidden"><h2>メニュー</h2>
 <div class="menu-section"><h3>営業操作</h3><div class="menu-grid">
+<button id="testModeMenu" class="full"><span>テストモード：OFF</span><small>本番データを守ったまま操作テスト</small></button>
 <button id="restrictionMenu" class="priority-menu"><span>制限設定</span><small>着席制限を変更</small></button><button id="sendingMenu" class="priority-menu"><span>送り設定</span><small>送り指名を登録</small></button>
 <button id="intakeJudgeMenu" class="priority-menu"><span>初回受入判断</span><small>受付可能・注意・制限推奨</small></button><button id="companionOverviewMenu" class="priority-menu"><span>お連れ様候補</span><small>担当・チーム・Sランク・申告者を管理</small></button><button id="summaryMenu" class="priority-menu"><span>営業集計</span><small>誰が何卓着いたか確認</small></button><button id="monthlySummaryMenu" class="priority-menu"><span>月間集計</span><small>月別実績の入力・編集・確認</small></button><button id="historyMenu"><span>着席履歴</span></button><button id="endBusinessMenu" class="danger-menu"><span>営業終了</span></button>
 </div></div>
@@ -379,6 +391,9 @@ const HISTORY_KEY='swamp-flow-v11-history';
 const SETTINGS_KEY='swamp-flow-v11-settings';
 const LEGACY_KEYS=['swamp-flow-v10.9','swamp-flow-v10.5'];
 const TABLE_SNAPSHOT_KEY='swamp-flow-table-snapshot-v11';
+const TEST_MODE_FLAG_KEY='swamp-flow-v11-test-mode-active';
+let TEST_MODE=localStorage.getItem(TEST_MODE_FLAG_KEY)==='1';
+function scopedStorageKey(key){return TEST_MODE?key+'-test':key}
 const sample={casts:[
 {id:'c1',name:'れい',rank:'S',team:'#9b6cff'},{id:'c2',name:'ゆうせい',rank:'S',team:'#4fc3f7'},{id:'c3',name:'のあ',rank:'S',team:'#ff7da8'},{id:'c4',name:'たいが',rank:'A',team:'#65d58a'},{id:'c5',name:'かぐや',rank:'A',team:'#ffd15c'},{id:'c6',name:'りょうすけ',rank:'B',team:'#ff9966'},{id:'c7',name:'なつき',rank:'C',team:'#7da1ff'}],tables:[],refusals:{},history:[],settings:{sendLimit:2}};
 let state=load(),selectedCast=null,selectedTable=null,editTableId=null,longTimer=null;
@@ -413,7 +428,7 @@ function mergeStore(parts){
   base.tables.forEach(t=>Object.assign(t,clone(tableStatus[t.id]||{})));
   return normalize(base)
 }
-function readJson(key,fallback){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch{return fallback}}
+function readJson(key,fallback){try{const raw=localStorage.getItem(scopedStorageKey(key));return raw?JSON.parse(raw):fallback}catch{return fallback}}
 function load(){
   try{
     const root=readJson(ROOT_KEY,null);
@@ -424,23 +439,69 @@ function load(){
         settings:readJson(SETTINGS_KEY,{sendLimit:2})
       })
     }
-    for(const key of LEGACY_KEYS){
-      const raw=localStorage.getItem(key);
-      if(raw){const migrated=normalize(JSON.parse(raw));persistSplit(migrated,'legacy-migration');return migrated}
+    if(!TEST_MODE){
+      for(const key of LEGACY_KEYS){
+        const raw=localStorage.getItem(key);
+        if(raw){const migrated=normalize(JSON.parse(raw));persistSplit(migrated,'legacy-migration');return migrated}
+      }
     }
   }catch(e){console.warn('load failed',e)}
   const fresh=normalize(clone(sample));persistSplit(fresh,'fresh-install');return fresh
 }
 function persistSplit(s,reason='save'){
   const p=splitState(s);
-  localStorage.setItem(CASTS_KEY,JSON.stringify(p.casts));
-  localStorage.setItem(TABLES_KEY,JSON.stringify(p.tables));
-  localStorage.setItem(OPERATIONS_KEY,JSON.stringify(p.operations));
-  localStorage.setItem(HISTORY_KEY,JSON.stringify(p.history));
-  localStorage.setItem(SETTINGS_KEY,JSON.stringify(p.settings));
-  localStorage.setItem(ROOT_KEY,JSON.stringify({schemaVersion:SCHEMA_VERSION,updatedAt:Date.now(),reason}));
+  localStorage.setItem(scopedStorageKey(CASTS_KEY),JSON.stringify(p.casts));
+  localStorage.setItem(scopedStorageKey(TABLES_KEY),JSON.stringify(p.tables));
+  localStorage.setItem(scopedStorageKey(OPERATIONS_KEY),JSON.stringify(p.operations));
+  localStorage.setItem(scopedStorageKey(HISTORY_KEY),JSON.stringify(p.history));
+  localStorage.setItem(scopedStorageKey(SETTINGS_KEY),JSON.stringify(p.settings));
+  localStorage.setItem(scopedStorageKey(ROOT_KEY),JSON.stringify({schemaVersion:SCHEMA_VERSION,updatedAt:Date.now(),reason}));
 }
 function save(){persistSplit(state)}
+function makeFreshTestState(base){
+  const t=normalize(clone(base||sample));
+  t.tables=[];t.refusals={};t.history=[];
+  t.casts.forEach(c=>Object.assign(c,{working:true,sends:0,penalty:false,inHouse:false,currentTable:null,preparingFor:null,ngTables:[]}));
+  t.settings=clone(t.settings||{});
+  delete t.settings.monthlyStats;
+  delete t.settings.businessArchives;
+  delete t.settings.fogGoalsLastSync;
+  delete t.settings.extensionRankingBaselineApplied;
+  return normalize(t);
+}
+function updateTestModeUI(){
+  document.body.classList.toggle('test-mode-active',TEST_MODE);
+  const banner=document.querySelector('#testModeBanner');
+  if(banner)banner.classList.toggle('hidden',!TEST_MODE);
+  const btn=document.querySelector('#testModeMenu');
+  if(btn){
+    const sp=btn.querySelector('span'),sm=btn.querySelector('small');
+    if(sp)sp.textContent='テストモード：'+(TEST_MODE?'ON':'OFF');
+    if(sm)sm.textContent=TEST_MODE?'タップで本番モードへ戻る':'本番データを守ったまま操作テスト';
+  }
+}
+function toggleTestMode(){
+  if(TEST_MODE){
+    if(!confirm('本番モードに戻りますか？\n\nテスト中に入力した卓・履歴・集計は本番へ反映されません。'))return;
+    save();
+    TEST_MODE=false;
+    localStorage.removeItem(TEST_MODE_FLAG_KEY);
+    state=load();selectedCast=selectedTable=editTableId=null;
+    render();updateTestModeUI();
+    toast('本番モードに戻りました');
+    return;
+  }
+  if(!confirm('テストモードを開始しますか？\n\n・現在の本番データはそのまま保持\n・テスト操作は別保存\n・本番の月間集計には加算しない\n・FOG-GOALSには送信しない'))return;
+  save();
+  const production=clone(state);
+  TEST_MODE=true;
+  localStorage.setItem(TEST_MODE_FLAG_KEY,'1');
+  state=makeFreshTestState(production);
+  persistSplit(state,'test-mode-start');
+  selectedCast=selectedTable=editTableId=null;
+  render();updateTestModeUI();
+  toast('テストモードを開始しました');
+}
 function now(){return Date.now()} function pad(n){return String(n).padStart(2,'0')} function hm(t){let d=new Date(t);return pad(d.getHours())+':'+pad(d.getMinutes())}
 function fmt(sec){let neg=sec<0;sec=Math.abs(Math.floor(sec));return(neg?'+':'')+Math.floor(sec/60)+':'+pad(sec%60)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
@@ -648,10 +709,10 @@ function openBulkManage(){openUtility('キャストまとめて管理',`<div cla
 function openBulkColor(){openUtility('キャスト色まとめて管理',`<div class="form"><div class="row"><button class="secondary" id="colorAll">全選択</button><button class="secondary" id="colorNone">全解除</button></div><div class="info-card">${castCheckList()}</div><label>変更する色<input id="bulkColorValue" type="color" value="#777777"></label><button class="primary" id="bulkColorSave">選択したキャストへ反映</button></div>`);document.querySelector('#colorAll').onclick=()=>document.querySelectorAll('.bulkCastCheck').forEach(x=>x.checked=true);document.querySelector('#colorNone').onclick=()=>document.querySelectorAll('.bulkCastCheck').forEach(x=>x.checked=false);document.querySelector('#bulkColorSave').onclick=()=>{let ids=selectedBulkIds(),col=document.querySelector('#bulkColorValue').value;if(!ids.length){toast('キャストを選択してください');return}state.casts.filter(c=>ids.includes(c.id)).forEach(c=>c.team=col);save();closeUtility();render();toast(ids.length+'名の色を変更しました')}}
 function openCastSort(){let ordered=[...state.casts].sort((a,b)=>(a.order??0)-(b.order??0));openUtility('キャスト一括並び替え',`<p class="hint">右側の上下ボタンで営業中の表示順を変更します。ランク内ではこの順番が反映されます。</p><div class="drag-list">${ordered.map((c,i)=>`<div class="drag-item"><span class="drag-handle">≡</span><div class="list-main"><b>${esc(c.name)}</b><small>${c.rank}ランク</small></div><button class="icon-btn" data-up="${c.id}">↑</button><button class="icon-btn" data-down="${c.id}">↓</button></div>`).join('')}</div>`);document.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>moveCastOrder(b.dataset.up,-1));document.querySelectorAll('[data-down]').forEach(b=>b.onclick=()=>moveCastOrder(b.dataset.down,1))}
 function moveCastOrder(id,dir){let arr=[...state.casts].sort((a,b)=>(a.order??0)-(b.order??0)),i=arr.findIndex(c=>c.id===id),j=i+dir;if(i<0||j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];arr.forEach((c,k)=>c.order=k);save();openCastSort();render()}
-function makeTableSnapshot(){let snap={tables:clone(state.tables),refusals:clone(state.refusals),history:clone(state.history),casts:state.casts.map(c=>({id:c.id,currentTable:c.currentTable,preparingFor:c.preparingFor,ngTables:clone(c.ngTables)})),savedAt:now()};localStorage.setItem(TABLE_SNAPSHOT_KEY,JSON.stringify(snap))}
+function makeTableSnapshot(){let snap={tables:clone(state.tables),refusals:clone(state.refusals),history:clone(state.history),casts:state.casts.map(c=>({id:c.id,currentTable:c.currentTable,preparingFor:c.preparingFor,ngTables:clone(c.ngTables)})),savedAt:now()};localStorage.setItem(scopedStorageKey(TABLE_SNAPSHOT_KEY),JSON.stringify(snap))}
 function resetTableData(){if(!confirm('卓データをリセットしますか？\n直前データは「卓データ復元」から戻せます。'))return;makeTableSnapshot();state.tables=[];state.refusals={};state.history=[];state.casts.forEach(c=>{c.currentTable=null;c.preparingFor=null;c.ngTables=[]});save();render();toast('卓データをリセットしました')}
 let restoreTapTimer=null,restoreArmed=false;
-function restoreTableData(){let btn=document.querySelector('#restoreTableMenu');if(!localStorage.getItem(TABLE_SNAPSHOT_KEY)){toast('復元できる卓データがありません');return}if(!restoreArmed){restoreArmed=true;btn.classList.add('confirming');btn.querySelector('span').textContent='もう一度タップで決定';toast('もう一度タップすると復元します');clearTimeout(restoreTapTimer);restoreTapTimer=setTimeout(()=>{restoreArmed=false;btn.classList.remove('confirming');btn.querySelector('span').textContent='卓データ復元'},3500);return}clearTimeout(restoreTapTimer);restoreArmed=false;try{let snap=JSON.parse(localStorage.getItem(TABLE_SNAPSHOT_KEY));state.tables=snap.tables||[];state.refusals=snap.refusals||{};state.history=snap.history||[];(snap.casts||[]).forEach(x=>{let c=state.casts.find(y=>y.id===x.id);if(c){c.currentTable=x.currentTable||null;c.preparingFor=x.preparingFor||null;c.ngTables=x.ngTables||[]}});state=normalize(state);save();render();toast('卓データを復元しました')}catch{toast('卓データを復元できませんでした')}btn.classList.remove('confirming');btn.querySelector('span').textContent='卓データ復元'}
+function restoreTableData(){let btn=document.querySelector('#restoreTableMenu');if(!localStorage.getItem(scopedStorageKey(TABLE_SNAPSHOT_KEY))){toast('復元できる卓データがありません');return}if(!restoreArmed){restoreArmed=true;btn.classList.add('confirming');btn.querySelector('span').textContent='もう一度タップで決定';toast('もう一度タップすると復元します');clearTimeout(restoreTapTimer);restoreTapTimer=setTimeout(()=>{restoreArmed=false;btn.classList.remove('confirming');btn.querySelector('span').textContent='卓データ復元'},3500);return}clearTimeout(restoreTapTimer);restoreArmed=false;try{let snap=JSON.parse(localStorage.getItem(scopedStorageKey(TABLE_SNAPSHOT_KEY)));state.tables=snap.tables||[];state.refusals=snap.refusals||{};state.history=snap.history||[];(snap.casts||[]).forEach(x=>{let c=state.casts.find(y=>y.id===x.id);if(c){c.currentTable=x.currentTable||null;c.preparingFor=x.preparingFor||null;c.ngTables=x.ngTables||[]}});state=normalize(state);save();render();toast('卓データを復元しました')}catch{toast('卓データを復元できませんでした')}btn.classList.remove('confirming');btn.querySelector('span').textContent='卓データ復元'}
 function openCastManage(){openUtility('キャスト管理',`<div class="info-card">${state.casts.map(c=>`<div class="list-row"><span style="width:5px;height:38px;border-radius:5px;background:${c.team}"></span><div class="list-main"><b>${esc(c.name)}　${c.rank}</b><small>${esc(restrictionsText(c)||'制限なし')}／送り${c.sends}</small></div><button class="icon-btn" data-castedit="${c.id}">編集</button></div>`).join('')||'登録なし'}</div>`);document.querySelectorAll('[data-castedit]').forEach(b=>b.onclick=()=>castForm(state.casts.find(c=>c.id===b.dataset.castedit)))}
 function openCompanionApply(cid){let c=state.casts.find(x=>x.id===cid),tables=state.tables.filter(t=>t.active&&isCompanion(t)&&t.ownerId!==cid&&!(t.seated||[]).includes(cid));if(!tables.length){toast('申告できるお連れ様卓がありません');return}openUtility(c.name+'・回りたい卓',`<div class="notice">回りたいお連れ様卓を登録します。登録後は候補に自動表示され、着席後は候補から外れます。</div><div class="form" style="margin-top:10px">${tables.map(t=>`<label class="switch-row"><span>${esc(t.no)}　担当 ${esc(state.casts.find(x=>x.id===t.ownerId)?.name||'未設定')}<br><small>${esc(companionCategory(c,t)||'未登録')}</small></span><input class="applyComp" type="checkbox" value="${t.id}" ${(t.companionApplicants||[]).includes(cid)?'checked':''}></label>`).join('')}<button class="primary" id="saveCompApply">登録</button></div>`);document.querySelector('#saveCompApply').onclick=()=>{let selected=[...document.querySelectorAll('.applyComp:checked')].map(x=>x.value);tables.forEach(t=>{t.companionApplicants=(t.companionApplicants||[]).filter(id=>id!==cid);if(selected.includes(t.id))t.companionApplicants.push(cid)});save();closeUtility();render();toast('申告を保存しました')}}
 function openCompanionManage(tid){let t=state.tables.find(x=>x.id===tid);if(!t||!isCompanion(t))return;let owner=state.casts.find(c=>c.id===t.ownerId);let sCasts=state.casts.filter(c=>c.working&&c.rank==='S'&&c.id!==t.ownerId);openUtility(t.no+'・お連れ様候補',`<div class="notice">基本候補は「担当指名＋担当と同じチーム」。必要な卓ではSランク全員を幹部候補として一括追加できます。それ以外は申告制です。</div><div class="form" style="margin-top:10px"><div class="info-card"><b>担当</b><p>${esc(owner?.name||'未設定')}</p><b>同チーム候補</b><p>${esc(state.casts.filter(c=>owner&&c.team===owner.team&&c.id!==owner.id&&c.working).map(c=>c.name).join('・')||'なし')}</p><b>Sランク一括候補</b><p>${t.companionIncludeS?esc(sCasts.map(c=>c.name).join('・')||'対象者なし'):'OFF'}</p><b>申告者</b><p>${esc((t.companionApplicants||[]).map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean).join('・')||'なし')}</p></div><label class="switch-row important-switch"><span><b>Sランクをまとめて候補にする</b><br><small>幹部を回してほしい要望がある卓だけON</small></span><input id="compIncludeS" type="checkbox" ${t.companionIncludeS?'checked':''}></label><b>担当指名キャスト</b>${state.casts.filter(c=>c.working&&c.id!==t.ownerId).map(c=>`<label class="switch-row"><span>${esc(c.name)}　${c.rank}${owner&&c.team===owner.team?'（同チーム）':''}${c.rank==='S'&&t.companionIncludeS?'（S一括候補）':''}${(t.companionApplicants||[]).includes(c.id)?'（申告）':''}</span><input class="compPick" type="checkbox" value="${c.id}" ${(t.companionPicks||[]).includes(c.id)?'checked':''}></label>`).join('')}<button class="primary" id="saveCompManage">保存</button></div>`);document.querySelector('#saveCompManage').onclick=()=>{t.companionIncludeS=!!document.querySelector('#compIncludeS')?.checked;t.companionPicks=[...document.querySelectorAll('.compPick:checked')].map(x=>x.value);save();closeUtility();render();toast(t.companionIncludeS?'Sランクを含むお連れ様候補を保存しました':'お連れ様候補を保存しました')}}
@@ -881,7 +942,7 @@ function endBusiness(){
 }
 document.querySelector('#closeSheet').onclick=()=>{document.querySelector('#sheet').classList.add('hidden');selectedCast=selectedTable=null};document.querySelector('#sheet').onclick=e=>{if(e.target.id==='sheet'){e.currentTarget.classList.add('hidden');selectedCast=selectedTable=null}};document.querySelector('#addTable').onclick=()=>openTableModal();document.querySelector('#closeModal').onclick=()=>document.querySelector('#tableModal').classList.add('hidden');(()=>{const saveBtn=document.querySelector('#saveTable');let saving=false;const runSave=(e)=>{if(e){e.preventDefault();e.stopPropagation()}if(saving)return;saving=true;try{saveTable()}catch(err){console.error(err);toast('保存できませんでした：'+(err?.message||'不明なエラー'))}finally{setTimeout(()=>saving=false,250)}};saveBtn.disabled=false;saveBtn.onclick=runSave;saveBtn.addEventListener('pointerup',runSave,{passive:false});})();document.querySelector('#fPlan').onchange=()=>{toggleOwner();document.querySelector('#fNo').value='';document.querySelector('#fCycle').value='180';document.querySelector('#fTarget').value=50;updateTimerPreview()};document.querySelector('#fAutoTimer').onchange=updateTimerPreview;document.querySelector('#fTargetEnabled').onchange=updateTimerPreview;document.querySelector('#fAlertEnabled').onchange=updateTimerPreview;document.querySelector('#fTarget').oninput=updateTimerPreview;document.querySelector('#fCycle').oninput=updateTimerPreview;document.querySelector('#fLead').oninput=updateTimerPreview;document.querySelector('#fRotation').onchange=updateTimerPreview;document.querySelector('#fGuests').onchange=updateTimerPreview;document.querySelector('#closeUtility').onclick=closeUtility;document.querySelector('#utilityModal').onclick=e=>{if(e.target.id==='utilityModal')closeUtility()};
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['home','tables','status','menu'].forEach(p=>document.querySelector('#'+p+'Page').classList.toggle('hidden',p!==b.dataset.page))});
-document.querySelector('#bulkAddCastMenu').onclick=openBulkAdd;document.querySelector('#addCastMenu').onclick=()=>castForm();document.querySelector('#castManageMenu').onclick=openCastManage;document.querySelector('#bulkCastManageMenu').onclick=openBulkManage;document.querySelector('#bulkColorMenu').onclick=openBulkColor;document.querySelector('#castSortMenu').onclick=openCastSort;document.querySelector('#restrictionMenu').onclick=openRestrictions;document.querySelector('#sendingMenu').onclick=openSending;document.querySelector('#summaryMenu').onclick=showBusinessSummary;document.querySelector('#historyMenu').onclick=showHistory;document.querySelector('#backupMenu').onclick=backup;document.querySelector('#importMenu').onclick=()=>document.querySelector('#importInput').click();document.querySelector('#endBusinessMenu').onclick=endBusiness;document.querySelector('#resetTableMenu').onclick=resetTableData;document.querySelector('#restoreTableMenu').onclick=restoreTableData;
+document.querySelector('#testModeMenu').onclick=toggleTestMode;updateTestModeUI();document.querySelector('#bulkAddCastMenu').onclick=openBulkAdd;document.querySelector('#addCastMenu').onclick=()=>castForm();document.querySelector('#castManageMenu').onclick=openCastManage;document.querySelector('#bulkCastManageMenu').onclick=openBulkManage;document.querySelector('#bulkColorMenu').onclick=openBulkColor;document.querySelector('#castSortMenu').onclick=openCastSort;document.querySelector('#restrictionMenu').onclick=openRestrictions;document.querySelector('#sendingMenu').onclick=openSending;document.querySelector('#summaryMenu').onclick=showBusinessSummary;document.querySelector('#historyMenu').onclick=showHistory;document.querySelector('#backupMenu').onclick=backup;document.querySelector('#importMenu').onclick=()=>document.querySelector('#importInput').click();document.querySelector('#endBusinessMenu').onclick=endBusiness;document.querySelector('#resetTableMenu').onclick=resetTableData;document.querySelector('#restoreTableMenu').onclick=restoreTableData;
 document.querySelector('#importInput').onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{state=normalize(JSON.parse(r.result));save();render();toast('データを復元しました')}catch{toast('復元できないファイルです')}};r.readAsText(f);e.target.value=''};
 
 // ===== STEP3 着席システム =====
@@ -1237,7 +1298,7 @@ setTimeout(()=>{document.querySelector('#openIntakeJudge')?.addEventListener('cl
       if(h.cast&&!castIds.has(h.cast)&&!h.castName)issues.push('履歴'+(i+1)+'のキャスト情報が不足');
       if(!h.tableId&&!h.tableNo)issues.push('履歴'+(i+1)+'の卓情報が不足');
     });
-    const storageOk=[ROOT_KEY,CASTS_KEY,TABLES_KEY,OPERATIONS_KEY,HISTORY_KEY,SETTINGS_KEY].every(k=>localStorage.getItem(k)!==null);
+    const storageOk=[ROOT_KEY,CASTS_KEY,TABLES_KEY,OPERATIONS_KEY,HISTORY_KEY,SETTINGS_KEY].every(k=>localStorage.getItem(scopedStorageKey(k))!==null);
     if(!storageOk)issues.push('分離保存キーの一部が未保存');
     const summary=`<div class="info-card"><b>${issues.length?'⚠ 診断で確認事項あり':'✓ 診断正常'}</b><p class="hint">キャスト ${state.casts.length}名／稼働卓 ${activeTables.length}卓／履歴 ${(state.history||[]).length}件</p></div>`;
     const body=issues.length?`<div class="notice">${issues.map(x=>'・'+esc(x)).join('<br>')}</div>`:'<div class="notice" style="border-color:#2f744c;background:#10251a;color:#a9f3c3">保存状態・卓状態・着席状態・履歴の基本整合性に問題は見つかりませんでした。</div>';
@@ -1253,11 +1314,11 @@ setTimeout(()=>{document.querySelector('#openIntakeJudge')?.addEventListener('cl
 const STABLE_RECOVERY_KEY='swamp-flow-v11-stable-recovery';
 let deferredInstallPrompt=null;
 function saveRecoverySnapshot(){
-  try{localStorage.setItem(STABLE_RECOVERY_KEY,JSON.stringify({savedAt:Date.now(),state:state}))}catch(e){}
+  try{localStorage.setItem(scopedStorageKey(STABLE_RECOVERY_KEY),JSON.stringify({savedAt:Date.now(),state:state}))}catch(e){}
 }
 function restoreRecoverySnapshot(){
   try{
-    const raw=localStorage.getItem(STABLE_RECOVERY_KEY);if(!raw)return false;
+    const raw=localStorage.getItem(scopedStorageKey(STABLE_RECOVERY_KEY));if(!raw)return false;
     const snap=JSON.parse(raw);if(!snap?.state)return false;
     if(confirm('前回の自動復旧データがあります。復元しますか？')){
       state=normalize(snap.state);save();render();toast('自動復旧データを復元しました');return true;
@@ -1279,7 +1340,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.55 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.56 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2130,7 +2191,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.55 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.56 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -3365,7 +3426,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
-<!-- SWAMP-FLOW Ver.11.2.55 Stable / FOG-GOALS自動連動 -->
+<!-- SWAMP-FLOW Ver.11.2.56 Stable / FOG-GOALS自動連動 -->
 <script id="v11251-fog-goals-sync">
 (function(){
   'use strict';
@@ -3545,6 +3606,7 @@ header .brand{height:38px !important;min-height:38px !important;}
     const s=loadSession();
     const small=btn.querySelector('small');
     const last=state?.settings?.fogGoalsLastSync;
+    if(TEST_MODE){small.textContent='テスト中は同期しません';return}
     if(s?.access_token){
       small.textContent=last?.businessDate?'連携済み／最終同期 '+last.businessDate:'連携済み';
     }else{
@@ -3640,6 +3702,26 @@ header .brand{height:38px !important;min-height:38px !important;}
   async function runSyncedEndBusiness(skipConfirm=false){
     if(syncing)return;
     if(!legacyEndBusiness){toast('営業終了処理が見つかりません');return}
+    if(TEST_MODE){
+      if(!skipConfirm){
+        const ok=confirm('テストモードの営業を終了しますか？\n\n本番の月間集計・FOG-GOALSには反映されません。');
+        if(!ok)return;
+      }
+      const endedAt=Date.now();
+      const rawSummaryData=businessSummaryData();
+      const summaryData=await reviewDailySummary(rawSummaryData);
+      if(!summaryData)return;
+      const oldConfirm=window.confirm;
+      const oldMonthly=window.addBusinessSummaryToMonthly;
+      window.confirm=()=>true;
+      if(typeof oldMonthly==='function')window.addBusinessSummaryToMonthly=(_raw,ts)=>oldMonthly(summaryData,ts);
+      try{legacyEndBusiness()}finally{
+        window.confirm=oldConfirm;
+        if(typeof oldMonthly==='function')window.addBusinessSummaryToMonthly=oldMonthly;
+      }
+      toast('テスト営業終了：本番には未反映');
+      return;
+    }
     if(!skipConfirm){
       const ok=confirm('営業を終了しますか？\n\nFOG-GOALSへ「アタック・送り・場内」を同期してから営業データをリセットします。\n同期に失敗した場合はリセットしません。');
       if(!ok)return;
@@ -3714,9 +3796,9 @@ header .brand{height:38px !important;min-height:38px !important;}
   }
 
   function installUi(){
-    document.title='SWAMP-FLOW Ver.11.2.55 Stable';
+    document.title='SWAMP-FLOW Ver.11.2.56 Stable';
     const h=document.querySelector('.brand h1');
-    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.55 Stable <span class="stable-badge">STABLE</span>';
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.56 Stable <span class="stable-badge">STABLE</span>';
 
     const endBtn=document.querySelector('#endBusinessMenu');
     if(endBtn)endBtn.onclick=()=>runSyncedEndBusiness(false);
@@ -3734,6 +3816,7 @@ header .brand{height:38px !important;min-height:38px !important;}
       }
     }
     updateLinkButton();
+    updateTestModeUI();
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installUi,{once:true});
@@ -3744,7 +3827,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 
 
 
-<!-- SWAMP-FLOW Ver.11.2.55 / 延長ランキング自動化 -->
+<!-- SWAMP-FLOW Ver.11.2.56 / 延長ランキング自動化 -->
 <script id="v11253-extension-ranking">
 (function(){
   'use strict';
