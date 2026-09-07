@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.57 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.58 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -352,7 +352,7 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 </style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.57 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.58 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <div id="testModeBanner" class="test-mode-banner hidden">🧪 TEST MODE｜本番データ・本番月間集計・FOG-GOALSには反映されません</div>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
@@ -1343,7 +1343,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.57 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.58 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2194,7 +2194,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.57 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.58 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -3429,7 +3429,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
-<!-- SWAMP-FLOW Ver.11.2.57 Stable / FOG-GOALS自動連動 -->
+<!-- SWAMP-FLOW Ver.11.2.58 Stable / FOG-GOALS自動連動 -->
 <script id="v11251-fog-goals-sync">
 (function(){
   'use strict';
@@ -3601,6 +3601,133 @@ header .brand{height:38px !important;min-height:38px !important;}
     }
 
     return{ok:true,date,matched:matched.length,excludedActive};
+  }
+
+  async function runFogGoalsNameCheck(){
+    const checkBtn=document.querySelector('#fogGoalsNameCheckMenu');
+    if(checkBtn)checkBtn.disabled=true;
+    toast('FOG-GOALSと名前を照合中…');
+
+    try{
+      const session=await validSession();
+      if(!session){
+        openUtility('FOG-GOALS 名前照合',
+          '<div class="notice">名前照合にはFOG-GOALSへの連携ログインが必要です。<br><b>照合だけではデータを書き込みません。</b></div>'+ 
+          '<button class="primary" id="fogGoalsNameCheckLogin" style="width:100%;margin-top:10px">FOG-GOALS連携を開く</button>');
+        const loginBtn=document.querySelector('#fogGoalsNameCheckLogin');
+        if(loginBtn)loginBtn.onclick=()=>openFogGoalsLink(false);
+        return;
+      }
+
+      let members;
+      try{
+        members=await rest('members?select=id,name,team_id&is_active=eq.true&order=display_order.asc',{method:'GET'},session);
+      }catch(e){
+        if(e.status===401){
+          saveSession(null);
+          openUtility('FOG-GOALS 名前照合',
+            '<div class="notice" style="border-color:#7b2429;background:#291013;color:#ffd4d7">FOG-GOALSのログイン期限が切れています。</div>'+ 
+            '<button class="primary" id="fogGoalsNameCheckRelogin" style="width:100%;margin-top:10px">もう一度連携ログイン</button>');
+          const relogin=document.querySelector('#fogGoalsNameCheckRelogin');
+          if(relogin)relogin.onclick=()=>openFogGoalsLink(false);
+          return;
+        }
+        throw e;
+      }
+
+      if(!Array.isArray(members))throw new Error('FOG-GOALSのメンバー一覧を取得できませんでした');
+
+      const flowCasts=Array.isArray(state?.casts)?state.casts:[];
+      const flowBuckets=new Map();
+      flowCasts.forEach(c=>{
+        const k=normName(c?.name||'');
+        if(!k)return;
+        if(!flowBuckets.has(k))flowBuckets.set(k,[]);
+        flowBuckets.get(k).push(c);
+      });
+
+      const goalBuckets=new Map();
+      members.forEach(m=>{
+        const k=normName(m?.name||'');
+        if(!k)return;
+        if(!goalBuckets.has(k))goalBuckets.set(k,[]);
+        goalBuckets.get(k).push(m);
+      });
+
+      const goalDuplicates=[...goalBuckets.entries()]
+        .filter(([,rows])=>rows.length>1)
+        .map(([name])=>name);
+      const flowDuplicates=[...flowBuckets.entries()]
+        .filter(([,rows])=>rows.length>1)
+        .map(([name])=>name);
+
+      const matched=[];
+      const goalOnly=[];
+      members.forEach(m=>{
+        const k=normName(m?.name||'');
+        if(k&&flowBuckets.has(k))matched.push(m.name);
+        else goalOnly.push(m?.name||'名前なし');
+      });
+
+      const flowOnly=flowCasts
+        .filter(c=>{
+          const k=normName(c?.name||'');
+          return k&&!goalBuckets.has(k);
+        })
+        .map(c=>c.name);
+
+      const perfect=goalOnly.length===0&&goalDuplicates.length===0&&flowDuplicates.length===0;
+      const uniqueMatched=[...new Set(matched.map(normName))];
+
+      const resultColor=perfect?'#a9f3c3':'#ffd37a';
+      const resultBorder=perfect?'#2f744c':'#7b5a24';
+      const resultBg=perfect?'#10251a':'#2a210f';
+      const headline=perfect
+        ? '✅ FOG-GOALS側の名前はすべてSWAMP-FLOWと一致しています。'
+        : '⚠️ 名前が一致していない項目があります。';
+
+      const matchedHtml=members.length
+        ? members.map(m=>{
+            const ok=flowBuckets.has(normName(m?.name||''));
+            return '<div class="list-row"><div class="list-main"><b>'+(ok?'✅ ':'❌ ')+hEsc(m?.name||'名前なし')+'</b><small>'+(ok?'SWAMP-FLOWと一致':'SWAMP-FLOWに一致する名前なし')+'</small></div></div>';
+          }).join('')
+        : '<p class="hint">FOG-GOALS側に表示できる在籍メンバーがいません。</p>';
+
+      const issueBlocks=[];
+      if(goalOnly.length){
+        issueBlocks.push('<div class="notice" style="margin-top:10px;border-color:#7b2429;background:#291013;color:#ffd4d7"><b>FOG-GOALS → FLOW 不一致 '+goalOnly.length+'名</b><br>'+hEsc(goalOnly.join('・'))+'<br><small>この名前は営業終了同期で一致しません。</small></div>');
+      }
+      if(goalDuplicates.length){
+        issueBlocks.push('<div class="notice" style="margin-top:10px;border-color:#7b2429;background:#291013;color:#ffd4d7"><b>FOG-GOALS側 同名重複</b><br>'+hEsc(goalDuplicates.join('・'))+'</div>');
+      }
+      if(flowDuplicates.length){
+        issueBlocks.push('<div class="notice" style="margin-top:10px;border-color:#7b5a24;background:#2a210f;color:#ffd37a"><b>SWAMP-FLOW側 同名重複</b><br>'+hEsc(flowDuplicates.join('・'))+'</div>');
+      }
+      if(flowOnly.length){
+        issueBlocks.push('<div class="info-card" style="margin-top:10px"><b>SWAMP-FLOWのみ '+flowOnly.length+'名</b><p class="hint">FOG-GOALS未登録、退店扱い、またはこのログイン権限では見えない可能性があります。</p><p>'+hEsc(flowOnly.join('・'))+'</p></div>');
+      }
+
+      openUtility('FOG-GOALS 名前照合',
+        '<div class="notice" style="border-color:'+resultBorder+';background:'+resultBg+';color:'+resultColor+'"><b>'+headline+'</b><br><br>'+ 
+        'FOG-GOALS表示 '+members.length+'名 ／ 一致 '+uniqueMatched.length+'名 ／ 不一致 '+goalOnly.length+'名<br>'+ 
+        '<small>確認のみ。FOG-GOALS・月間集計・営業データへの書き込みはありません。</small></div>'+ 
+        issueBlocks.join('')+
+        '<div class="info-card" style="margin-top:10px"><b>FOG-GOALS登録名の照合結果</b><div style="margin-top:8px;display:grid;gap:6px">'+matchedHtml+'</div></div>'+ 
+        '<button class="secondary" id="fogGoalsNameCheckAgain" style="width:100%;margin-top:10px">もう一度照合</button>');
+
+      const again=document.querySelector('#fogGoalsNameCheckAgain');
+      if(again)again.onclick=()=>runFogGoalsNameCheck();
+      toast(perfect?'名前照合OK':'名前照合：要確認あり');
+    }catch(e){
+      console.error('FOG-GOALS name check error',e);
+      openUtility('FOG-GOALS 名前照合',
+        '<div class="notice" style="border-color:#7b2429;background:#291013;color:#ffd4d7"><b>名前照合に失敗しました。</b><br><br>'+hEsc(e?.message||'不明なエラー')+'</div>'+ 
+        '<button class="secondary" id="fogGoalsNameCheckRetry" style="width:100%;margin-top:10px">再試行</button>');
+      const retry=document.querySelector('#fogGoalsNameCheckRetry');
+      if(retry)retry.onclick=()=>runFogGoalsNameCheck();
+    }finally{
+      if(checkBtn)checkBtn.disabled=false;
+    }
   }
 
   function updateLinkButton(){
@@ -3799,9 +3926,9 @@ header .brand{height:38px !important;min-height:38px !important;}
   }
 
   function installUi(){
-    document.title='SWAMP-FLOW Ver.11.2.57 Stable';
+    document.title='SWAMP-FLOW Ver.11.2.58 Stable';
     const h=document.querySelector('.brand h1');
-    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.57 Stable <span class="stable-badge">STABLE</span>';
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.58 Stable <span class="stable-badge">STABLE</span>';
 
     const endBtn=document.querySelector('#endBusinessMenu');
     if(endBtn)endBtn.onclick=()=>runSyncedEndBusiness(false);
@@ -3818,6 +3945,18 @@ header .brand{height:38px !important;min-height:38px !important;}
         btn.onclick=()=>openFogGoalsLink(false);
       }
     }
+    if(!document.querySelector('#fogGoalsNameCheckMenu')){
+      const diagnostic=document.querySelector('#diagnosticMenu');
+      const grid=diagnostic?.parentElement;
+      if(grid){
+        const btn=document.createElement('button');
+        btn.id='fogGoalsNameCheckMenu';
+        btn.className='full';
+        btn.innerHTML='<span>FOG-GOALS名前照合</span><small>書き込みなしでキャスト名を確認</small>';
+        grid.insertBefore(btn,diagnostic);
+        btn.onclick=()=>runFogGoalsNameCheck();
+      }
+    }
     updateLinkButton();
     updateTestModeUI();
   }
@@ -3830,7 +3969,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 
 
 
-<!-- SWAMP-FLOW Ver.11.2.57 / 延長ランキング自動化 -->
+<!-- SWAMP-FLOW Ver.11.2.58 / 延長ランキング自動化 -->
 <script id="v11253-extension-ranking">
 (function(){
   'use strict';
@@ -3916,7 +4055,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 
 
 
-<!-- SWAMP-FLOW Ver.11.2.57 / キャスト管理入口統合 -->
+<!-- SWAMP-FLOW Ver.11.2.58 / キャスト管理入口統合 -->
 <script id="v11257-cast-management-hub">
 (function(){
   'use strict';
