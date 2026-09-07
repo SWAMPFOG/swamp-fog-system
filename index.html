@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.56 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.57 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -352,7 +352,7 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 </style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.56 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.57 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <div id="testModeBanner" class="test-mode-banner hidden">🧪 TEST MODE｜本番データ・本番月間集計・FOG-GOALSには反映されません</div>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
@@ -369,9 +369,12 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 <button id="intakeJudgeMenu" class="priority-menu"><span>初回受入判断</span><small>受付可能・注意・制限推奨</small></button><button id="companionOverviewMenu" class="priority-menu"><span>お連れ様候補</span><small>担当・チーム・Sランク・申告者を管理</small></button><button id="summaryMenu" class="priority-menu"><span>営業集計</span><small>誰が何卓着いたか確認</small></button><button id="monthlySummaryMenu" class="priority-menu"><span>月間集計</span><small>月別実績の入力・編集・確認</small></button><button id="historyMenu"><span>着席履歴</span></button><button id="endBusinessMenu" class="danger-menu"><span>営業終了</span></button>
 </div></div>
 <div class="menu-section"><h3>キャスト管理</h3><div class="menu-grid">
+<button id="castHubMenu" class="full"><span>キャスト管理</span><small>追加・編集・一括管理・色・並び替え</small></button>
+<div style="display:none">
 <button id="addCastMenu"><span>キャスト追加</span></button><button id="bulkAddCastMenu"><span>キャストまとめて追加</span></button>
 <button id="castManageMenu"><span>キャスト管理</span></button><button id="bulkCastManageMenu"><span>キャストまとめて管理</span></button>
 <button id="bulkColorMenu"><span>キャスト色一括管理</span></button><button id="castSortMenu"><span>キャスト一括並び替え</span></button>
+</div>
 </div></div>
 <div class="menu-section"><h3>データ管理</h3><div class="menu-grid">
 <button id="backupMenu"><span>バックアップ</span></button><button id="importMenu"><span>データ復元</span></button>
@@ -1340,7 +1343,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.56 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.57 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2191,7 +2194,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.56 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.57 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -3426,7 +3429,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
-<!-- SWAMP-FLOW Ver.11.2.56 Stable / FOG-GOALS自動連動 -->
+<!-- SWAMP-FLOW Ver.11.2.57 Stable / FOG-GOALS自動連動 -->
 <script id="v11251-fog-goals-sync">
 (function(){
   'use strict';
@@ -3796,9 +3799,9 @@ header .brand{height:38px !important;min-height:38px !important;}
   }
 
   function installUi(){
-    document.title='SWAMP-FLOW Ver.11.2.56 Stable';
+    document.title='SWAMP-FLOW Ver.11.2.57 Stable';
     const h=document.querySelector('.brand h1');
-    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.56 Stable <span class="stable-badge">STABLE</span>';
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.57 Stable <span class="stable-badge">STABLE</span>';
 
     const endBtn=document.querySelector('#endBusinessMenu');
     if(endBtn)endBtn.onclick=()=>runSyncedEndBusiness(false);
@@ -3827,7 +3830,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 
 
 
-<!-- SWAMP-FLOW Ver.11.2.56 / 延長ランキング自動化 -->
+<!-- SWAMP-FLOW Ver.11.2.57 / 延長ランキング自動化 -->
 <script id="v11253-extension-ranking">
 (function(){
   'use strict';
@@ -3908,6 +3911,38 @@ header .brand{height:38px !important;min-height:38px !important;}
   applyBaselineOnce();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addRankingButton,{once:true}); else addRankingButton();
   setTimeout(addRankingButton,100);
+})();
+</script>
+
+
+
+<!-- SWAMP-FLOW Ver.11.2.57 / キャスト管理入口統合 -->
+<script id="v11257-cast-management-hub">
+(function(){
+  'use strict';
+  function openCastManagementHub(){
+    openUtility('キャスト管理',`
+      <div class="notice">キャスト関連の操作をここにまとめました。機能自体は従来のままです。</div>
+      <div class="menu-grid" style="margin-top:10px">
+        <button id="hubAddCast"><span>キャスト追加</span><small>1名追加</small></button>
+        <button id="hubBulkAdd"><span>まとめて追加</span><small>複数名を一括追加</small></button>
+        <button id="hubEditCast"><span>キャスト編集</span><small>個別編集・削除</small></button>
+        <button id="hubBulkManage"><span>まとめて管理</span><small>出勤・ランク・削除</small></button>
+        <button id="hubColor"><span>色一括管理</span><small>チーム色をまとめて変更</small></button>
+        <button id="hubSort"><span>並び替え</span><small>表示順を変更</small></button>
+      </div>`);
+    document.querySelector('#hubAddCast').onclick=()=>castForm();
+    document.querySelector('#hubBulkAdd').onclick=openBulkAdd;
+    document.querySelector('#hubEditCast').onclick=openCastManage;
+    document.querySelector('#hubBulkManage').onclick=openBulkManage;
+    document.querySelector('#hubColor').onclick=openBulkColor;
+    document.querySelector('#hubSort').onclick=openCastSort;
+  }
+  function install(){
+    const btn=document.querySelector('#castHubMenu');
+    if(btn)btn.onclick=openCastManagementHub;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true}); else install();
 })();
 </script>
 
