@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.59 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.60 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -352,7 +352,7 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 </style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.59 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.60 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <div id="testModeBanner" class="test-mode-banner hidden">🧪 TEST MODE｜本番データ・本番月間集計・FOG-GOALSには反映されません</div>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
@@ -848,14 +848,14 @@ function businessSummaryData(){
     const sessions=[...new Map(hs.map(h=>[h.table||h.tableId||((h.tableNo||'卓')+'|'+h.at),h.tableNo||tableNo(h.table)||'卓'])).entries()];
     const tables=sessions.map(x=>x[1]);
     const attackCount=hs.length;
-    const extensionRate=attackCount>0?(extensionCount/attackCount*100):0;
+    const extensionRate=sendCount>0?(extensionCount/sendCount*100):0;
     return{c,tableCount:sessions.length,seatCount:hs.length,attackCount,sendCount,extensionCount,extensionRate,tables};
   }).sort((a,b)=>b.attackCount-a.attackCount||b.extensionCount-a.extensionCount||b.sendCount-a.sendCount||b.tableCount-a.tableCount||(a.c.order??0)-(b.c.order??0));
   const totalTables=new Set(seats.map(h=>h.table||h.tableId||((h.tableNo||'卓')+'|'+h.at))).size;
   const totalSeats=seats.length;
   const totalSends=sends.length;
   const totalExtensions=extensions.length;
-  const totalExtensionRate=totalSeats>0?(totalExtensions/totalSeats*100):0;
+  const totalExtensionRate=totalSends>0?(totalExtensions/totalSends*100):0;
   return{rows,totalTables,totalSeats,totalSends,totalExtensions,totalExtensionRate};
 }
 function pct(v){return Number.isFinite(v)?(Math.round(v*10)/10).toFixed(v%1?1:0):'0'}
@@ -881,7 +881,7 @@ function businessSummaryText(){
 async function copyBusinessSummary(){let text=businessSummaryText();try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text)}else{let ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');ta.remove()}toast('営業集計をコピーしました')}catch(e){openUtility('LINE用営業集計',`<div class="notice">長押ししてコピーしてください。</div><textarea style="width:100%;min-height:55vh;margin-top:10px">${esc(text)}</textarea>`)}}
 function showBusinessSummary(){
   let d=businessSummaryData();
-  openUtility('営業集計',`<div class="notice">アタック＝着席回数。場内数は「場内中」をOFF→ONにした時点で延長成立として1件自動記録します。場内率＝場内数÷アタック数×100です。</div>
+  openUtility('営業集計',`<div class="notice">アタック＝着席回数。場内数は「場内中」をOFF→ONにした時点で延長成立として1件自動記録します。場内率＝場内数÷送り数×100です。</div>
   <div class="row" style="margin-top:10px">
     <div class="info-card" style="text-align:center"><small>アタック</small><div style="font-size:25px;font-weight:950">${d.totalSeats}</div></div>
     <div class="info-card" style="text-align:center"><small>送り</small><div style="font-size:25px;font-weight:950">${d.totalSends}</div></div>
@@ -1343,7 +1343,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.59 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.60 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2194,7 +2194,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.59 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.60 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -2258,7 +2258,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
     return month.casts[c.id];
   }
   function n(v){return Math.max(0,Number(v)||0)}
-  function rate(row){return row.attack>0?(row.extension/row.attack*100):0}
+  function rate(row){return row.send>0?(row.extension/row.send*100):0}
   function rateText(v){
     const x=Math.round((Number(v)||0)*10)/10;
     return (Number.isInteger(x)?x.toFixed(0):x.toFixed(1))+'%';
@@ -2295,8 +2295,8 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   function monthlyRankedRows(key){
     return state.casts.map(c=>({c,r:ensureMonthlyCast(key,c)}))
       .sort((a,b)=>{
-        const rateA=n(a.r.attack)>0?n(a.r.extension)/n(a.r.attack):0;
-        const rateB=n(b.r.attack)>0?n(b.r.extension)/n(b.r.attack):0;
+        const rateA=n(a.r.send)>0?n(a.r.extension)/n(a.r.send):0;
+        const rateB=n(b.r.send)>0?n(b.r.extension)/n(b.r.send):0;
         return rateB-rateA || n(b.r.attack)-n(a.r.attack) || (a.c.order??0)-(b.c.order??0);
       });
   }
@@ -2325,7 +2325,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
     Object.values(month.casts||{}).forEach(r=>{
       attack+=n(r.attack); send+=n(r.send); extension+=n(r.extension);
     });
-    return {attack,send,extension,rate:attack>0?extension/attack*100:0};
+    return {attack,send,extension,rate:send>0?extension/send*100:0};
   }
 
   function updateMonthlyTotals(key){
@@ -2405,7 +2405,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
       </div>
       <div class="monthly-grid">${monthlyRowsHtml(key)}</div>
       <div class="notice" style="margin-top:10px">
-        ※ 場内率は「場内数 ÷ アタック数 × 100」で自動計算します。<br>
+        ※ 場内率は「場内数 ÷ 送り数 × 100」で自動計算します。<br>
         ※ 手入力した数字は月間累計の基準値として扱い、その後の営業終了分が自動で加算されます。
       </div>
     `);
@@ -3429,7 +3429,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
-<!-- SWAMP-FLOW Ver.11.2.59 Stable / FOG-GOALS自動連動 -->
+<!-- SWAMP-FLOW Ver.11.2.60 Stable / FOG-GOALS自動連動 -->
 <script id="v11251-fog-goals-sync">
 (function(){
   'use strict';
@@ -3820,8 +3820,8 @@ header .brand{height:38px !important;min-height:38px !important;}
         out.totalSeats=rows.reduce((a,r)=>a+r.attackCount,0);
         out.totalSends=rows.reduce((a,r)=>a+r.sendCount,0);
         out.totalExtensions=rows.reduce((a,r)=>a+r.extensionCount,0);
-        out.totalExtensionRate=out.totalSeats?out.totalExtensions/out.totalSeats*100:0;
-        rows.forEach(r=>r.extensionRate=r.attackCount?r.extensionCount/r.attackCount*100:0);
+        out.totalExtensionRate=out.totalSends?out.totalExtensions/out.totalSends*100:0;
+        rows.forEach(r=>r.extensionRate=r.sendCount?r.extensionCount/r.sendCount*100:0);
         closeUtility();resolve(out);
       };
     });
@@ -3926,9 +3926,9 @@ header .brand{height:38px !important;min-height:38px !important;}
   }
 
   function installUi(){
-    document.title='SWAMP-FLOW Ver.11.2.59 Stable';
+    document.title='SWAMP-FLOW Ver.11.2.60 Stable';
     const h=document.querySelector('.brand h1');
-    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.59 Stable <span class="stable-badge">STABLE</span>';
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.60 Stable <span class="stable-badge">STABLE</span>';
 
     const endBtn=document.querySelector('#endBusinessMenu');
     if(endBtn)endBtn.onclick=()=>runSyncedEndBusiness(false);
@@ -3969,7 +3969,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 
 
 
-<!-- SWAMP-FLOW Ver.11.2.59 / 延長ランキング自動化 -->
+<!-- SWAMP-FLOW Ver.11.2.60 / 延長ランキング自動化 -->
 <script id="v11253-extension-ranking">
 (function(){
   'use strict';
@@ -4055,7 +4055,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 
 
 
-<!-- SWAMP-FLOW Ver.11.2.59 / キャスト管理入口統合 -->
+<!-- SWAMP-FLOW Ver.11.2.60 / キャスト管理入口統合 -->
 <script id="v11257-cast-management-hub">
 (function(){
   'use strict';
@@ -4086,7 +4086,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
-<!-- SWAMP-FLOW Ver.11.2.59 / デバイス間リアルタイム共有 -->
+<!-- SWAMP-FLOW Ver.11.2.60 / デバイス間リアルタイム共有 -->
 <script id="v11259-device-realtime-sync">
 (function(){
   'use strict';
@@ -4264,7 +4264,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 
   async function patchRow(session,expectedRevision,nextState){
     const body={
-      payload:{schema:'11.2.59',state:nextState,pushed_at:new Date().toISOString(),device_id:deviceId},
+      payload:{schema:'11.2.60',state:nextState,pushed_at:new Date().toISOString(),device_id:deviceId},
       revision:Number(expectedRevision)+1,
       updated_at:new Date().toISOString(),
       updated_by:jwtSub(session.access_token)
@@ -4426,9 +4426,9 @@ header .brand{height:38px !important;min-height:38px !important;}
     if(btn)btn.onclick=async()=>{btn.disabled=true;await poll();if(!pushInFlight&&!pushTimer)schedulePush(0);setTimeout(()=>{btn.disabled=false;updateSyncUi()},500)};
   }
   function installSyncUi(){
-    document.title='SWAMP-FLOW Ver.11.2.59 Stable';
+    document.title='SWAMP-FLOW Ver.11.2.60 Stable';
     const h=document.querySelector('.brand h1');
-    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.59 Stable <span class="stable-badge">STABLE</span>';
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.60 Stable <span class="stable-badge">STABLE</span>';
     if(!document.querySelector('#deviceSyncMenu')){
       const diagnostic=document.querySelector('#diagnosticMenu');
       const grid=diagnostic?.parentElement;
@@ -4450,4 +4450,5 @@ header .brand{height:38px !important;min-height:38px !important;}
 
 </script>
 
+<!-- SWAMP-FLOW Ver.11.2.60 / 場内率計算修正：場内÷送り -->
 </body></html>
