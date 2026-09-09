@@ -9,14 +9,14 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.62 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.63 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
-header{position:sticky;top:0;z-index:20;background:rgba(9,10,12,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 14px 10px}.brand{display:flex;align-items:center;justify-content:space-between}.brand h1{font-size:17px;margin:0;letter-spacing:.08em}.clock{font-size:12px;color:var(--muted)}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.metric{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:7px;text-align:center}.metric b{display:block;font-size:16px}.metric small{color:var(--muted);font-size:10px}
+header{position:sticky;top:0;z-index:20;background:#090a0c;border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 14px 10px}.brand{display:flex;align-items:center;justify-content:space-between}.brand h1{font-size:17px;margin:0;letter-spacing:.08em}.clock{font-size:12px;color:var(--muted)}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.metric{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:7px;text-align:center}.metric b{display:block;font-size:16px}.metric small{color:var(--muted);font-size:10px}
 .alerts{padding:10px 12px 2px}.alert-title{font-size:12px;color:var(--muted);margin:0 2px 7px}.alert-strip{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}.alert-strip::-webkit-scrollbar{display:none}.alert-card{min-width:170px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:left}.alert-card.find{border-color:#355e86;background:#101d2a}.alert-card.prepare{border-color:#765f1a;background:#211d10}.alert-card.urgent{border-color:#8a4d18;background:#28170d}.alert-card.over{border-color:#7b2429;background:#291013;animation:pulse 1.2s infinite}.alert-top{display:flex;justify-content:space-between;align-items:center}.alert-table{font-weight:800;font-size:17px}.alert-plan{font-size:11px;padding:3px 6px;border-radius:999px;background:#ffffff16}.alert-time{font-size:25px;font-variant-numeric:tabular-nums;font-weight:900;margin:6px 0 2px}.alert-next{font-size:11px;color:#d4d7dc}.swap-now{width:100%;margin-top:8px;padding:8px 10px;border-radius:9px;background:#b52b34;color:#fff;font-size:12px;font-weight:900}.swap-flow{font-size:11px;color:#ffd4d7;margin-top:5px}@keyframes pulse{50%{box-shadow:0 0 0 3px #ff5e6830}}
 main{padding:8px 12px 22px}.section-head{display:flex;justify-content:space-between;align-items:center;margin:12px 2px 7px}.section-head h2{font-size:13px;margin:0;color:#dfe2e7}.section-head span{font-size:11px;color:var(--muted)}.rank{margin-bottom:12px}.cast-list{display:grid;gap:7px}.cast{width:100%;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:11px 12px;text-align:left;position:relative;overflow:hidden}.cast::before{content:"";width:4px;align-self:stretch;border-radius:4px;background:var(--team,#666)}.cast-main{min-width:0;flex:1}.cast-name{font-weight:800;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cast-sub{font-size:11px;color:var(--muted);margin-top:2px}.cast-state{font-size:12px;font-weight:800;padding:6px 8px;border-radius:999px;background:#ffffff10;white-space:nowrap}.cast.available .cast-state{color:var(--green);background:#56e58e15}.cast.seated .cast-state{color:var(--blue);background:#68b4ff15}.cast.preparing .cast-state{color:var(--yellow);background:#ffd25718}.cast.done,.cast.blocked{opacity:.42}.cast.done .cast-state{color:#d6d6d6}.cast.blocked .cast-state{color:var(--red)}
-nav{position:fixed;bottom:0;left:0;right:0;z-index:40;height:calc(var(--nav) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:grid;grid-template-columns:repeat(4,1fr);background:rgba(16,17,20,.97);border-top:1px solid var(--line);backdrop-filter:blur(16px)}nav button{background:transparent;color:var(--muted);font-size:11px;font-weight:700}nav button.active{color:#fff}nav b{display:block;font-size:20px;margin-bottom:2px}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:40;height:calc(var(--nav) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:grid;grid-template-columns:repeat(4,1fr);background:#101114;border-top:1px solid var(--line)}nav button{background:transparent;color:var(--muted);font-size:11px;font-weight:700}nav button.active{color:#fff}nav b{display:block;font-size:20px;margin-bottom:2px}
 .sheet{position:fixed;inset:0;z-index:60;background:#0008;display:flex;align-items:flex-end}.sheet-panel{width:100%;max-height:88vh;overflow:auto;background:#111318;border-radius:22px 22px 0 0;border-top:1px solid #343943;padding:10px 12px calc(18px + env(safe-area-inset-bottom))}.handle{width:44px;height:4px;background:#4a4f58;border-radius:4px;margin:0 auto 12px}.sheet-head{display:flex;justify-content:space-between;align-items:center}.sheet-head h3{margin:0;font-size:17px}.close{width:34px;height:34px;border-radius:50%;background:#ffffff10}.hint{font-size:11px;color:var(--muted);margin:6px 0 12px}.table-scroll{display:flex;gap:9px;overflow-x:auto;padding:2px 1px 10px;scroll-snap-type:x proximity}.table-card{position:relative;min-width:148px;scroll-snap-align:start;background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:11px;text-align:left}.table-card.selected{border-color:var(--blue);background:#132339}.table-card.refused{border-color:#6d282e;background:#261114;opacity:.72}.table-line{display:flex;justify-content:space-between;align-items:center}.table-no{font-size:22px;font-weight:900}.plan{font-size:12px;font-weight:800;background:#ffffff12;padding:4px 7px;border-radius:8px}.entry{font-size:12px;color:#c7cbd2;margin-top:8px}.t-time{font-size:25px;font-weight:900;font-variant-numeric:tabular-nums;margin:7px 0 2px}.meta{font-size:11px;color:var(--muted);line-height:1.5}.reason{font-size:11px;color:#ffe39c;margin-top:7px;min-height:30px}.refuse{width:100%;margin-top:9px;padding:8px;border-radius:9px;background:#4b1b20;color:#ffabb0;font-size:11px;font-weight:800}.tap-note{position:absolute;inset:auto 8px 8px 8px;text-align:center;background:#68b4ff;color:#071523;border-radius:8px;padding:6px;font-size:11px;font-weight:900}.table-candidate-list{display:flex;flex-direction:column;gap:8px;padding-bottom:8px}.table-candidate{width:100%;display:flex;align-items:center;gap:10px;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:11px;text-align:left}.table-candidate.preparing{border-color:#e7bb43;background:#211d10}.table-candidate.blocked{opacity:.55}.table-candidate .rank-chip{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:#ffffff12;font-weight:900}.table-candidate .candidate-main{flex:1;min-width:0}.table-candidate .candidate-name{font-weight:900;font-size:16px}.table-candidate .candidate-reason{font-size:11px;color:var(--muted);margin-top:3px}.table-candidate .candidate-state{font-size:11px;font-weight:900}.table-sheet-actions{position:sticky;bottom:0;background:#111318;padding-top:8px}.table-sheet-actions button{width:100%;margin-top:7px}.selected-count{font-size:12px;color:#ffd86b;text-align:center;font-weight:900;margin:4px 0}.reject-mini{padding:7px 9px;border-radius:8px;background:#4b1b20;color:#ffabb0;font-size:10px;font-weight:900;flex:none}.toast{position:fixed;z-index:100;left:50%;bottom:calc(var(--nav) + 18px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#f6f7f9;color:#101216;border-radius:999px;padding:9px 14px;font-size:12px;font-weight:800;box-shadow:0 8px 30px #0008;max-width:88%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .page{padding:10px 12px}.page h2{font-size:17px}.table-list{display:grid;gap:9px}.info-card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:12px}.info-top{display:flex;justify-content:space-between;align-items:center}.info-top strong{font-size:18px}.mini-actions{display:flex;gap:7px;margin-top:10px}.mini-actions button,.primary,.secondary,.danger{padding:10px 12px;border-radius:10px;font-weight:800}.primary{background:var(--blue);color:#08131d}.secondary{background:#ffffff12}.danger{background:#4b1b20;color:#ffabb0}.form{display:grid;gap:9px}.form label{font-size:11px;color:var(--muted)}.form input,.form select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fab{position:fixed;right:16px;bottom:calc(var(--nav) + 16px + env(safe-area-inset-bottom));width:54px;height:54px;border-radius:50%;background:var(--blue);color:#07131e;font-size:28px;font-weight:500;box-shadow:0 8px 24px #0009}
 
@@ -352,7 +352,7 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 </style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.62 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.63 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <div id="testModeBanner" class="test-mode-banner hidden">🧪 TEST MODE｜本番データ・本番月間集計・FOG-GOALSには反映されません</div>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
@@ -460,7 +460,7 @@ function persistSplit(s,reason='save'){
   localStorage.setItem(scopedStorageKey(SETTINGS_KEY),JSON.stringify(p.settings));
   localStorage.setItem(scopedStorageKey(ROOT_KEY),JSON.stringify({schemaVersion:SCHEMA_VERSION,updatedAt:Date.now(),reason}));
 }
-function save(){persistSplit(state);if(typeof window.flowCloudSchedulePush==='function')window.flowCloudSchedulePush()}
+function save(){persistSplit(state)}
 function makeFreshTestState(base){
   const t=normalize(clone(base||sample));
   t.tables=[];t.refusals={};t.history=[];
@@ -1057,12 +1057,32 @@ function updateLiveOnly(){
     }
   });
 }
-setInterval(()=>{
+let liveTickTimer=null;
+function runLiveTick(){
   processAutoSwaps();
   const changed=processPendingGroups();
   if(!changed)updateLiveOnly();
-},1000);
+}
+function startLiveTick(){
+  if(liveTickTimer||document.hidden)return;
+  liveTickTimer=setInterval(runLiveTick,1000);
+}
+function stopLiveTick(){
+  if(!liveTickTimer)return;
+  clearInterval(liveTickTimer);
+  liveTickTimer=null;
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    stopLiveTick();
+  }else{
+    try{render()}catch{}
+    runLiveTick();
+    startLiveTick();
+  }
+});
 render();
+startLiveTick();
 </script>
 
 <style>
@@ -1343,7 +1363,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.62 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.63 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -1638,7 +1658,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 
 <!-- Ver.11.2.17: 全卓タイマー一覧 -->
 <style>
-.all-timers-wrap{position:sticky;top:70px;z-index:34;background:rgba(9,10,12,.97);border-bottom:1px solid var(--line);padding:7px 0 8px;backdrop-filter:blur(12px)}
+.all-timers-wrap{position:sticky;top:70px;z-index:34;background:#090a0c;border-bottom:1px solid var(--line);padding:7px 0 8px}
 .all-timers-title{display:flex;align-items:center;justify-content:space-between;padding:0 11px 6px;gap:10px}.all-timers-title b{font-size:13px}.all-timers-title span{font-size:9px;color:var(--muted)}
 .all-timers-bar{display:flex;gap:7px;overflow-x:auto;padding:0 10px 2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x}.all-timers-bar::-webkit-scrollbar{display:none}
 .all-timer-chip{flex:0 0 auto;min-width:92px;max-width:128px;border:1px solid var(--line);background:#15191f;border-radius:12px;padding:7px 9px;text-align:left;box-shadow:0 2px 8px #0003}
@@ -2194,7 +2214,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.62 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.63 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -3324,7 +3344,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 #undoLastTableEndBtn.show{display:flex}
 </style>
 <button type="button" id="undoLastTableEndBtn">直前の卓終了を取消</button>
-<!-- SWAMP-FLOW Ver.11.2.62 / 直前卓終了取消をメニュー内へ移動 -->
+<!-- SWAMP-FLOW Ver.11.2.63 / 直前卓終了取消をメニュー内へ移動 -->
 <script id="v11262-undo-table-end">
 (function(){
  let lastEnd=null;
@@ -3432,16 +3452,11 @@ header .brand{height:38px !important;min-height:38px !important;}
     if(e.target && e.target.id==='fNoSelect') reorderAllTableOptions();
   });
 
-  const observer=new MutationObserver(()=>{
-    const sel=document.querySelector('#fNoSelect');
-    if(sel) setTimeout(reorderAllTableOptions,0);
-  });
-  observer.observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 
 
-<!-- SWAMP-FLOW Ver.11.2.62 Stable / FOG-GOALS自動連動 -->
+<!-- SWAMP-FLOW Ver.11.2.63 Stable / FOG-GOALS自動連動 -->
 <script id="v11251-fog-goals-sync">
 (function(){
   'use strict';
@@ -3938,9 +3953,9 @@ header .brand{height:38px !important;min-height:38px !important;}
   }
 
   function installUi(){
-    document.title='SWAMP-FLOW Ver.11.2.62 Stable';
+    document.title='SWAMP-FLOW Ver.11.2.63 Stable';
     const h=document.querySelector('.brand h1');
-    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.62 Stable <span class="stable-badge">STABLE</span>';
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.63 Stable <span class="stable-badge">STABLE</span>';
 
     const endBtn=document.querySelector('#endBusinessMenu');
     if(endBtn)endBtn.onclick=()=>runSyncedEndBusiness(false);
@@ -3981,7 +3996,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 
 
 
-<!-- SWAMP-FLOW Ver.11.2.62 / 延長ランキング自動化 -->
+<!-- SWAMP-FLOW Ver.11.2.63 / 延長ランキング自動化 -->
 <script id="v11253-extension-ranking">
 (function(){
   'use strict';
@@ -4067,7 +4082,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 
 
 
-<!-- SWAMP-FLOW Ver.11.2.62 / キャスト管理入口統合 -->
+<!-- SWAMP-FLOW Ver.11.2.63 / キャスト管理入口統合 -->
 <script id="v11257-cast-management-hub">
 (function(){
   'use strict';
@@ -4098,371 +4113,9 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
-<!-- SWAMP-FLOW Ver.11.2.62 / デバイス間リアルタイム共有 -->
-<script id="v11259-device-realtime-sync">
-(function(){
-  'use strict';
+<!-- Ver.11.2.63 軽量化：デバイス間リアルタイム共有を停止 -->
+<!-- SWAMP-FLOW Ver.11.2.63 / 場内率計算修正：場内÷送り -->
 
-  const FLOW_CLOUD_URL='https://sffzcooyulzjrxkxvcrx.supabase.co';
-  const FLOW_CLOUD_KEY='sb_publishable_3cmJ6BW-qBh6N3ThfwebJA_iw9tR_cP';
-  const FLOW_CLOUD_ROW='swamp-fog-production';
-  const FLOW_SESSION_KEY='swamp-flow-fog-goals-session-v1';
-  const DEVICE_KEY='swamp-flow-device-id-v1';
-  const PUSH_DEBOUNCE_MS=140;
-  const POLL_MS=2500;
-
-  let deviceId=localStorage.getItem(DEVICE_KEY)||'';
-  if(!deviceId){
-    deviceId='dev-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);
-    localStorage.setItem(DEVICE_KEY,deviceId);
-  }
-
-  let lastRevision=-1;
-  let lastSyncedState=null;
-  let lastUpdatedAt='';
-  let pushTimer=null;
-  let pushInFlight=false;
-  let pushAgain=false;
-  let dirtyGeneration=0;
-  let initialized=false;
-  let realtimeClient=null;
-  let realtimeChannel=null;
-  let realtimeStarting=false;
-  let statusText='準備中';
-  let lastError='';
-
-  function cloudClone(v){return JSON.parse(JSON.stringify(v))}
-  function cloudEq(a,b){try{return JSON.stringify(a)===JSON.stringify(b)}catch{return false}}
-  function isObj(v){return !!v&&typeof v==='object'&&!Array.isArray(v)}
-  function currentState(){try{return cloudClone(state)}catch{return null}}
-  function normCloudState(v){try{return normalize(cloudClone(v))}catch{return v}}
-
-  function historyMerge(base,local,remote){
-    const bs=new Set((Array.isArray(base)?base:[]).map(x=>JSON.stringify(x)));
-    const ls=new Set((Array.isArray(local)?local:[]).map(x=>JSON.stringify(x)));
-    const removed=new Set([...bs].filter(x=>!ls.has(x)));
-    const out=[];
-    const seen=new Set();
-    (Array.isArray(remote)?remote:[]).forEach(x=>{
-      const k=JSON.stringify(x);
-      if(removed.has(k)||seen.has(k))return;
-      seen.add(k);out.push(cloudClone(x));
-    });
-    (Array.isArray(local)?local:[]).forEach(x=>{
-      const k=JSON.stringify(x);
-      if(seen.has(k))return;
-      seen.add(k);out.push(cloudClone(x));
-    });
-    out.sort((a,b)=>(Number(a?.at)||0)-(Number(b?.at)||0));
-    return out;
-  }
-
-  function entityArrayMerge(base,local,remote,path){
-    const bm=new Map((Array.isArray(base)?base:[]).map(x=>[String(x?.id||''),x]));
-    const lm=new Map((Array.isArray(local)?local:[]).map(x=>[String(x?.id||''),x]));
-    const rm=new Map((Array.isArray(remote)?remote:[]).map(x=>[String(x?.id||''),x]));
-    const ids=[...new Set([...bm.keys(),...lm.keys(),...rm.keys()])].filter(Boolean);
-    const out=[];
-    ids.forEach(id=>{
-      const b=bm.get(id),l=lm.get(id),r=rm.get(id);
-      if(b!==undefined&&l===undefined)return;
-      if(l===undefined&&b===undefined){if(r!==undefined)out.push(cloudClone(r));return}
-      if(r===undefined&&b!==undefined&&l!==undefined){out.push(cloudClone(l));return}
-      if(b===undefined&&l!==undefined&&r===undefined){out.push(cloudClone(l));return}
-      if(b===undefined&&l!==undefined&&r!==undefined){out.push(threeWayMerge({},l,r,path+'.'+id));return}
-      out.push(threeWayMerge(b,l,r,path+'.'+id));
-    });
-    const order=(Array.isArray(remote)?remote:[]).map(x=>String(x?.id||''));
-    const localOrder=(Array.isArray(local)?local:[]).map(x=>String(x?.id||''));
-    out.sort((a,b)=>{
-      const ai=localOrder.indexOf(String(a.id)),bi=localOrder.indexOf(String(b.id));
-      if(ai>=0&&bi>=0)return ai-bi;
-      const ar=order.indexOf(String(a.id)),br=order.indexOf(String(b.id));
-      return (ar<0?9999:ar)-(br<0?9999:br);
-    });
-    return out;
-  }
-
-  function threeWayMerge(base,local,remote,path=''){
-    if(cloudEq(local,base))return cloudClone(remote);
-    if(cloudEq(remote,base))return cloudClone(local);
-    if(path==='casts'||path==='tables')return entityArrayMerge(base,local,remote,path);
-    if(path==='history')return historyMerge(base,local,remote);
-    if(isObj(base)||isObj(local)||isObj(remote)){
-      const b=isObj(base)?base:{},l=isObj(local)?local:{},r=isObj(remote)?remote:{};
-      const out={};
-      const keys=new Set([...Object.keys(b),...Object.keys(l),...Object.keys(r)]);
-      keys.forEach(k=>{
-        const hasB=Object.prototype.hasOwnProperty.call(b,k);
-        const hasL=Object.prototype.hasOwnProperty.call(l,k);
-        const hasR=Object.prototype.hasOwnProperty.call(r,k);
-        if(hasB&&!hasL)return;
-        if(!hasL&&!hasB){if(hasR)out[k]=cloudClone(r[k]);return}
-        if(hasL&&!hasR&&hasB){out[k]=cloudClone(l[k]);return}
-        if(hasL&&!hasB&&!hasR){out[k]=cloudClone(l[k]);return}
-        out[k]=threeWayMerge(hasB?b[k]:undefined,l[k],hasR?r[k]:undefined,path?path+'.'+k:k);
-      });
-      return out;
-    }
-    return cloudClone(local);
-  }
-
-  function loadCloudSession(){
-    try{return JSON.parse(localStorage.getItem(FLOW_SESSION_KEY)||'null')}catch{return null}
-  }
-  function saveCloudSession(s){
-    if(!s){localStorage.removeItem(FLOW_SESSION_KEY);return}
-    if(!s.expires_at&&s.expires_in)s.expires_at=Math.floor(Date.now()/1000)+Number(s.expires_in||3600);
-    localStorage.setItem(FLOW_SESSION_KEY,JSON.stringify(s));
-  }
-  async function ensureCloudSession(){
-    let s=loadCloudSession();
-    if(!s?.access_token)return null;
-    const nowSec=Math.floor(Date.now()/1000);
-    if(!s.expires_at||Number(s.expires_at)>nowSec+90)return s;
-    if(!s.refresh_token)return null;
-    try{
-      const res=await fetch(FLOW_CLOUD_URL+'/auth/v1/token?grant_type=refresh_token',{
-        method:'POST',headers:{apikey:FLOW_CLOUD_KEY,'Content-Type':'application/json'},
-        body:JSON.stringify({refresh_token:s.refresh_token})
-      });
-      if(!res.ok)throw new Error('session refresh failed');
-      s=await res.json();saveCloudSession(s);return s;
-    }catch(e){lastError='ログイン期限切れ';return null}
-  }
-  function jwtSub(token){
-    try{
-      const p=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
-      const j=JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(p),c=>'%' + ('00'+c.charCodeAt(0).toString(16)).slice(-2)).join('')));
-      return j?.sub||null;
-    }catch{return null}
-  }
-  async function cloudFetch(path,options={},session){
-    const res=await fetch(FLOW_CLOUD_URL+'/rest/v1/'+path,{
-      ...options,
-      headers:{apikey:FLOW_CLOUD_KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json',...(options.headers||{})}
-    });
-    const text=await res.text();
-    let body=null;if(text){try{body=JSON.parse(text)}catch{body=text}}
-    if(!res.ok){const e=new Error(body?.message||body?.error_description||('HTTP '+res.status));e.status=res.status;throw e}
-    return body;
-  }
-  async function fetchRow(session){
-    const rows=await cloudFetch('flow_shared_state?id=eq.'+encodeURIComponent(FLOW_CLOUD_ROW)+'&select=id,payload,revision,updated_at,updated_by',{method:'GET'},session);
-    return Array.isArray(rows)?rows[0]||null:null;
-  }
-  function payloadState(row){
-    const p=row?.payload;
-    if(!p||typeof p!=='object')return null;
-    if(p.state&&typeof p.state==='object')return p.state;
-    return null;
-  }
-  function payloadIsEmpty(row){return !payloadState(row)}
-
-  function applyRemoteRow(row,reason='realtime'){
-    const rev=Number(row?.revision)||0;
-    const remote=payloadState(row);
-    if(!remote||rev<=lastRevision)return false;
-    if(TEST_MODE)return false;
-    state=normCloudState(remote);
-    persistSplit(state,'cloud-'+reason);
-    lastRevision=rev;
-    lastSyncedState=cloudClone(state);
-    lastUpdatedAt=row.updated_at||'';
-    try{render()}catch(e){console.warn('cloud render',e)}
-    statusText='同期済み';lastError='';updateSyncUi();
-    return true;
-  }
-
-  async function patchRow(session,expectedRevision,nextState){
-    const body={
-      payload:{schema:'11.2.60',state:nextState,pushed_at:new Date().toISOString(),device_id:deviceId},
-      revision:Number(expectedRevision)+1,
-      updated_at:new Date().toISOString(),
-      updated_by:jwtSub(session.access_token)
-    };
-    const rows=await cloudFetch(
-      'flow_shared_state?id=eq.'+encodeURIComponent(FLOW_CLOUD_ROW)+'&revision=eq.'+encodeURIComponent(String(expectedRevision)),
-      {method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify(body)},session
-    );
-    return Array.isArray(rows)?rows[0]||null:null;
-  }
-
-  async function pushNow(){
-    if(TEST_MODE||pushInFlight)return;
-    const session=await ensureCloudSession();
-    if(!session){statusText='未接続';updateSyncUi();return}
-    pushInFlight=true;pushAgain=false;
-    const startGen=dirtyGeneration;
-    const localAtStart=currentState();
-    const baseAtStart=lastSyncedState?cloudClone(lastSyncedState):cloudClone(localAtStart);
-    statusText='同期中…';updateSyncUi();
-    try{
-      let attempt=0,working=cloudClone(localAtStart),success=null,remoteRow=null;
-      while(attempt<3&&!success){
-        attempt++;
-        remoteRow=await fetchRow(session);
-        if(!remoteRow)throw new Error('共有データが見つかりません');
-        const remoteState=payloadState(remoteRow);
-        if(remoteState&&Number(remoteRow.revision)!==lastRevision){
-          working=normCloudState(threeWayMerge(baseAtStart,localAtStart,remoteState));
-        }
-        success=await patchRow(session,Number(remoteRow.revision)||0,working);
-      }
-      if(!success)throw new Error('他端末との同時更新が続いたため再試行します');
-
-      const syncedState=normCloudState(payloadState(success)||working);
-      lastRevision=Number(success.revision)||0;
-      lastSyncedState=cloudClone(syncedState);
-      lastUpdatedAt=success.updated_at||new Date().toISOString();
-
-      if(dirtyGeneration===startGen){
-        state=cloudClone(syncedState);
-      }else{
-        const latestLocal=currentState();
-        state=normCloudState(threeWayMerge(localAtStart,latestLocal,syncedState));
-        pushAgain=true;
-      }
-      persistSplit(state,'cloud-push');
-      try{render()}catch{}
-      statusText='同期済み';lastError='';updateSyncUi();
-    }catch(e){
-      console.warn('device sync push',e);
-      lastError=e?.message||'同期エラー';statusText='再接続中';updateSyncUi();pushAgain=true;
-    }finally{
-      pushInFlight=false;
-      if(pushAgain)schedulePush(350);
-    }
-  }
-
-  function schedulePush(delay=PUSH_DEBOUNCE_MS){
-    if(TEST_MODE)return;
-    dirtyGeneration++;
-    clearTimeout(pushTimer);
-    pushTimer=setTimeout(()=>{pushTimer=null;pushNow()},delay);
-  }
-  window.flowCloudSchedulePush=()=>schedulePush();
-
-  async function initialSync(){
-    if(initialized||TEST_MODE)return;
-    const session=await ensureCloudSession();
-    if(!session){statusText='未接続';lastError='FOG-GOALS連携ログインが必要';updateSyncUi();return}
-    try{
-      statusText='接続中…';updateSyncUi();
-      const row=await fetchRow(session);
-      if(!row)throw new Error('共有データ行がありません');
-      lastRevision=Number(row.revision)||0;
-      lastUpdatedAt=row.updated_at||'';
-      if(payloadIsEmpty(row)){
-        lastSyncedState=currentState();
-        initialized=true;
-        await pushNow();
-      }else{
-        state=normCloudState(payloadState(row));
-        persistSplit(state,'cloud-initial-pull');
-        lastSyncedState=cloudClone(state);
-        try{render()}catch{}
-        initialized=true;statusText='同期済み';lastError='';updateSyncUi();
-      }
-      startRealtime(session);
-    }catch(e){
-      lastError=e?.message||'接続エラー';statusText='再接続中';updateSyncUi();
-    }
-  }
-
-  async function poll(){
-    if(TEST_MODE)return;
-    const session=await ensureCloudSession();
-    if(!session){initialized=false;statusText='未接続';updateSyncUi();return}
-    if(!initialized){await initialSync();return}
-    if(!realtimeChannel)startRealtime(session);
-    if(pushInFlight||pushTimer)return;
-    try{
-      const row=await fetchRow(session);
-      if(row&&Number(row.revision)>lastRevision)applyRemoteRow(row,'poll');
-    }catch(e){lastError=e?.message||'通信エラー';statusText='再接続中';updateSyncUi()}
-  }
-
-  function loadSupabaseJs(){
-    if(window.supabase?.createClient)return Promise.resolve(true);
-    return new Promise(resolve=>{
-      const old=document.querySelector('#supabaseRealtimeSdk');
-      if(old){old.addEventListener('load',()=>resolve(true),{once:true});old.addEventListener('error',()=>resolve(false),{once:true});return}
-      const s=document.createElement('script');s.id='supabaseRealtimeSdk';
-      s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
-      s.onload=()=>resolve(true);s.onerror=()=>resolve(false);document.head.appendChild(s);
-    });
-  }
-  async function startRealtime(session){
-    if(realtimeStarting||realtimeChannel||TEST_MODE)return;
-    realtimeStarting=true;
-    try{
-      const ok=await loadSupabaseJs();if(!ok)return;
-      realtimeClient=window.supabase.createClient(FLOW_CLOUD_URL,FLOW_CLOUD_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
-      if(session?.access_token&&session?.refresh_token){
-        try{await realtimeClient.auth.setSession({access_token:session.access_token,refresh_token:session.refresh_token})}catch{}
-      }
-      realtimeChannel=realtimeClient.channel('swamp-flow-shared-'+deviceId)
-        .on('postgres_changes',{event:'UPDATE',schema:'public',table:'flow_shared_state',filter:'id=eq.'+FLOW_CLOUD_ROW},evt=>{
-          const row=evt?.new;if(!row)return;
-          if(pushInFlight||pushTimer)return;
-          applyRemoteRow(row,'realtime');
-        })
-        .subscribe(st=>{
-          if(st==='SUBSCRIBED'){statusText='リアルタイム接続';lastError='';updateSyncUi()}
-        });
-    }catch(e){console.warn('realtime start',e)}finally{realtimeStarting=false}
-  }
-
-  function fmtSyncTime(v){
-    if(!v)return '未同期';
-    try{return new Date(v).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}catch{return '同期済み'}
-  }
-  function updateSyncUi(){
-    const b=document.querySelector('#deviceSyncMenu');
-    if(!b)return;
-    const sm=b.querySelector('small');
-    if(sm)sm.textContent=TEST_MODE?'テスト中は共有しません':statusText+(lastUpdatedAt?'／'+fmtSyncTime(lastUpdatedAt):'');
-  }
-  function openSyncStatus(){
-    const connected=!!loadCloudSession()?.access_token;
-    openUtility('デバイス同期',
-      '<div class="notice" style="border-color:'+(connected?'#2f744c':'#7b5a24')+';background:'+(connected?'#10251a':'#2a210f')+'">'+
-      '<b>'+statusText+'</b><br>iPhone・iPad・別端末で卓状況／着席／送り／場内／制限／履歴を共有します。'+
-      '<br><small>端末ID：'+String(deviceId).replace(/[&<>"']/g,'')+'</small></div>'+ 
-      (lastError?'<div class="notice" style="margin-top:8px;border-color:#7b5a24;background:#2a210f">'+String(lastError).replace(/[&<>"']/g,'')+'</div>':'')+
-      '<button class="primary" id="deviceSyncNow" style="width:100%;margin-top:10px">今すぐ同期</button>'+ 
-      '<p class="hint">FOG-GOALS連携ログイン済みの端末だけ共有されます。テストモード中は本番共有しません。</p>'
-    );
-    const btn=document.querySelector('#deviceSyncNow');
-    if(btn)btn.onclick=async()=>{btn.disabled=true;await poll();if(!pushInFlight&&!pushTimer)schedulePush(0);setTimeout(()=>{btn.disabled=false;updateSyncUi()},500)};
-  }
-  function installSyncUi(){
-    document.title='SWAMP-FLOW Ver.11.2.62 Stable';
-    const h=document.querySelector('.brand h1');
-    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.62 Stable <span class="stable-badge">STABLE</span>';
-    if(!document.querySelector('#deviceSyncMenu')){
-      const diagnostic=document.querySelector('#diagnosticMenu');
-      const grid=diagnostic?.parentElement;
-      if(grid){
-        const b=document.createElement('button');b.id='deviceSyncMenu';b.className='full';
-        b.innerHTML='<span>デバイス同期</span><small>接続準備中</small>';
-        grid.insertBefore(b,diagnostic);b.onclick=openSyncStatus;
-      }
-    }
-    updateSyncUi();
-    setTimeout(initialSync,80);
-  }
-
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installSyncUi,{once:true});else installSyncUi();
-  setInterval(poll,POLL_MS);
-  window.addEventListener('online',()=>{initialized=false;setTimeout(initialSync,100)});
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(poll,100)});
-})();
-
-</script>
-
-<!-- SWAMP-FLOW Ver.11.2.62 / 場内率計算修正：場内÷送り -->
-
-<!-- SWAMP-FLOW Ver.11.2.62 / 場内率ランキング：送り5本以上を上位対象 -->
+<!-- SWAMP-FLOW Ver.11.2.63 / 場内率ランキング：送り5本以上を上位対象 -->
+<!-- Ver.11.2.63 軽量化：クラウド常時同期削除／バックグラウンド1秒処理停止／常時DOM監視削除／GPUブラー削除 -->
 </body></html>
