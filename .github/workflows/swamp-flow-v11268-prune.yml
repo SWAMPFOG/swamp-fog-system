@@ -1,0 +1,152 @@
+name: SWAMP-FLOW Ver.11.2.68 prune unused features
+on:
+  push:
+    paths:
+      - '.github/workflows/swamp-flow-v11268-prune.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prune unused features and update today history
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          original=s
+          assert '<title>SWAMP-FLOW Ver.11.2.67 Stable</title>' in s
+
+          # 1) FOG-GOALS integration block: remove only the exact marker-delimited block.
+          fog_start='<!-- SWAMP-FLOW Ver.11.2.67 Stable / FOG-GOALS自動連動 -->'
+          rank_start='<!-- SWAMP-FLOW Ver.11.2.63 / 延長ランキング自動化 -->'
+          assert s.count(fog_start)==1, s.count(fog_start)
+          assert s.count(rank_start)==1, s.count(rank_start)
+          a=s.index(fog_start)
+          b=s.index(rank_start,a)
+          s=s[:a]+'<!-- Ver.11.2.68 軽量化：FOG-GOALS連携・名前照合を削除 -->\n\n'+s[b:]
+
+          # 2) Ranking block: remove only the exact block before cast-management marker.
+          cast_start='<!-- SWAMP-FLOW Ver.11.2.63 / キャスト管理入口統合 -->'
+          assert s.count(rank_start)==1
+          assert s.count(cast_start)==1
+          a=s.index(rank_start)
+          b=s.index(cast_start,a)
+          s=s[:a]+'<!-- Ver.11.2.68 軽量化：延長ランキング機能を削除 -->\n\n'+s[b:]
+
+          # 3) Keep DOM nodes for compatibility, but remove them from UI.
+          old_install='<button id="installAppMenu"><span>ホーム画面に追加</span><small>アプリとして起動</small></button>'
+          new_install='<button id="installAppMenu" class="hidden"><span>ホーム画面に追加</span><small>アプリとして起動</small></button>'
+          assert s.count(old_install)==1
+          s=s.replace(old_install,new_install,1)
+
+          old_diag='<button id="diagnosticMenu" class="full"><span>システム診断</span><small>保存状態・卓・履歴の整合性を確認</small></button>'
+          new_diag='<button id="diagnosticMenu" class="full hidden"><span>システム診断</span><small>保存状態・卓・履歴の整合性を確認</small></button>'
+          assert s.count(old_diag)==1
+          s=s.replace(old_diag,new_diag,1)
+
+          # 4) Rename the history entry point.
+          old_hist='<button id="historyMenu"><span>着席履歴</span></button>'
+          new_hist='<button id="historyMenu" class="priority-menu"><span>当日着席履歴</span><small>当日の着席を卓ごとに確認</small></button>'
+          assert s.count(old_hist)==1
+          s=s.replace(old_hist,new_hist,1)
+
+          # 5) Remove FOG-GOALS wording from test-mode banner.
+          s=s.replace('🧪 TEST MODE｜本番データ・本番月間集計・FOG-GOALSには反映されません','🧪 TEST MODE｜本番データには反映されません')
+
+          # 6) Add a narrow override for today's per-table seat history.
+          marker='<!-- SWAMP-FLOW Ver.11.2.68 / 当日着席履歴 -->'
+          assert marker not in s
+          script=r'''\n<!-- SWAMP-FLOW Ver.11.2.68 / 当日着席履歴 -->
+<script id="v11268-today-seat-history">
+(function(){
+  'use strict';
+  const btn=document.querySelector('#historyMenu');
+  if(!btn)return;
+
+  function escH(v){
+    try{return esc(v)}catch(e){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+  }
+  function businessStart(ts=Date.now()){
+    const d=new Date(ts);
+    if(d.getHours()<6)d.setDate(d.getDate()-1);
+    d.setHours(6,0,0,0);
+    return d.getTime();
+  }
+  function hmH(ms){
+    const d=new Date(ms||0);
+    return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  }
+  function openTodayHistory(){
+    const start=businessStart(),end=start+24*60*60*1000;
+    const seats=(state.history||[])
+      .filter(h=>h.type==='seat'&&Number(h.at)>=start&&Number(h.at)<end)
+      .sort((a,b)=>Number(a.at||0)-Number(b.at||0));
+
+    const tables=new Map();
+    seats.forEach(h=>{
+      const key=h.table||h.tableId||h.tableNo||'unknown';
+      if(!tables.has(key))tables.set(key,{table:key,tableNo:h.tableNo||tableNo?.(h.table)||'卓',turns:new Map(),firstAt:Number(h.at||0)});
+      const t=tables.get(key);
+      const turn=Number(h.turn||0)||1;
+      if(!t.turns.has(turn))t.turns.set(turn,{turn,at:Number(h.at||0),members:[]});
+      t.turns.get(turn).members.push(h);
+    });
+
+    const date=new Date(start);
+    const dateLabel=(date.getMonth()+1)+'/'+date.getDate();
+    const cards=[...tables.values()].sort((a,b)=>a.firstAt-b.firstAt).map(t=>{
+      const turns=[...t.turns.values()].sort((a,b)=>a.turn-b.turn);
+      return '<div class="info-card" style="margin-top:10px">'+
+        '<div class="info-top"><strong>'+escH(t.tableNo)+'</strong><span class="count-badge">'+turns.length+'ターン</span></div>'+
+        turns.map(g=>'<div class="history-item"><b>第'+g.turn+'ターン　'+escH(g.members.map(m=>m.castName||state.casts.find(c=>c.id===m.cast)?.name||'').filter(Boolean).join('・'))+'</b><small>'+hmH(g.at)+'／'+g.members.length+'名着席</small></div>').join('')+
+      '</div>';
+    }).join('');
+
+    openUtility('当日着席履歴',
+      '<div class="notice"><b>'+dateLabel+' 営業分</b><br>当日の着席を卓ごと・ターン順に確認できます。営業終了した卓も履歴が残っていれば表示します。</div>'+
+      (cards||'<div class="info-card" style="margin-top:10px">当日の着席履歴はまだありません。</div>')
+    );
+  }
+
+  btn.onclick=openTodayHistory;
+})();
+</script>
+'''
+          s=s.replace('</body>',script+'\n</body>',1)
+
+          # 7) Version bump only after structural edits.
+          s=s.replace('Ver.11.2.67 Stable','Ver.11.2.68 Stable')
+
+          # Safety assertions: core UI/runtime must still exist.
+          required=[
+            'function saveTable()',
+            'function endBusiness()',
+            "document.querySelector('#addTable').onclick",
+            "document.querySelector('#restrictionMenu').onclick",
+            "document.querySelector('#sendingMenu').onclick",
+            'id="v11265-table-restore"',
+            'id="v11268-today-seat-history"',
+            'id="historyMenu"',
+            'id="endBusinessMenu"'
+          ]
+          for x in required:
+            assert x in s, x
+          assert 'id="v11251-fog-goals-sync"' not in s
+          assert 'id="v11253-extension-ranking"' not in s
+          assert 'id="fogGoalsLinkMenu"' not in s
+          assert 'id="fogGoalsNameCheckMenu"' not in s
+
+          removed_lines=original.count('\n')-s.count('\n')
+          # Expected removals are two known feature blocks only; guard against runaway deletion.
+          assert 100 <= removed_lines <= 900, removed_lines
+          p.write_text(s)
+          print('old bytes',len(original),'new bytes',len(s),'removed lines',removed_lines)
+          PY
+          git diff --stat
+          git diff --check
+          git add index.html
+          git commit -m "SWAMP-FLOW Ver.11.2.68 prune unused features"
+          git push
