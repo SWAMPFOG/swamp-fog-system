@@ -1,0 +1,108 @@
+name: SWAMP-FLOW Ver.11.2.71 live tick optimization
+on:
+  push:
+    paths:
+      - '.github/workflows/swamp-flow-v11271-live-tick.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Consolidate live timer updates
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          original=s
+          assert '<title>SWAMP-FLOW Ver.11.2.70 Stable</title>' in s
+          marker='<!-- SWAMP-FLOW Ver.11.2.71 / consolidated live tick -->'
+          assert marker not in s
+          block=r'''
+<!-- SWAMP-FLOW Ver.11.2.71 / consolidated live tick -->
+<script id="v11271-live-tick">
+(function(){
+  'use strict';
+  let lastClockMinute='';
+  function setTextIfChanged(el,text){if(el&&el.textContent!==text)el.textContent=text}
+  function setClassIfChanged(el,cls){if(el&&el.className!==cls)el.className=cls}
+  function efficientLiveTick(){
+    if(document.hidden)return;
+    const d=new Date();
+    const minute=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    if(minute!==lastClockMinute){lastClockMinute=minute;setTextIfChanged(document.querySelector('#clock'),minute)}
+    const home=document.querySelector('#homePage');
+    if(!home||home.classList.contains('hidden'))return;
+    const active=state.tables.filter(t=>t.active);
+    const board=document.querySelector('#directBoard');
+    const bar=document.querySelector('#allTimersBar');
+    const cards=new Map();
+    if(board)board.querySelectorAll('.direct-table[data-direct-table]').forEach(el=>cards.set(el.dataset.directTable,el));
+    const chips=new Map();
+    if(bar)bar.querySelectorAll('[data-timer-jump],[data-timer-pause]').forEach(el=>chips.set(el.dataset.timerJump||el.dataset.timerPause,el));
+    active.forEach(t=>{
+      const p=tablePhase(t);
+      const card=cards.get(t.id);
+      if(card){
+        const timer=card.querySelector('.direct-timer');
+        const timerText=t.rotationEnded?'一時終了':(!t.lastSeatAt?'未開始':p.stage==='over'?'超過 '+fmt(p.sec):fmt(p.sec));
+        setTextIfChanged(timer,timerText);
+        if(timer)timer.classList.toggle('paused',!!t.pausedAt);
+        ['find','prepare','urgent','over','paused'].forEach(c=>card.classList.toggle(c,c==='paused'?!!t.pausedAt:(!t.pausedAt&&p.stage===c)));
+        const cd=card.querySelector('.direct-countdown');
+        if(cd)setTextIfChanged(cd,String(pendingSecondsLeft(t)));
+        const banner=card.querySelector('.timer-stage-banner');
+        if(banner){
+          const stage=t.pausedAt?'paused':(p.stage||'normal');
+          setClassIfChanged(banner,'timer-stage-banner '+stage);
+          const msg=t.pausedAt?'一時停止中':p.stage==='over'?'交代時間超過':p.stage==='urgent'?'30秒前：交代準備':p.stage==='prepare'?'90秒前：呼び出し・待機':p.stage==='find'?'3分前：次を見つけてください':'接客中';
+          setTextIfChanged(banner,msg);
+        }
+        const guide=card.querySelector('.tap-start-guide');
+        if(guide){
+          const pending=Array.isArray(t.pendingCastIds)?t.pendingCastIds:[];
+          const guideText=p?.stage==='over'?(pending.length?'交代時間超過中｜ここをタップして着席・タイマースタート':'交代時間超過中｜次キャストを選択してください'):(pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択');
+          setTextIfChanged(guide,guideText);
+        }
+      }
+      const chip=chips.get(t.id);
+      if(chip){
+        let stage='normal',text='';
+        try{stage=typeof timerChipStage==='function'?timerChipStage(t,p):typeof v11242TimerStage==='function'?v11242TimerStage(t,p):(t.pausedAt?'paused':p.stage||'normal')}catch(e){stage=t.pausedAt?'paused':p.stage||'normal'}
+        try{text=typeof timerChipText==='function'?timerChipText(t,p):typeof v11242TimerText==='function'?v11242TimerText(t,p):timerText}catch(e){text=t.rotationEnded?'回し終了':(!t.lastSeatAt?'未開始':fmt(p.sec))}
+        setClassIfChanged(chip,'all-timer-chip '+stage);
+        const strong=chip.querySelector('strong');if(strong)setTextIfChanged(strong,String(text));
+        const small=chip.querySelector('small');if(small){
+          const label=stage==='over'?'交代時間超過':stage==='urgent'?'交代準備':stage==='prepare'?'呼び出し・待機':stage==='find'?'次を探す':stage==='paused'?'一時停止中':stage==='idle'?'開始待ち':stage==='ended'?'回し終了':'接客中';
+          setTextIfChanged(small,label);
+        }
+      }
+    });
+  }
+  try{stopLiveTick()}catch(e){}
+  window.updateLiveOnly=efficientLiveTick;
+  window.runLiveTick=efficientLiveTick;
+  try{startLiveTick()}catch(e){window.__swampLiveTick=setInterval(efficientLiveTick,1000)}
+  efficientLiveTick();
+})();
+</script>
+'''
+          s=s.replace('</body>',block+'\n</body>',1)
+          s=s.replace('Ver.11.2.70 Stable','Ver.11.2.71 Stable')
+          required=['id="v11271-live-tick"','function save(){persistSplit(state)}','id="v11265-table-restore"','id="v11268-today-seat-history"','id="v11269-visible-page-render"']
+          for x in required: assert x in s, x
+          assert 'Ver.11.2.70 Stable' not in s
+          delta=s.count('\n')-original.count('\n')
+          assert 40 <= delta <= 120, delta
+          p.write_text(s)
+          print('old bytes',len(original),'new bytes',len(s),'line delta',delta)
+          PY
+          git diff --check
+          git diff --stat
+          git config user.name "SWAMPFOG"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git commit -m "SWAMP-FLOW Ver.11.2.71: consolidate live timer updates"
+          git push
