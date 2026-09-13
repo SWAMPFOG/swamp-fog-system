@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.63 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.64 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -352,7 +352,7 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 </style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.63 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.64 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <div id="testModeBanner" class="test-mode-banner hidden">🧪 TEST MODE｜本番データ・本番月間集計・FOG-GOALSには反映されません</div>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
@@ -366,7 +366,7 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 <div class="menu-section"><h3>営業操作</h3><div class="menu-grid">
 <button id="testModeMenu" class="full"><span>テストモード：OFF</span><small>本番データを守ったまま操作テスト</small></button>
 <button id="restrictionMenu" class="priority-menu"><span>制限設定</span><small>着席制限を変更</small></button><button id="sendingMenu" class="priority-menu"><span>送り設定</span><small>送り指名を登録</small></button>
-<button id="intakeJudgeMenu" class="priority-menu"><span>初回受入判断</span><small>受付可能・注意・制限推奨</small></button><button id="companionOverviewMenu" class="priority-menu"><span>お連れ様候補</span><small>担当・チーム・Sランク・申告者を管理</small></button><button id="summaryMenu" class="priority-menu"><span>営業集計</span><small>誰が何卓着いたか確認</small></button><button id="monthlySummaryMenu" class="priority-menu"><span>月間集計</span><small>月別実績の入力・編集・確認</small></button><button id="historyMenu"><span>着席履歴</span></button><button id="endBusinessMenu" class="danger-menu"><span>営業終了</span></button>
+<button id="intakeJudgeMenu" class="priority-menu"><span>初回受入判断</span><small>受付可能・注意・制限推奨</small></button><button id="companionOverviewMenu" class="priority-menu"><span>お連れ様候補</span><small>担当・チーム・Sランク・申告者を管理</small></button><button id="summaryMenu" class="priority-menu"><span>営業集計</span><small>誰が何卓着いたか確認</small></button><button id="monthlySummaryMenu" class="priority-menu"><span>月間集計</span><small>月別実績の入力・編集・確認</small></button><button id="historyMenu"><span>着席履歴</span></button><button id="undoLastTableEndBtn" class="danger-menu"><span>直前の卓終了取消</span><small>最後に終了した卓を復元</small></button><button id="endBusinessMenu" class="danger-menu"><span>営業終了</span></button>
 </div></div>
 <div class="menu-section"><h3>キャスト管理</h3><div class="menu-grid">
 <button id="castHubMenu" class="full"><span>キャスト管理</span><small>追加・編集・一括管理・色・並び替え</small></button>
@@ -1363,7 +1363,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.63 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.64 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2214,7 +2214,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.63 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.64 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -3343,8 +3343,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 #undoLastTableEndBtn{display:none}
 #undoLastTableEndBtn.show{display:flex}
 </style>
-<button type="button" id="undoLastTableEndBtn">直前の卓終了を取消</button>
-<!-- SWAMP-FLOW Ver.11.2.63 / 直前卓終了取消をメニュー内へ移動 -->
+<!-- SWAMP-FLOW Ver.11.2.64 / 卓終了取消ボタンをメニューへ正式配置 -->
 <script id="v11262-undo-table-end">
 (function(){
  let lastEnd=null;
@@ -3456,7 +3455,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
-<!-- SWAMP-FLOW Ver.11.2.63 Stable / FOG-GOALS自動連動 -->
+<!-- SWAMP-FLOW Ver.11.2.64 Stable / FOG-GOALS自動連動 -->
 <script id="v11251-fog-goals-sync">
 (function(){
   'use strict';
@@ -3953,9 +3952,9 @@ header .brand{height:38px !important;min-height:38px !important;}
   }
 
   function installUi(){
-    document.title='SWAMP-FLOW Ver.11.2.63 Stable';
+    document.title='SWAMP-FLOW Ver.11.2.64 Stable';
     const h=document.querySelector('.brand h1');
-    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.63 Stable <span class="stable-badge">STABLE</span>';
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.64 Stable <span class="stable-badge">STABLE</span>';
 
     const endBtn=document.querySelector('#endBusinessMenu');
     if(endBtn)endBtn.onclick=()=>runSyncedEndBusiness(false);
