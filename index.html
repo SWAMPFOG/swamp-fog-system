@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.65 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.66 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -352,7 +352,7 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 </style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.65 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.66 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <div id="testModeBanner" class="test-mode-banner hidden">🧪 TEST MODE｜本番データ・本番月間集計・FOG-GOALSには反映されません</div>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
@@ -1363,7 +1363,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.65 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.66 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2214,7 +2214,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.65 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.66 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -3343,64 +3343,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 #undoLastTableEndBtn{display:none}
 #undoLastTableEndBtn.show{display:flex}
 </style>
-<!-- SWAMP-FLOW Ver.11.2.65 / 卓終了取消ボタンをメニューへ正式配置 -->
-<script id="v11262-undo-table-end">
-(function(){
- let lastEnd=null;
- const clone=o=>JSON.parse(JSON.stringify(o));
-
- function capture(t){
-   if(!t)return;
-   lastEnd={
-     table:clone(t),
-     casts:clone(state.casts),
-     history:clone(state.history),
-     refusals:clone(state.refusals||{}),
-     at:Date.now()
-   };
-   sessionStorage.setItem('swampFlowLastTableEnd',JSON.stringify(lastEnd));
- }
- function show(){
-   const b=document.querySelector('#undoLastTableEndBtn');
-   if(!b)return;
-   try{lastEnd=JSON.parse(sessionStorage.getItem('swampFlowLastTableEnd')||'null')}catch(e){}
-   b.classList.toggle('show',!!lastEnd);
- }
- function restore(){
-   if(!lastEnd)return;
-   const t=clone(lastEnd.table);
-   if(state.tables.some(x=>x.id===t.id)){toast(t.no+' はすでに存在します');return}
-   state.casts=clone(lastEnd.casts);
-   state.history=clone(lastEnd.history);
-   state.refusals=clone(lastEnd.refusals);
-   state.tables.push(t);
-   state.tables.sort((a,b)=>(a.entryAt||0)-(b.entryAt||0));
-   lastEnd=null;
-   sessionStorage.removeItem('swampFlowLastTableEnd');
-   save();render();show();
-   toast(t.no+' の卓終了を取り消しました');
- }
-
- const oldQuick=window.finalizeQuickOutcome;
- if(typeof oldQuick==='function'){
-   window.finalizeQuickOutcome=function(t,kind){capture(t);oldQuick(t,kind);show()};
- }
- const oldFinalize=window.finalizeTable;
- if(typeof oldFinalize==='function'){
-   window.finalizeTable=function(t,outcome){capture(t);oldFinalize(t,outcome);setTimeout(show,0)};
- }
-
- const undoBtn=document.querySelector('#undoLastTableEndBtn');
- const endBusinessBtn=document.querySelector('#endBusinessMenu');
- if(undoBtn&&endBusinessBtn){
-   undoBtn.className='danger-menu';
-   undoBtn.innerHTML='<span>直前の卓終了取消</span><small>最後に終了した卓を復元</small>';
-   endBusinessBtn.insertAdjacentElement('beforebegin',undoBtn);
-   undoBtn.onclick=restore;
- }
- show();
-})();
-</script>
+<!-- Ver.11.2.66 軽量化：旧「直前の卓終了取消」ランタイム削除 -->
 
 
 <style id="v11248-vip-exception">
@@ -3455,7 +3398,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
-<!-- SWAMP-FLOW Ver.11.2.65 Stable / FOG-GOALS自動連動 -->
+<!-- SWAMP-FLOW Ver.11.2.66 Stable / FOG-GOALS自動連動 -->
 <script id="v11251-fog-goals-sync">
 (function(){
   'use strict';
@@ -3952,9 +3895,9 @@ header .brand{height:38px !important;min-height:38px !important;}
   }
 
   function installUi(){
-    document.title='SWAMP-FLOW Ver.11.2.65 Stable';
+    document.title='SWAMP-FLOW Ver.11.2.66 Stable';
     const h=document.querySelector('.brand h1');
-    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.65 Stable <span class="stable-badge">STABLE</span>';
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.66 Stable <span class="stable-badge">STABLE</span>';
 
     const endBtn=document.querySelector('#endBusinessMenu');
     if(endBtn)endBtn.onclick=()=>runSyncedEndBusiness(false);
