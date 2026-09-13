@@ -1,0 +1,44 @@
+name: SWAMP-FLOW Ver.11.2.70 save optimization
+on:
+  push:
+    paths:
+      - '.github/workflows/swamp-flow-v11270-save2.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Optimize save writes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          original=s
+          assert '<title>SWAMP-FLOW Ver.11.2.69 Stable</title>' in s
+          old="let TEST_MODE=localStorage.getItem(TEST_MODE_FLAG_KEY)==='1';\nfunction scopedStorageKey(key){return TEST_MODE?key+'-test':key}\nconst sample={casts:["
+          new="let TEST_MODE=localStorage.getItem(TEST_MODE_FLAG_KEY)==='1';\nfunction scopedStorageKey(key){return TEST_MODE?key+'-test':key}\nconst SAVE_CACHE=new Map();\nfunction cachedStorageSet(key,value){const k=scopedStorageKey(key);if(SAVE_CACHE.get(k)===value)return false;localStorage.setItem(k,value);SAVE_CACHE.set(k,value);return true}\nconst sample={casts:["
+          assert s.count(old)==1, s.count(old)
+          s=s.replace(old,new,1)
+          old2="function persistSplit(s,reason='save'){\n  const p=splitState(s);\n  localStorage.setItem(scopedStorageKey(CASTS_KEY),JSON.stringify(p.casts));\n  localStorage.setItem(scopedStorageKey(TABLES_KEY),JSON.stringify(p.tables));\n  localStorage.setItem(scopedStorageKey(OPERATIONS_KEY),JSON.stringify(p.operations));\n  localStorage.setItem(scopedStorageKey(HISTORY_KEY),JSON.stringify(p.history));\n  localStorage.setItem(scopedStorageKey(SETTINGS_KEY),JSON.stringify(p.settings));\n  localStorage.setItem(scopedStorageKey(ROOT_KEY),JSON.stringify({schemaVersion:SCHEMA_VERSION,updatedAt:Date.now(),reason}));\n}\nfunction save(){persistSplit(state)}"
+          new2="function persistSplit(s,reason='save'){\n  const p=splitState(s);\n  cachedStorageSet(CASTS_KEY,JSON.stringify(p.casts));\n  cachedStorageSet(TABLES_KEY,JSON.stringify(p.tables));\n  cachedStorageSet(OPERATIONS_KEY,JSON.stringify(p.operations));\n  cachedStorageSet(HISTORY_KEY,JSON.stringify(p.history));\n  cachedStorageSet(SETTINGS_KEY,JSON.stringify(p.settings));\n  localStorage.setItem(scopedStorageKey(ROOT_KEY),JSON.stringify({schemaVersion:SCHEMA_VERSION,updatedAt:Date.now(),reason}));\n}\nfunction save(){persistSplit(state)}"
+          assert s.count(old2)==1, s.count(old2)
+          s=s.replace(old2,new2,1)
+          s=s.replace('Ver.11.2.69 Stable','Ver.11.2.70 Stable')
+          for x in ['function cachedStorageSet','function persistSplit','function save(){persistSplit(state)}','id="v11265-table-restore"','id="v11268-today-seat-history"','id="v11269-visible-page-render"']:
+            assert x in s, x
+          assert 'Ver.11.2.69 Stable' not in s
+          delta=s.count('\n')-original.count('\n')
+          assert 0 <= delta <= 10, delta
+          p.write_text(s)
+          print('old bytes',len(original),'new bytes',len(s),'line delta',delta)
+          PY
+          git diff --stat
+          git diff --check
+          git config user.name "SWAMPFOG"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git commit -m "SWAMP-FLOW Ver.11.2.70: reduce localStorage writes"
+          git push
