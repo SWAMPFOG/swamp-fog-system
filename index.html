@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.64 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.65 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -352,7 +352,7 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 </style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.64 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.65 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <div id="testModeBanner" class="test-mode-banner hidden">🧪 TEST MODE｜本番データ・本番月間集計・FOG-GOALSには反映されません</div>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
@@ -1363,7 +1363,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.64 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.65 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2214,7 +2214,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.64 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.65 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -3343,7 +3343,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 #undoLastTableEndBtn{display:none}
 #undoLastTableEndBtn.show{display:flex}
 </style>
-<!-- SWAMP-FLOW Ver.11.2.64 / 卓終了取消ボタンをメニューへ正式配置 -->
+<!-- SWAMP-FLOW Ver.11.2.65 / 卓終了取消ボタンをメニューへ正式配置 -->
 <script id="v11262-undo-table-end">
 (function(){
  let lastEnd=null;
@@ -3455,7 +3455,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
-<!-- SWAMP-FLOW Ver.11.2.64 Stable / FOG-GOALS自動連動 -->
+<!-- SWAMP-FLOW Ver.11.2.65 Stable / FOG-GOALS自動連動 -->
 <script id="v11251-fog-goals-sync">
 (function(){
   'use strict';
@@ -3952,9 +3952,9 @@ header .brand{height:38px !important;min-height:38px !important;}
   }
 
   function installUi(){
-    document.title='SWAMP-FLOW Ver.11.2.64 Stable';
+    document.title='SWAMP-FLOW Ver.11.2.65 Stable';
     const h=document.querySelector('.brand h1');
-    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.64 Stable <span class="stable-badge">STABLE</span>';
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.65 Stable <span class="stable-badge">STABLE</span>';
 
     const endBtn=document.querySelector('#endBusinessMenu');
     if(endBtn)endBtn.onclick=()=>runSyncedEndBusiness(false);
@@ -4117,4 +4117,95 @@ header .brand{height:38px !important;min-height:38px !important;}
 
 <!-- SWAMP-FLOW Ver.11.2.63 / 場内率ランキング：送り5本以上を上位対象 -->
 <!-- Ver.11.2.63 軽量化：クラウド常時同期削除／バックグラウンド1秒処理停止／常時DOM監視削除／GPUブラー削除 -->
+<style id="v11265-table-restore-style">
+#undoLastTableEndBtn{display:flex!important}
+#restoreCompletedTableBtn{display:flex!important}
+#tableRestoreSheet .restore-list{display:grid;gap:9px;margin-top:10px}
+#tableRestoreSheet .restore-item{width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;color:var(--text)}
+#tableRestoreSheet .restore-item b{display:block;font-size:18px;margin-bottom:4px}
+#tableRestoreSheet .restore-item small{display:block;color:var(--muted);line-height:1.45}
+</style>
+<!-- SWAMP-FLOW Ver.11.2.65 / 卓終了取消・完全終了卓復元 -->
+<script id="v11265-table-restore">
+(function(){
+  const undoBtn=document.querySelector('#undoLastTableEndBtn');
+  const endBusinessBtn=document.querySelector('#endBusinessMenu');
+  if(undoBtn){
+    undoBtn.className='priority-menu';
+    undoBtn.innerHTML='<span>卓終了取り消し</span><small>送り未定の卓を選択して回しを再開</small>';
+  }
+  let fullBtn=document.querySelector('#restoreCompletedTableBtn');
+  if(!fullBtn&&undoBtn){
+    fullBtn=document.createElement('button');
+    fullBtn.id='restoreCompletedTableBtn';
+    fullBtn.className='priority-menu';
+    fullBtn.innerHTML='<span>完全終了卓を復元</span><small>送り有り・無しで終了した卓を選択して復元</small>';
+    undoBtn.insertAdjacentElement('afterend',fullBtn);
+  }
+  if(endBusinessBtn&&fullBtn&&fullBtn.nextElementSibling!==endBusinessBtn){
+    endBusinessBtn.insertAdjacentElement('beforebegin',fullBtn);
+  }
+  function archiveKey(){try{return scopedStorageKey('swampFlowCompletedTableArchive')}catch(e){return 'swampFlowCompletedTableArchive'}}
+  function loadArchive(){try{const x=JSON.parse(localStorage.getItem(archiveKey())||'[]');return Array.isArray(x)?x:[]}catch(e){return []}}
+  function saveArchive(a){try{localStorage.setItem(archiveKey(),JSON.stringify((a||[]).slice(-50)))}catch(e){}}
+  function esc2(v){try{return esc(v)}catch(e){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}}
+  function fmtAt(ms){if(!ms)return'';const d=new Date(ms);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+  function closeRestore(){document.querySelector('#tableRestoreSheet')?.remove()}
+  function openRestore(mode){
+    closeRestore();
+    const paused=state.tables.filter(t=>t.active&&t.rotationEnded).sort((a,b)=>(a.entryAt||0)-(b.entryAt||0));
+    const archived=loadArchive().slice().sort((a,b)=>(b.endedAt||0)-(a.endedAt||0));
+    const list=mode==='paused'?paused:archived;
+    const title=mode==='paused'?'卓終了取り消し':'完全終了卓を復元';
+    const hint=mode==='paused'?'送り未定で一時終了している卓を選択してください。選択した卓は回しを再開します。':'送り有り／送り無しで完全終了した卓を選択してください。送り結果待ちの状態へ戻します。';
+    const html=list.map((x,i)=>{
+      const t=mode==='paused'?x:x.table;
+      const sub=mode==='paused'?'入店 '+fmtAt(t.entryAt)+'／'+esc2(t.plan||'')+'／送り '+((t.senders||[]).length):'終了 '+fmtAt(x.endedAt)+'／'+esc2(t.plan||'')+'／'+(x.outcome==='withSend'?'送り有り':'送り無し');
+      return '<button class="restore-item" data-restore-index="'+i+'"><b>'+esc2(t.no||'卓')+'</b><small>'+sub+'</small></button>';
+    }).join('')||'<div class="notice">対象の卓はありません。</div>';
+    const sheet=document.createElement('div');sheet.id='tableRestoreSheet';sheet.className='sheet';
+    sheet.innerHTML='<div class="sheet-panel"><div class="handle"></div><div class="sheet-head"><h3>'+title+'</h3><button class="close" id="closeRestoreSheet">×</button></div><div class="hint">'+hint+'</div><div class="restore-list">'+html+'</div></div>';
+    document.body.appendChild(sheet);
+    sheet.querySelector('#closeRestoreSheet').onclick=closeRestore;
+    sheet.addEventListener('click',e=>{if(e.target===sheet)closeRestore()});
+    sheet.querySelectorAll('[data-restore-index]').forEach(b=>b.onclick=()=>{const idx=Number(b.dataset.restoreIndex);if(mode==='paused')resumePaused(paused[idx]);else restoreCompleted(archived[idx])});
+  }
+  function resumePaused(t){
+    if(!t||!t.rotationEnded){toast('対象卓が見つかりません');closeRestore();return}
+    if(!confirm(t.no+'の卓終了を取り消して回しを再開しますか？'))return;
+    const endIdx=state.history.map(h=>h.type==='rotationEnd'&&h.table===t.id).lastIndexOf(true);let endedAt=0;
+    if(endIdx>=0){endedAt=Number(state.history[endIdx].at)||0;state.history.splice(endIdx,1)}
+    if(endedAt)state.history=state.history.filter(h=>!(h.type==='leave'&&h.table===t.id&&Number(h.at)===endedAt&&h.note==='回し一時終了による離席'));
+    t.rotationEnded=false;t.currentCastIds=[];t.lastSeatAt=null;t.autoHandledAt=0;t.pausedAt=0;t.totalPaused=Number(t.totalPaused)||0;t.pendingCastIds=[];t.pendingUpdatedAt=0;
+    save();render();closeRestore();toast(t.no+' 卓終了を取り消して再開しました');
+  }
+  function restoreCompleted(rec){
+    if(!rec||!rec.table){toast('復元データが見つかりません');closeRestore();return}
+    const t0=rec.table;
+    if(state.tables.some(t=>t.id===t0.id)){toast('この卓はすでに存在します');return}
+    if(!confirm((t0.no||'卓')+'を完全終了から復元しますか？\n送り結果待ちの状態へ戻します。'))return;
+    const t=clone(t0);t.active=true;t.rotationEnded=true;t.currentCastIds=[];t.lastSeatAt=null;t.autoHandledAt=0;t.pausedAt=0;t.pendingCastIds=[];t.pendingUpdatedAt=0;
+    state.casts.forEach(c=>{if(c.currentTable===t.id)c.currentTable=null;if(c.preparingFor===t.id)c.preparingFor=null});
+    const endIdx=state.history.map(h=>(h.type==='tableEndWithSend'||h.type==='tableEndNoSend')&&h.table===t.id).lastIndexOf(true);if(endIdx>=0)state.history.splice(endIdx,1);
+    state.tables.push(t);state.tables.sort((a,b)=>(a.entryAt||0)-(b.entryAt||0));
+    let a=loadArchive();const key=rec.archiveId||'';a=a.filter(x=>(x.archiveId||'')!==key);saveArchive(a);
+    save();render();closeRestore();toast((t.no||'卓')+' を完全終了から復元しました');
+  }
+  if(undoBtn)undoBtn.onclick=()=>openRestore('paused');
+  if(fullBtn)fullBtn.onclick=()=>openRestore('completed');
+  const prevFinalize=finalizeTable;
+  finalizeTable=function(t,outcome,skipConfirm=false){
+    if(!t)return prevFinalize(t,outcome,skipConfirm);
+    const tid=t.id,snapshot=clone(t),beforeExists=state.tables.some(x=>x.id===tid);
+    const result=prevFinalize(t,outcome,skipConfirm);
+    if(beforeExists&&!state.tables.some(x=>x.id===tid)){
+      let a=loadArchive(),endedAt=Date.now();
+      a.push({archiveId:tid+'-'+endedAt,table:snapshot,outcome:outcome==='withSend'?'withSend':'noSend',endedAt});saveArchive(a);
+    }
+    return result;
+  };
+  window.finalizeTable=finalizeTable;
+})();
+</script>
+
 </body></html>
