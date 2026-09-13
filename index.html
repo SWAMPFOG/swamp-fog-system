@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.66 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.65 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -352,7 +352,7 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 </style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.66 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.65 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <div id="testModeBanner" class="test-mode-banner hidden">🧪 TEST MODE｜本番データ・本番月間集計・FOG-GOALSには反映されません</div>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
@@ -384,7 +384,706 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 <nav><button data-page="home" class="active"><b>回</b><span>卓別回し</span></button><button data-page="tables"><b>卓</b><span>卓設定</span></button><button data-page="status"><b>状</b><span>営業状況</span></button><button data-page="menu"><b>≡</b><span>メニュー</span></button></nav>
 <div id="sheet" class="sheet hidden"><div class="sheet-panel"><div class="handle"></div><div class="sheet-head"><h3 id="sheetTitle"></h3><button class="close" id="closeSheet">×</button></div><p class="hint" id="sheetHint">通常操作：卓カードをタップで準備中、もう一度タップで同時着席。「着席拒否」は各卓のボタンから登録し、長押しで解除。</p><div class="table-scroll" id="candidates"></div></div></div>
 <div id="tableModal" class="sheet hidden"><div class="sheet-panel"><div class="handle"></div><div class="sheet-head"><h3 id="modalTitle">卓を追加</h3><button class="close" id="closeModal">×</button></div><div class="form"><div class="row"><label>卓番<span id="standardTableNoWrap"><select id="fNoSelect"><option value="">選択</option><option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S5</option><option>S6</option><option>S7</option><option>S8</option><option>S9</option><option>A1</option><option>A2</option><option>A3</option><option>A4</option><option>A5</option><option>A6</option><option>A7</option><option>A8</option><option>B1</option><option>B2</option><option>B3</option><option>C1</option><option>C2</option><option>C3</option><option>C4</option><option>C5</option><option>C6</option><option>C7</option><option>C8</option><option>D1</option><option>D2</option><option>VIP</option><option>RVIP</option></select></span><input id="fNo" class="hidden" placeholder="卓番を直接入力"></label><label>プラン<select id="fPlan"><option>A</option><option selected>B</option><option>VIP</option><option>お連れ様</option></select></label></div><div class="row"><label>入店時間<input id="fEntry" type="time"></label><label>お客様人数<select id="fGuests"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></label></div><div id="companionOwnerWrap" class="hidden"><select id="fOwner"><option value=""></option></select></div><div class="row"><label>1回の回し人数<select id="fRotation"><option value="1">1人回し</option><option value="2" selected>2人回し</option><option value="3">3人回し</option></select></label><label class="toggle-label"><span>自動タイマー</span><input id="fAutoTimer" type="checkbox"></label></div><div class="row"><label class="toggle-label"><span>完走目標</span><input id="fTargetEnabled" type="checkbox"></label><label class="toggle-label"><span>準備アラート</span><input id="fAlertEnabled" type="checkbox"></label></div><div class="row" id="targetSettingsRow"><label>完走目標（分）<input id="fTarget" type="number" min="30" max="50" value="50"></label><label>準備アラート（秒前）<input id="fLead" type="number" min="30" value="90"></label></div><div class="row" id="manualTimerRow"><label>手動タイマー（15秒単位）<select id="fCycle"><option value="15">15秒</option><option value="30">30秒</option><option value="45">45秒</option><option value="60">1分</option><option value="75">1分15秒</option><option value="90">1分30秒</option><option value="105">1分45秒</option><option value="120">2分</option><option value="135">2分15秒</option><option value="150">2分30秒</option><option value="165">2分45秒</option><option value="180" selected>3分</option><option value="195">3分15秒</option><option value="210">3分30秒</option><option value="225">3分45秒</option><option value="240">4分</option><option value="255">4分15秒</option><option value="270">4分30秒</option><option value="285">4分45秒</option><option value="300">5分</option><option value="315">5分15秒</option><option value="330">5分30秒</option><option value="345">5分45秒</option><option value="360">6分</option><option value="375">6分15秒</option><option value="390">6分30秒</option><option value="405">6分45秒</option><option value="420">7分</option><option value="435">7分15秒</option><option value="450">7分30秒</option><option value="465">7分45秒</option><option value="480">8分</option><option value="495">8分15秒</option><option value="510">8分30秒</option><option value="525">8分45秒</option><option value="540">9分</option><option value="555">9分15秒</option><option value="570">9分30秒</option><option value="585">9分45秒</option><option value="600">10分</option></select></label></div><p class="hint">初回・お連れ様ともに卓番はS1〜S9を先頭に、全卓から選択できます。</p><div id="timerPreview" class="timer-preview"></div><div class="table-save-bar"><button type="button" class="primary" id="saveTable">保存</button></div><button class="danger hidden" id="endTableFromModal">この卓を終了</button></div></div></div><div id="utilityModal" class="sheet hidden"><div class="sheet-panel"><div class="handle"></div><div class="sheet-head"><h3 id="utilityTitle"></h3><button class="close" id="closeUtility">×</button></div><div id="utilityBody"></div></div></div><input id="importInput" type="file" accept="application/json" class="hidden"><div id="toast" class="toast hidden"></div>
+<script>
+const SCHEMA_VERSION='11.2.14-stable';
+const ROOT_KEY='swamp-flow-v11-root';
+const CASTS_KEY='swamp-flow-v11-casts';
+const TABLES_KEY='swamp-flow-v11-tables';
+const OPERATIONS_KEY='swamp-flow-v11-operations';
+const HISTORY_KEY='swamp-flow-v11-history';
+const SETTINGS_KEY='swamp-flow-v11-settings';
+const LEGACY_KEYS=['swamp-flow-v10.9','swamp-flow-v10.5'];
+const TABLE_SNAPSHOT_KEY='swamp-flow-table-snapshot-v11';
+const TEST_MODE_FLAG_KEY='swamp-flow-v11-test-mode-active';
+let TEST_MODE=localStorage.getItem(TEST_MODE_FLAG_KEY)==='1';
+function scopedStorageKey(key){return TEST_MODE?key+'-test':key}
+const sample={casts:[
+{id:'c1',name:'れい',rank:'S',team:'#9b6cff'},{id:'c2',name:'ゆうせい',rank:'S',team:'#4fc3f7'},{id:'c3',name:'のあ',rank:'S',team:'#ff7da8'},{id:'c4',name:'たいが',rank:'A',team:'#65d58a'},{id:'c5',name:'かぐや',rank:'A',team:'#ffd15c'},{id:'c6',name:'りょうすけ',rank:'B',team:'#ff9966'},{id:'c7',name:'なつき',rank:'C',team:'#7da1ff'}],tables:[],refusals:{},history:[],settings:{sendLimit:2}};
+let state=load(),selectedCast=null,selectedTable=null,editTableId=null,longTimer=null;
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function normalize(s){s=s&&typeof s==='object'?s:clone(sample);s.casts=Array.isArray(s.casts)?s.casts:[];s.tables=Array.isArray(s.tables)?s.tables:[];s.refusals=s.refusals||{};s.history=Array.isArray(s.history)?s.history:[];s.settings={sendLimit:2,...(s.settings||{})};s.casts.forEach((c,i)=>Object.assign(c,{id:c.id||'c'+Date.now()+i,rank:c.rank||'C',team:c.team||'#777777',working:c.working!==false,sends:Number(c.sends)||0,penalty:!!c.penalty,inHouse:!!c.inHouse,ngTables:Array.isArray(c.ngTables)?c.ngTables:[],currentTable:c.currentTable||null,preparingFor:c.preparingFor||null,order:Number.isFinite(c.order)?c.order:i}));s.tables.forEach(t=>{let companion=t.plan==='お連れ様';Object.assign(t,{active:t.active!==false,seated:Array.isArray(t.seated)?t.seated:[],senders:Array.isArray(t.senders)?t.senders:[],senderPending:Array.isArray(t.senderPending)?t.senderPending:[],lastSeatAt:t.lastSeatAt||null,ownerId:t.ownerId||'',timerMode:t.timerMode||'manual',autoTimer:t.autoTimer!==undefined?!!t.autoTimer:(t.timerMode==='auto'),targetEnabled:!!t.targetEnabled,alertEnabled:!!t.alertEnabled,targetMin:Number(t.targetMin)||50,cycleSec:Number(t.cycleSec)||Math.round((Number(t.cycle)||3)*60),lead:Number(t.lead)||90,rotationSize:[1,2,3].includes(Number(t.rotationSize))?Number(t.rotationSize):2,currentCastIds:Array.isArray(t.currentCastIds)?t.currentCastIds:(t.currentCastId?[t.currentCastId]:[]),companionPicks:Array.isArray(t.companionPicks)?t.companionPicks:[],companionApplicants:Array.isArray(t.companionApplicants)?t.companionApplicants:[],companionIncludeS:!!t.companionIncludeS,vipExceptions:Array.isArray(t.vipExceptions)?t.vipExceptions:[],groupNo:Number(t.groupNo)||0,autoHandledAt:Number(t.autoHandledAt)||0,rotationEnded:!!t.rotationEnded,pausedAt:Number(t.pausedAt)||0,totalPaused:Number(t.totalPaused)||0,extraSec:Number(t.extraSec)||0,pausedAt:Number(t.pausedAt)||0,totalPaused:Number(t.totalPaused)||0,extraSec:Number(t.extraSec)||0});delete t.currentCastId;t.cycle=t.cycleSec/60});return s}
+function operationFromState(s){
+  return {
+    refusals:clone(s.refusals||{}),
+    castStatus:Object.fromEntries((s.casts||[]).map(c=>[c.id,{
+      working:c.working!==false,sends:Number(c.sends)||0,penalty:!!c.penalty,
+      inHouse:!!c.inHouse,ngTables:clone(c.ngTables||[]),currentTable:c.currentTable||null,
+      preparingFor:c.preparingFor||null
+    }])),
+    tableStatus:Object.fromEntries((s.tables||[]).map(t=>[t.id,{
+      active:t.active!==false,seated:clone(t.seated||[]),senders:clone(t.senders||[]),
+      senderPending:clone(t.senderPending||[]),lastSeatAt:t.lastSeatAt||null,
+      currentCastIds:clone(t.currentCastIds||[]),groupNo:Number(t.groupNo)||0,
+      autoHandledAt:Number(t.autoHandledAt)||0,rotationEnded:!!t.rotationEnded
+    }]))
+  }
+}
+function splitState(s){
+  const operations=operationFromState(s);
+  const casts=(s.casts||[]).map(c=>({id:c.id,name:c.name,rank:c.rank,team:c.team,order:c.order}));
+  const tables=(s.tables||[]).map(t=>{const x=clone(t);['active','seated','senders','senderPending','lastSeatAt','currentCastIds','groupNo','autoHandledAt','rotationEnded','pausedAt','totalPaused','extraSec'].forEach(k=>delete x[k]);return x});
+  return {casts,tables,operations,history:clone(s.history||[]),settings:clone(s.settings||{})}
+}
+function mergeStore(parts){
+  const base={casts:clone(parts.casts||[]),tables:clone(parts.tables||[]),refusals:clone(parts.operations?.refusals||{}),history:clone(parts.history||[]),settings:clone(parts.settings||{})};
+  const castStatus=parts.operations?.castStatus||{},tableStatus=parts.operations?.tableStatus||{};
+  base.casts.forEach(c=>Object.assign(c,clone(castStatus[c.id]||{})));
+  base.tables.forEach(t=>Object.assign(t,clone(tableStatus[t.id]||{})));
+  return normalize(base)
+}
+function readJson(key,fallback){try{const raw=localStorage.getItem(scopedStorageKey(key));return raw?JSON.parse(raw):fallback}catch{return fallback}}
+function load(){
+  try{
+    const root=readJson(ROOT_KEY,null);
+    if(root?.schemaVersion&&String(root.schemaVersion).startsWith('11.')){
+      return mergeStore({
+        casts:readJson(CASTS_KEY,[]),tables:readJson(TABLES_KEY,[]),
+        operations:readJson(OPERATIONS_KEY,{}),history:readJson(HISTORY_KEY,[]),
+        settings:readJson(SETTINGS_KEY,{sendLimit:2})
+      })
+    }
+    if(!TEST_MODE){
+      for(const key of LEGACY_KEYS){
+        const raw=localStorage.getItem(key);
+        if(raw){const migrated=normalize(JSON.parse(raw));persistSplit(migrated,'legacy-migration');return migrated}
+      }
+    }
+  }catch(e){console.warn('load failed',e)}
+  const fresh=normalize(clone(sample));persistSplit(fresh,'fresh-install');return fresh
+}
+function persistSplit(s,reason='save'){
+  const p=splitState(s);
+  localStorage.setItem(scopedStorageKey(CASTS_KEY),JSON.stringify(p.casts));
+  localStorage.setItem(scopedStorageKey(TABLES_KEY),JSON.stringify(p.tables));
+  localStorage.setItem(scopedStorageKey(OPERATIONS_KEY),JSON.stringify(p.operations));
+  localStorage.setItem(scopedStorageKey(HISTORY_KEY),JSON.stringify(p.history));
+  localStorage.setItem(scopedStorageKey(SETTINGS_KEY),JSON.stringify(p.settings));
+  localStorage.setItem(scopedStorageKey(ROOT_KEY),JSON.stringify({schemaVersion:SCHEMA_VERSION,updatedAt:Date.now(),reason}));
+}
+function save(){persistSplit(state)}
+function makeFreshTestState(base){
+  const t=normalize(clone(base||sample));
+  t.tables=[];t.refusals={};t.history=[];
+  t.casts.forEach(c=>Object.assign(c,{working:true,sends:0,penalty:false,inHouse:false,currentTable:null,preparingFor:null,ngTables:[]}));
+  t.settings=clone(t.settings||{});
+  delete t.settings.monthlyStats;
+  delete t.settings.businessArchives;
+  delete t.settings.fogGoalsLastSync;
+  delete t.settings.extensionRankingBaselineApplied;
+  return normalize(t);
+}
+function updateTestModeUI(){
+  document.body.classList.toggle('test-mode-active',TEST_MODE);
+  const banner=document.querySelector('#testModeBanner');
+  if(banner)banner.classList.toggle('hidden',!TEST_MODE);
+  const btn=document.querySelector('#testModeMenu');
+  if(btn){
+    const sp=btn.querySelector('span'),sm=btn.querySelector('small');
+    if(sp)sp.textContent='テストモード：'+(TEST_MODE?'ON':'OFF');
+    if(sm)sm.textContent=TEST_MODE?'タップで本番モードへ戻る':'本番データを守ったまま操作テスト';
+  }
+}
+function toggleTestMode(){
+  if(TEST_MODE){
+    if(!confirm('本番モードに戻りますか？\n\nテスト中に入力した卓・履歴・集計は本番へ反映されません。'))return;
+    save();
+    TEST_MODE=false;
+    localStorage.removeItem(TEST_MODE_FLAG_KEY);
+    state=load();selectedCast=selectedTable=editTableId=null;
+    render();updateTestModeUI();
+    toast('本番モードに戻りました');
+    return;
+  }
+  if(!confirm('テストモードを開始しますか？\n\n・現在の本番データはそのまま保持\n・テスト操作は別保存\n・本番の月間集計には加算しない\n・FOG-GOALSには送信しない'))return;
+  save();
+  const production=clone(state);
+  TEST_MODE=true;
+  localStorage.setItem(TEST_MODE_FLAG_KEY,'1');
+  state=makeFreshTestState(production);
+  persistSplit(state,'test-mode-start');
+  selectedCast=selectedTable=editTableId=null;
+  render();updateTestModeUI();
+  toast('テストモードを開始しました');
+}
+function now(){return Date.now()} function pad(n){return String(n).padStart(2,'0')} function hm(t){let d=new Date(t);return pad(d.getHours())+':'+pad(d.getMinutes())}
+function fmt(sec){let neg=sec<0;sec=Math.abs(Math.floor(sec));return(neg?'+':'')+Math.floor(sec/60)+':'+pad(sec%60)}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function toast(s){let e=document.querySelector('#toast');e.textContent=s;e.classList.remove('hidden');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.add('hidden'),1900)}
+function tablePhase(t){if(!t.active)return null;if(t.rotationEnded)return{sec:0,stage:'ended'};if(!t.lastSeatAt)return{sec:0,stage:'idle'};let elapsed=(now()-t.lastSeatAt)/1000,remaining=(t.cycleSec||t.cycle*60)-elapsed;if(remaining<=0)return{sec:remaining,stage:'over'};if(t.alertEnabled===false)return{sec:remaining,stage:'normal'};let lead=Math.max(30,Number(t.lead)||90);if(remaining<=30)return{sec:remaining,stage:'urgent'};if(remaining<=lead)return{sec:remaining,stage:'prepare'};if(remaining<=180)return{sec:remaining,stage:'find'};return{sec:remaining,stage:'normal'}}
+function isCompanion(t){return t.plan==='お連れ様'}
+function companionCategory(c,t){if(!isCompanion(t))return'';let owner=state.casts.find(x=>x.id===t.ownerId);if((t.companionPicks||[]).includes(c.id))return'担当指名';if(owner&&c.team===owner.team&&c.id!==owner.id)return'同チーム';if(t.companionIncludeS&&c.rank==='S'&&c.id!==owner?.id)return'Sランク候補';if((t.companionApplicants||[]).includes(c.id))return'申告者';return''}
+function isVipException(c,t){return t.plan==='VIP'&&(t.vipExceptions||[]).includes(c.id)}
+function vipExceptionLabel(c,t){return isVipException(c,t)?'VIP例外':''}
+function openVipExceptions(tableId){
+  const t=state.tables.find(x=>x.id===tableId&&x.active);if(!t||t.plan!=='VIP')return;
+  const list=state.casts.filter(c=>c.rank!=='S').sort((a,b)=>rankPriority(a.rank)-rankPriority(b.rank)||(a.order??0)-(b.order??0));
+  openUtility(t.no+'・VIP例外キャスト',`<div class="notice">A・B・Cランクを、このVIP卓だけ着席可能にします。勤怠ペナルティ・休み・卓別NG・着席拒否などは引き続き優先されます。</div><div class="info-card" style="margin-top:10px">${list.map(c=>`<label class="switch-row"><span><b>${esc(c.name)}</b>　${c.rank}ランク</span><input class="vipExCheck" type="checkbox" value="${c.id}" ${(t.vipExceptions||[]).includes(c.id)?'checked':''}></label>`).join('')||'<p class="hint">A・B・Cランクの登録がありません</p>'}</div><button class="primary" id="saveVipExceptions">保存</button>`);
+  const btn=document.querySelector('#saveVipExceptions');if(btn)btn.onclick=()=>{t.vipExceptions=[...document.querySelectorAll('.vipExCheck:checked')].map(x=>x.value);save();closeUtility();render();toast('VIP例外を保存しました')};
+}
+function staticBlockReason(c,t){if(!c.working)return'本日休み';if((t.seated||[]).includes(c.id))return'着席済み';if(state.refusals[c.id+'|'+t.id])return'着席拒否';if(c.ngTables.includes(t.id))return'卓別NG';if(isCompanion(t)&&t.ownerId&&t.ownerId===c.id)return'お連れ様担当本人';if(isCompanion(t)&&t.ownerId&&!companionCategory(c,t))return'お連れ様候補外';if(t.plan==='VIP'&&c.rank!=='S'&&!(t.vipExceptions||[]).includes(c.id))return'VIP対象外';if(c.penalty&&!isCompanion(t)&&!(t.restrictionOverrides||[]).includes(c.id))return'勤怠ペナルティ（お連れ様以外不可）';if(isInHouseRestricted(c)&&!isCompanion(t)&&t.plan!=='VIP')return'場内中（1時間目）';if(c.sends>=state.settings.sendLimit&&!isCompanion(t)&&t.plan!=='VIP'&&!(t.restrictionOverrides||[]).includes(c.id))return'送り上限';return''}
+function eligibleCountFor(plan,ownerId=''){let temp={id:'preview',plan,ownerId,seated:[]};return state.casts.filter(c=>!staticBlockReason(c,temp)).length}
+function tableStats(t){let total=state.casts.filter(c=>!staticBlockReason(c,t)).length,done=(t.seated||[]).length,remaining=Math.max(0,total-done),size=t.rotationSize||2,totalTurns=Math.ceil(total/size),doneTurns=Math.floor(done/size),remainingTurns=Math.ceil(remaining/size);return{total,done,remaining,size,totalTurns,doneTurns,remainingTurns}}
+function calculateCycleSec(plan,targetMin,count,rotationSize=2){let fallback=plan==='お連れ様'?300:180,turns=Math.ceil(count/Math.max(1,rotationSize));if(!turns)return fallback;return Math.max(60,Math.min(600,Math.round(targetMin*60/turns)))}
+function cycleLabel(t){let sec=Math.round(t.cycleSec||t.cycle*60),m=Math.floor(sec/60),r=sec%60;return r?m+'分'+r+'秒':m+'分'}
+function preparingCasts(t){return state.casts.filter(c=>c.preparingFor===t.id&&!c.currentTable)}
+function isInHouseRestricted(c){
+  if(!c||!c.inHouse)return false;
+  // 場内開始時刻がない旧データは、ONになった時点から1時間として扱う
+  if(!c.inHouseSince){c.inHouseSince=now();save()}
+  return (now()-c.inHouseSince)<60*60*1000;
+}
+function inHouseRestrictionRemaining(c){
+  if(!isInHouseRestricted(c))return 0;
+  return Math.max(0,60*60*1000-(now()-c.inHouseSince));
+}
+function blockReason(c,t){if(!c.working)return'本日休み';if(c.currentTable)return'着席中';if(c.preparingFor&&c.preparingFor!==t.id)return'別卓で準備中 '+tableNo(c.preparingFor);if(preparingCasts(t).length>=(t.rotationSize||2)&&c.preparingFor!==t.id)return'準備枠満員 '+preparingCasts(t).map(x=>x.name).join('・');if((t.seated||[]).includes(c.id))return'着席済み';if(state.refusals[c.id+'|'+t.id])return'着席拒否';if(c.ngTables.includes(t.id))return'卓別NG';if(isCompanion(t)&&t.ownerId&&t.ownerId===c.id)return'お連れ様担当本人';if(isCompanion(t)&&t.ownerId&&!companionCategory(c,t))return'お連れ様候補外';if(t.plan==='VIP'&&c.rank!=='S'&&!(t.vipExceptions||[]).includes(c.id))return'VIP対象外';if(c.penalty&&!isCompanion(t)&&!(t.restrictionOverrides||[]).includes(c.id))return'勤怠ペナルティ（お連れ様以外不可）';if(isInHouseRestricted(c)&&!isCompanion(t)&&t.plan!=='VIP')return'場内中（1時間目）';if(c.sends>=state.settings.sendLimit&&!isCompanion(t)&&t.plan!=='VIP'&&!(t.restrictionOverrides||[]).includes(c.id))return'送り上限';return''}
+function eligible(c,t){return !!t.active&&!blockReason(c,t)}
+function remainingTablesFor(c){return state.tables.filter(t=>t.active&&!t.rotationEnded&&!(t.seated||[]).includes(c.id)&&!staticBlockReason(c,t)).sort((a,b)=>a.entryAt-b.entryAt)}
+function candidatesFor(c){return state.tables.filter(t=>eligible(c,t)).sort((a,b)=>a.entryAt-b.entryAt)}
+function rankOrder(rank){return({C:0,B:1,A:2,S:3})[rank]??9}
+function companionPriority(c,t){let k=companionCategory(c,t);return k==='担当指名'?0:k==='同チーム'?1:k==='Sランク候補'?2:k==='申告者'?3:9}
+function rankPriority(rank){return rank==='C'?0:rank==='B'?1:rank==='A'?2:3}
+function candidatesForTable(t){if(t.rotationEnded)return[];return state.casts.filter(c=>eligible(c,t)&&!c.preparingFor).sort((a,b)=>rankPriority(a.rank)-rankPriority(b.rank)||(isCompanion(t)?companionPriority(a,t)-companionPriority(b,t):0)||((a.order||0)-(b.order||0)))}
+function castState(c){if(!c.working)return['blocked','休み'];if(c.preparingFor)return['preparing','準備中 '+tableNo(c.preparingFor)];if(c.currentTable)return['seated','着席 '+tableNo(c.currentTable)];if(!state.tables.some(t=>t.active))return['blocked','対象なし'];let remaining=remainingTablesFor(c),now=candidatesFor(c);if(remaining.length===0)return['done','完走'];if(now.length===0)return['blocked','待機・残'+remaining.length+'卓'];return['available','残'+remaining.length+'卓']}
+function tableNo(id){return state.tables.find(t=>t.id===id)?.no||''}
+function preparedForTable(t){return preparingCasts(t).slice(0,t.rotationSize||2)}
+function completeSwap(t,source='auto'){
+ if(!t||!t.active)return false;
+ const handledCycleStart=t.lastSeatAt||0;
+ let next=preparedForTable(t),current=(t.currentCastIds||[]).map(id=>state.casts.find(c=>c.id===id)).filter(Boolean);
+ if(!next.length){if(source==='manual')toast('準備中のキャストがいません');return false}
+ let stamp=now();
+ current.forEach(previous=>{
+   previous.currentTable=null;previous.preparingFor=null;
+   state.history.push({type:'leave',cast:previous.id,table:t.id,castName:previous.name,tableNo:t.no,group:t.groupNo||1,at:stamp,reason:'交代'});
+ });
+ t.currentCastIds=[];t.groupNo=(t.groupNo||0)+1;
+ next.forEach((c,i)=>{
+   c.currentTable=t.id;c.preparingFor=null;t.currentCastIds.push(c.id);
+   t.seated=t.seated||[];if(!t.seated.includes(c.id))t.seated.push(c.id);
+   state.history.push({type:'seat',cast:c.id,table:t.id,castName:c.name,tableNo:t.no,turn:t.groupNo,slot:i+1,at:stamp,source});
+ });
+ t.lastSeatAt=stamp;t.autoHandledAt=handledCycleStart;
+ save();
+ if(navigator.vibrate)navigator.vibrate([70,40,70]);
+ toast((current.map(c=>c.name).join('・')||'空席')+' → '+next.map(c=>c.name).join('・')+' 交代完了');
+ return true
+}
 
+function seatPreparedGroup(t){
+ if(!t||!t.active)return false;
+ const prepared=preparedForTable(t);
+ if(!prepared.length){toast('準備中のキャストがいません');return false}
+ const size=t.rotationSize||2;
+ const current=(t.currentCastIds||[]).map(id=>state.casts.find(c=>c.id===id)).filter(Boolean);
+ // すでに着席者がいる場合は、準備中グループへまとめて交代
+ if(current.length)return completeSwap(t,'manual');
+ const stamp=now();
+ t.currentCastIds=[];
+ t.groupNo=(t.groupNo||0)+1;
+ prepared.slice(0,size).forEach((c,i)=>{
+   c.currentTable=t.id;
+   c.preparingFor=null;
+   t.currentCastIds.push(c.id);
+   t.seated=t.seated||[];
+   if(!t.seated.includes(c.id))t.seated.push(c.id);
+   state.history.push({type:'seat',cast:c.id,table:t.id,castName:c.name,tableNo:t.no,turn:t.groupNo,slot:i+1,at:stamp,source:'manual-group'});
+ });
+ t.lastSeatAt=stamp;
+ t.autoHandledAt=0;
+ save();
+ if(navigator.vibrate)navigator.vibrate([70,40,70]);
+ toast(prepared.slice(0,size).map(c=>c.name).join('・')+' → '+t.no+' 同時着席');
+ render();
+ return true;
+}
+
+function processAutoSwaps(){
+ // 交代時間を過ぎても、準備中キャストを自動では着席させない。
+ // 実際の交代確認後に「今すぐ交代」または手動確定で着席させる。
+ return false
+}
+function render(){document.querySelector('#clock').textContent=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});let active=state.tables.filter(t=>t.active);document.querySelector('#mTables').textContent=active.length;document.querySelector('#mSeated').textContent=state.casts.filter(c=>c.currentTable).length;document.querySelector('#mAlerts').textContent=active.filter(t=>['find','prepare','urgent','over'].includes(tablePhase(t).stage)).length;renderDirectBoard();renderTables();renderStatus();if(!document.querySelector('#sheet').classList.contains('hidden')){if(selectedTable&&!selectedCast)renderTableCandidates();else if(selectedCast)renderCandidates()}}
+function renderDirectBoard(){
+ let box=document.querySelector('#directBoard');if(!box)return;
+ // 再描画前に、卓全体の横位置と各卓のキャスト一覧の縦位置を保存する
+ let boardScrollLeft=box.scrollLeft;
+ let listScrolls={};
+ box.querySelectorAll('.direct-list[data-scroll-table]').forEach(el=>{listScrolls[el.dataset.scrollTable]=el.scrollTop});
+ let tables=state.tables.filter(t=>t.active); // 配列順＝卓を追加した順番
+ if(!tables.length){box.innerHTML='<div class="info-card" style="min-width:calc(100vw - 20px)">卓設定から卓を追加してください。</div>';return}
+ box.innerHTML=tables.map(t=>{
+   let p=tablePhase(t),current=(t.currentCastIds||[]).map(id=>state.casts.find(c=>c.id===id)).filter(Boolean),prepared=preparingCasts(t),st=tableStats(t);
+   let candidates=state.casts.filter(c=>c.working&&!(t.seated||[]).includes(c.id)).sort((a,b)=>['S','A','B','C'].indexOf(a.rank)-['S','A','B','C'].indexOf(b.rank)||(a.order??0)-(b.order??0));
+   let rankHtml=['S','A','B','C'].map(rank=>{let list=candidates.filter(c=>c.rank===rank);if(!list.length)return'';return '<div class="direct-rank">'+rank+'ランク</div>'+list.map(c=>{let reason=blockReason(c,t),prep=c.preparingFor===t.id;return `<button class="direct-cast ${reason&&!prep?'blocked':''} ${prep?'preparing':''}" data-direct-table="${t.id}" data-direct-cast="${c.id}" style="--team:${esc(c.team)}"><b>${esc(c.name)}</b><small>${prep?'準備中':reason?esc(reason):'タップで着席'}</small></button>`}).join('')}).join('');
+   let time=!t.lastSeatAt?'未開始':p.stage==='over'?'超過 '+fmt(p.sec):fmt(p.sec);
+   return `<section class="direct-table ${p.stage||''} ${t.rotationEnded?'direct-table-ended':''}"><div class="direct-table-head"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名／${t.rotationSize||2}人回し<br><div class="direct-outcome-actions"><div class="direct-send-quick"><button class="direct-send-open ${(t.senders||[]).length?'has-send':''}" data-quick-send="${t.id}"><b>送り</b></button></div><button class="direct-inhouse-open" data-quick-inhouse="${t.id}">場内</button></div></div></div><div class="direct-current"><b>現在着席</b>${esc(current.map(c=>c.name).join('・')||'空席')}${prepared.length?'<br>準備中：'+esc(prepared.map(c=>c.name).join('・')):''}</div><div class="direct-list" data-scroll-table="${t.id}">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前をタップ → 即着席・タイマースタート<br>着席中の名前は営業状況から解除</div></section>`
+ }).join('');
+ box.querySelectorAll('[data-direct-cast]').forEach(btn=>{btn.onclick=()=>{let c=state.casts.find(x=>x.id===btn.dataset.directCast),t=state.tables.find(x=>x.id===btn.dataset.directTable);if(!c||!t)return;let reason=blockReason(c,t);if(reason){toast(reason);return}seat(c,t)};bindLong(btn,()=>{let c=state.casts.find(x=>x.id===btn.dataset.directCast);if(c?.preparingFor===btn.dataset.directTable){c.preparingFor=null;save();render();toast(c.name+'の準備を解除しました')}})});
+ box.querySelectorAll('[data-quick-send]').forEach(b=>{b.onclick=(e)=>{e.stopPropagation();openQuickSendAndFinish(b.dataset.quickSend)}});
+ box.querySelectorAll('[data-quick-inhouse]').forEach(b=>{b.onclick=(e)=>{e.stopPropagation();openQuickInHouseAndFinish(b.dataset.quickInhouse)}});
+ // DOM差し替え後に、タップ前のスクロール位置を復元する
+ requestAnimationFrame(()=>{
+   box.scrollLeft=boardScrollLeft;
+   box.querySelectorAll('.direct-list[data-scroll-table]').forEach(el=>{
+     let saved=listScrolls[el.dataset.scrollTable];
+     if(Number.isFinite(saved))el.scrollTop=saved;
+   });
+ });
+}
+function renderAlerts(arr){let box=document.querySelector('#alerts');if(!arr.length){box.innerHTML='<div class="alert-card"><div class="alert-next">現在、稼働中の初回卓はありません</div></div>';return}arr.sort((a,b)=>a.entryAt-b.entryAt);box.innerHTML=arr.map(t=>{let p=tablePhase(t),prepared=preparedForTable(t),current=(t.currentCastIds||[]).map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean),nextNames=prepared.map(c=>c.name),candidate=candidatesForTable(t).slice(0,3).map(c=>c.name).join('・')||'候補なし',flow=(current.join('・')||'未着席')+' → '+(nextNames.join('・')||'未選択'),idle=p.stage==='idle',ended=p.stage==='ended';return`<div class="alert-card ${p.stage}" ${ended?'':`data-open-table="${t.id}"`}><div class="alert-top"><span class="alert-table">${esc(t.no)}</span><span class="alert-plan">${esc(t.plan)}</span></div><div class="alert-time">${ended?'回し一時終了':idle?'卓設定済み・着席待ち':p.stage==='over'?'交代時刻超過 '+fmt(p.sec):'あと '+fmt(p.sec)}</div><div class="alert-next">${ended?'送り有り／送り無しを選んで卓終了してください':idle?'1ターン目のキャストを選んでください':p.stage==='urgent'?'交代準備中':p.stage==='over'?'交代時間超過・準備中を維持':p.stage==='prepare'?'次キャスト呼び出し・待機':'次に回すキャストを見つけてください'}</div><div class="swap-flow">${esc(flow)}</div>${ended?'':p.stage==='urgent'||p.stage==='over'?`<button class="swap-now" data-swap-now="${t.id}">今すぐ交代</button>`:`<button class="secondary" style="width:100%;margin-top:8px" data-open-table-button="${t.id}">候補を選ぶ：${esc(candidate)}</button>`}</div>`}).join('');box.querySelectorAll('[data-open-table]').forEach(card=>card.onclick=e=>{if(e.target.closest('[data-swap-now]'))return;openTableCandidates(card.dataset.openTable)});box.querySelectorAll('[data-open-table-button]').forEach(b=>b.onclick=e=>{e.stopPropagation();openTableCandidates(b.dataset.openTableButton)});box.querySelectorAll('[data-swap-now]').forEach(b=>b.onclick=e=>{e.stopPropagation();let t=state.tables.find(x=>x.id===b.dataset.swapNow);if(completeSwap(t,'manual'))render()})}
+function restrictionsText(c){let a=[];if(!c.working)a.push('休み');if(c.penalty)a.push('勤怠ペナルティ');if(c.inHouse)a.push(isInHouseRestricted(c)?'場内中（1時間目制限）':'場内中（2時間目〜制限解除）');if(c.sends>=state.settings.sendLimit)a.push('送り上限');if(c.ngTables.length)a.push('卓NG '+c.ngTables.length);return a.join('・')}
+function restrictionIcons(c){let a=[];if(!c.working)a.push('休');if(c.penalty)a.push('勤');if(c.inHouse)a.push(isInHouseRestricted(c)?'場':'場✓');if(c.sends>=state.settings.sendLimit)a.push('送');if(c.ngTables.length)a.push('NG');return a.map(x=>`<span class="tag red">${x}</span>`).join('')}
+function renderCasts(){let root=document.querySelector('#casts');root.innerHTML='';for(let rank of ['S','A','B','C']){let list=state.casts.filter(c=>c.rank===rank).sort((a,b)=>(a.order??0)-(b.order??0));if(!list.length)continue;let sec=document.createElement('section');sec.className='rank';sec.innerHTML=`<div class="section-head"><h2>${rank}ランク</h2><span>${list.length}名</span></div><div class="cast-list"></div>`;let wrap=sec.querySelector('.cast-list');list.forEach(c=>{let [cls,label]=castState(c),b=document.createElement('button'),r=restrictionsText(c),remaining=remainingTablesFor(c),remainingText=remaining.map(t=>t.no+(t.plan==='VIP'?' VIP':isCompanion(t)?' 連':'')).join('・');b.className='cast '+cls;b.style.setProperty('--team',c.team);b.innerHTML=`<span class="cast-main"><div class="cast-name">${esc(c.name)} ${restrictionIcons(c)}</div><div class="cast-sub">${c.preparingFor?'声掛け済み・'+tableNo(c.preparingFor)+' 卓前待機':c.currentTable?'現在 '+tableNo(c.currentTable)+' に着席中':r||esc(remainingText||'着席可能卓なし')}</div>${c.currentTable?'<span class="release-chip" data-release="1">着席解除</span>':cls==='done'?'<span class="release-chip" data-complete-undo="1">完走解除</span>':''}</span><span class="cast-state">${label}</span>`;b.onclick=e=>{if(e.target.closest('[data-release]')){e.stopPropagation();undoCast(c);return}if(e.target.closest('[data-complete-undo]')){e.stopPropagation();openCompletionUndo(c.id);return}if(cls==='available')openCandidates(c.id);else if(cls==='preparing')openCandidates(c.id,c.preparingFor);else if(cls==='done')openCompletionUndo(c.id)};bindLong(b,()=>{if(c.currentTable||c.preparingFor)undoCast(c);else openCompanionApply(c.id)});wrap.appendChild(b)});root.appendChild(sec)}}
+function openTableCandidates(tid){let t=state.tables.find(x=>x.id===tid&&x.active&&!x.rotationEnded);if(!t){toast('稼働中の卓が見つかりません');return}selectedTable=tid;selectedCast=null;document.querySelector('#sheet').classList.remove('hidden');renderTableCandidates()}
+function renderTableCandidates(){let t=state.tables.find(x=>x.id===selectedTable&&x.active&&!x.rotationEnded);if(!t){document.querySelector('#sheet').classList.add('hidden');selectedTable=null;return}let prepared=preparingCasts(t),size=t.rotationSize||2,current=(t.currentCastIds||[]).map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean);document.querySelector('#sheetTitle').textContent=t.no+'・次キャスト選択';document.querySelector('#sheetHint').textContent='候補をタップして準備中へ。必要人数を選んだら「準備中を同時着席」。長押しで準備を個別解除できます。';let ordered=candidatesForTable(t),all=state.casts.filter(c=>c.working&&!t.seated.includes(c.id)).sort((a,b)=>{let ai=ordered.findIndex(x=>x.id===a.id),bi=ordered.findIndex(x=>x.id===b.id);ai=ai<0?999:ai;bi=bi<0?999:bi;return rankPriority(a.rank)-rankPriority(b.rank)||ai-bi||(a.order??0)-(b.order??0)}),box=document.querySelector('#candidates');box.className='table-candidate-list';let recommended=ordered.slice(0,Math.max(3,size)).map(c=>c.rank+'・'+c.name).join('　')||'候補なし';let rankHtml=['C','B','A','S'].map(rank=>{let list=all.filter(c=>c.rank===rank);if(!list.length)return'';return`<div class="section-head" style="margin-top:10px"><h2>${rank}ランク</h2><span>${list.length}名</span></div>`+list.map(c=>{let prep=c.preparingFor===t.id,reason=prep?'準備中・卓前待機':blockReason(c,t),blocked=!!reason&&!prep,refused=!!state.refusals[c.id+'|'+t.id],vipEx=isVipException(c,t);return`<div class="table-candidate ${prep?'preparing':''} ${blocked?'blocked':''}" data-table-cast="${c.id}"><span class="rank-chip">${esc(c.rank)}</span><span class="candidate-main"><div class="candidate-name">${esc(c.name)}</div><div class="candidate-reason">${esc(refused?'着席拒否中（長押しで解除）':reason||(vipEx?'VIP例外・タップで準備中':'タップで準備中'))}</div></span><span class="candidate-state">${prep?'準備中':blocked?'選択不可':'候補'}</span><button class="reject-mini" data-no-long-bubble="1" data-table-refuse="${c.id}">${refused?'拒否中':'拒否'}</button></div>`}).join('')}).join('');box.innerHTML=`<div class="notice">現在：${esc(current.join('・')||'空席')}　／　準備中 ${prepared.length}/${size}名<br><b>次の候補（C→B→A→S）：${esc(recommended)}</b></div>`+rankHtml+`${t.plan==='VIP'?'<button class="secondary" id="openVipExceptionsFromTable">VIP例外キャスト追加</button>':''}<div class="table-sheet-actions"><div class="selected-count">準備中：${esc(prepared.map(c=>c.name).join('・')||'未選択')}</div><button class="primary" id="seatPreparedFromTable" ${prepared.length?'':'disabled'}>準備中${prepared.length}名を同時着席</button><button class="secondary" id="closeTableSelection">閉じる</button></div>`;const vipBtn=document.querySelector('#openVipExceptionsFromTable');if(vipBtn)vipBtn.onclick=()=>openVipExceptions(t.id);box.querySelectorAll('[data-table-cast]').forEach(row=>{let c=state.casts.find(x=>x.id===row.dataset.tableCast);row.onclick=e=>{if(e.target.closest('[data-table-refuse]'))return;if(c.preparingFor===t.id){c.preparingFor=null;save();renderTableCandidates();render();toast(c.name+'の準備を解除しました');return}let reason=blockReason(c,t);if(reason){toast(reason);return}c.preparingFor=t.id;save();renderTableCandidates();render();toast(c.name+'を'+t.no+'準備中へ')};bindLong(row,()=>{if(c.preparingFor===t.id){c.preparingFor=null;save();renderTableCandidates();render();toast(c.name+'の準備を解除しました')}})});box.querySelectorAll('[data-table-refuse]').forEach(b=>{let c=state.casts.find(x=>x.id===b.dataset.tableRefuse),key=c.id+'|'+t.id;['touchstart','touchmove','touchend','touchcancel','pointerdown','pointerup'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));b.onclick=e=>{clearTimeout(longTimer);e.preventDefault();e.stopPropagation();if(!state.refusals[key]){state.refusals[key]=true;if(c.preparingFor===t.id)c.preparingFor=null;save();toast(c.name+'の着席拒否を登録')}renderTableCandidates();render()};bindLong(b,()=>{if(state.refusals[key]){delete state.refusals[key];save();renderTableCandidates();render();toast(c.name+'の着席拒否を解除')}})});document.querySelector('#seatPreparedFromTable').onclick=()=>{if(seatPreparedGroup(t)){document.querySelector('#sheet').classList.add('hidden');selectedTable=null;render()}};document.querySelector('#closeTableSelection').onclick=()=>{document.querySelector('#sheet').classList.add('hidden');selectedTable=null}}
+function openCandidates(cid,preferred){selectedCast=cid;selectedTable=null;document.querySelector('#sheet').classList.remove('hidden');document.querySelector('#sheetHint').textContent='補助操作：卓カードをタップで準備中、同じ卓をもう一度タップで同時着席。着席拒否も登録できます。';document.querySelector('#candidates').className='table-scroll';renderCandidates()}
+function renderCandidates(){document.querySelector('#candidates').className='table-scroll';let c=state.casts.find(x=>x.id===selectedCast);if(!c)return;document.querySelector('#sheetTitle').textContent=c.name+' の卓選択・着席拒否';let tables=state.tables.filter(t=>t.active&&!t.rotationEnded&&!(t.seated||[]).includes(c.id)).sort((a,b)=>a.entryAt-b.entryAt),box=document.querySelector('#candidates');box.innerHTML=tables.map(t=>{let refused=!!state.refusals[c.id+'|'+t.id],reasonBlocked=blockReason(c,t),ok=!reasonBlocked,p=tablePhase(t),sel=selectedTable===t.id||c.preparingFor===t.id,reason=reasonBlocked|| (isCompanion(t)?companionCategory(c,t)+'／':'')+(p?.stage==='over'?'タイマー超過':p?.stage==='urgent'?'交代準備中':p?.stage==='prepare'?'呼び出し・待機時間':p?.stage==='find'?'次キャストを探す時間':'入店順');return`<div class="table-card ${sel?'selected':''} ${refused?'refused':''}" data-tid="${t.id}"><div class="table-line"><span class="table-no">${esc(t.no)}</span><span class="plan">${esc(t.plan)}</span></div><div class="entry">入店 ${hm(t.entryAt)}　${t.guests}名</div><div class="t-time">${!t.lastSeatAt?'未開始':p.stage==='over'?'超過 '+fmt(p.sec):fmt(p.sec)}</div><div class="meta">${cycleLabel(t)}回し／3分前に次を探す・90秒前に呼び出し・30秒前から交代準備<br>残${tableStats(t).remaining}人・残${tableStats(t).remainingTurns}ターン／${t.rotationSize||2}人回し</div><div class="reason">${esc(reason)}</div>${refused?`<button class="refuse" data-no-long-bubble="1" data-refuse="${t.id}" data-refused="1">着席拒否中（長押しで解除）</button>`:`<button class="refuse" data-no-long-bubble="1" data-refuse="${t.id}">着席拒否</button>`}${sel&&!reasonBlocked?'<div class="tap-note">もう一度タップで準備中全員を同時着席</div>':''}</div>`}).join('')||'<div class="hint">対象卓がありません</div>';box.querySelectorAll('.table-card').forEach(card=>{let tid=card.dataset.tid;card.onclick=e=>{if(e.target.dataset.refuse)return;let t=state.tables.find(x=>x.id===tid);if(blockReason(c,t)){toast(blockReason(c,t));return}if(selectedTable===tid||c.preparingFor===tid){seatPreparedGroup(t);document.querySelector('#sheet').classList.add('hidden');selectedCast=selectedTable=null}else{let reason=blockReason(c,t);if(reason){toast(reason);return}selectedTable=null;c.preparingFor=tid;save();document.querySelector('#sheet').classList.add('hidden');selectedCast=null;render();toast(c.name+'へ声掛け・'+t.no+'待機。もう一度キャストをタップすると着席できます')}};bindLong(card,()=>undoPair(c,tid))});box.querySelectorAll('[data-refuse]').forEach(b=>{let tid=b.dataset.refuse,key=c.id+'|'+tid;['touchstart','touchmove','touchend','touchcancel','pointerdown','pointerup'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));b.onclick=e=>{clearTimeout(longTimer);e.preventDefault();e.stopPropagation();if(state.refusals[key]){toast('解除する場合は長押ししてください');return}state.refusals[key]=true;selectedTable=null;if(c.preparingFor===tid)c.preparingFor=null;save();render();toast(c.name+'の着席拒否を登録')};bindLong(b,()=>{if(!state.refusals[key])return;delete state.refusals[key];save();render();toast(c.name+'の着席拒否を解除しました')})})}
+function seat(c,t){
+ if(!eligible(c,t)){toast(blockReason(c,t)||'現在は着席できません');return}
+ let size=t.rotationSize||2,current=(t.currentCastIds||[]).map(id=>state.casts.find(x=>x.id===id)).filter(Boolean),wasEmpty=current.length===0;
+ // 現在グループが満員なら、次グループ開始として全員を交代
+ if(current.length>=size){
+   current.forEach(previous=>{previous.currentTable=null;previous.preparingFor=null;state.history.push({type:'leave',cast:previous.id,table:t.id,castName:previous.name,tableNo:t.no,group:t.groupNo||1,at:now()})});
+   t.currentCastIds=[];t.groupNo=(t.groupNo||0)+1;current=[];
+ }
+ if(!t.groupNo)t.groupNo=1;
+ // 同じ卓で準備中の他キャストは維持する。着席確定した本人だけ準備中を解除する。
+ c.currentTable=t.id;c.preparingFor=null;t.currentCastIds=t.currentCastIds||[];
+ if(!t.currentCastIds.includes(c.id))t.currentCastIds.push(c.id);
+ t.seated=t.seated||[];if(!t.seated.includes(c.id))t.seated.push(c.id);
+ let st=tableStats(t),needed=Math.min(size,t.currentCastIds.length+st.remaining);
+ // 卓別ワンタップ画面では最初の1名をタップした時点でタイマー開始。2人目・3人目追加ではリセットしない。
+ if(wasEmpty||!t.lastSeatAt){t.lastSeatAt=now();t.autoHandledAt=0;}
+ state.history.push({type:'seat',cast:c.id,table:t.id,castName:c.name,tableNo:t.no,turn:t.groupNo,slot:t.currentCastIds.length,at:now()});
+ save();document.querySelector('#sheet').classList.add('hidden');selectedCast=selectedTable=null;
+ if(navigator.vibrate)navigator.vibrate(80);
+ let names=t.currentCastIds.map(id=>state.casts.find(x=>x.id===id)?.name).filter(Boolean).join('・');
+ toast(names+' → '+t.no+' '+t.currentCastIds.length+'/'+size+'名着席');render()
+}
+function openCompletionUndo(cid){
+ let c=state.casts.find(x=>x.id===cid);if(!c)return;
+ let completed=state.tables.filter(t=>t.active&&(t.seated||[]).includes(cid)).sort((a,b)=>a.entryAt-b.entryAt);
+ if(!completed.length){toast('解除できる完走卓がありません');return}
+ openUtility(c.name+'・完走解除',`<div class="notice">間違って完走扱いにした卓を選んでください。選択した卓を未着席へ戻し、着席履歴・残り人数・残りターンを再計算します。</div><div class="info-card" style="margin-top:10px">${completed.map(t=>`<div class="list-row"><div class="list-main"><b>${esc(t.no)}　${esc(t.plan)}</b><small>この卓を未着席に戻す</small></div><button class="icon-btn" data-complete-undo-table="${t.id}">解除</button></div>`).join('')}</div>`);
+ document.querySelectorAll('[data-complete-undo-table]').forEach(b=>b.onclick=()=>{
+   let tid=b.dataset.completeUndoTable,t=state.tables.find(x=>x.id===tid);if(!t)return;
+   if(!confirm(c.name+'の'+t.no+'完走を解除しますか？\nこの卓を未着席へ戻します。'))return;
+   t.seated=(t.seated||[]).filter(id=>id!==cid);
+   t.currentCastIds=(t.currentCastIds||[]).filter(id=>id!==cid);
+   if(c.currentTable===tid)c.currentTable=null;
+   if(c.preparingFor===tid)c.preparingFor=null;
+   let idx=state.history.map(h=>h.type==='seat'&&h.cast===cid&&h.table===tid).lastIndexOf(true);
+   if(idx>=0)state.history.splice(idx,1);
+   if(!t.currentCastIds.length)t.lastSeatAt=null;
+   save();closeUtility();render();toast(c.name+'を'+t.no+'未着席へ戻しました');
+ });
+}
+function undoCast(c){if(c.currentTable){let tid=c.currentTable,t=state.tables.find(x=>x.id===tid);if(t){t.seated=(t.seated||[]).filter(id=>id!==c.id);t.currentCastIds=(t.currentCastIds||[]).filter(id=>id!==c.id);if(!t.currentCastIds.length)t.lastSeatAt=null}let idx=state.history.map(h=>h.type==='seat'&&h.cast===c.id&&h.table===tid).lastIndexOf(true);if(idx>=0)state.history.splice(idx,1);c.currentTable=null;save();render();toast(c.name+'の着席を取り消しました')}else if(c.preparingFor){c.preparingFor=null;save();render();toast('準備中を解除しました')}}
+function undoPair(c,tid){let k=c.id+'|'+tid;if(state.refusals[k]){delete state.refusals[k];save();render();toast('着席拒否を解除しました');return}if(selectedTable===tid||c.preparingFor===tid){selectedTable=null;if(c.preparingFor===tid)c.preparingFor=null;save();render();toast('準備中を解除しました')}}
+function bindLong(el,fn){let timer=null,longFired=false;const blockedTarget=e=>e.target&&e.target.closest&&e.target.closest('[data-no-long-bubble]')&&e.target.closest('[data-no-long-bubble]')!==el;el.addEventListener('touchstart',e=>{if(blockedTarget(e))return;longFired=false;clearTimeout(timer);timer=setTimeout(()=>{longFired=true;fn()},650)},{passive:true});el.addEventListener('touchmove',()=>clearTimeout(timer),{passive:true});['touchend','touchcancel'].forEach(x=>el.addEventListener(x,()=>clearTimeout(timer),{passive:true}));el.addEventListener('click',e=>{if(longFired){e.preventDefault();e.stopImmediatePropagation();longFired=false}},true);el.addEventListener('contextmenu',e=>{if(blockedTarget(e))return;e.preventDefault();fn()})}
+function pauseTableRotation(t){if(!t)return;if(!confirm(t.no+'の回しを一時終了しますか？\n現在着席中・準備中のキャストを解放し、卓は送り結果待ちとして残します。'))return;const endedAt=now();const leaving=state.casts.filter(c=>c.currentTable===t.id);leaving.forEach(c=>{state.history.push({type:'leave',table:t.id,tableNo:t.no,cast:c.id,castName:c.name,at:endedAt,note:'回し一時終了による離席'});c.currentTable=null});state.casts.forEach(c=>{if(c.preparingFor===t.id)c.preparingFor=null});t.currentCastIds=[];t.rotationEnded=true;t.lastSeatAt=null;t.autoHandledAt=0;state.history.push({type:'rotationEnd',table:t.id,tableNo:t.no,at:endedAt});save();render();toast(t.no+' 回し一時終了・着席者を解放しました')}
+function finalizeTable(t,outcome,skipConfirm=false){if(!t)return;let withSend=outcome==='withSend';if(withSend&&!(t.senders||[]).length){toast('送りを1名以上選択してください');openSenderForTable(t.id,true);return}let label=withSend?'送り有り卓終了':'送り無し卓終了';if(!skipConfirm&&!confirm(t.no+'を「'+label+'」にしますか？\n着席履歴は営業集計に残ります。'))return;let tid=t.id,tableNo=t.no;state.casts.forEach(c=>{if(c.currentTable===tid)c.currentTable=null;if(c.preparingFor===tid)c.preparingFor=null});Object.keys(state.refusals||{}).forEach(k=>{if(k.endsWith('|'+tid))delete state.refusals[k]});state.history.push({type:withSend?'tableEndWithSend':'tableEndNoSend',table:tid,tableNo:tableNo,senders:[...(t.senders||[])],at:now()});state.tables=state.tables.filter(x=>x.id!==tid);if(selectedTable===tid){selectedTable=null;selectedCast=null;document.querySelector('#sheet')?.classList.add('hidden')}if(editTableId===tid)editTableId=null;save();render();toast(tableNo+' '+label)}
+function endTable(t){pauseTableRotation(t)}
+function renderTables(){let box=document.querySelector('#tableList');box.innerHTML=state.tables.map(t=>{let p=tablePhase(t),send=(t.senders||[]).length,st=tableStats(t),currentNames=(t.currentCastIds||[]).map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean).join('・'),status=t.rotationEnded?'一時終了':'稼働中';return`<div class="info-card"><div class="info-top"><strong>${esc(t.no)} <small>${esc(t.plan)}</small></strong><span>${status}</span></div><div class="hint">入店 ${hm(t.entryAt)}／${t.guests}名／${cycleLabel(t)}回し／完走目標${t.targetMin}分</div><div>${t.rotationEnded?'回し完了・送り結果待ち':!t.lastSeatAt?'タイマー未開始':p.stage==='over'?'超過 '+fmt(p.sec):'次交代まで '+fmt(p.sec)}</div><div class="hint">現在 ${esc(currentNames||'空席')}（${(t.currentCastIds||[]).length}/${t.rotationSize||2}名）／残${st.remaining}人・残${st.remainingTurns}ターン／送り ${send}/${t.guests}${isCompanion(t)&&t.ownerId?'／担当 '+esc(state.casts.find(c=>c.id===t.ownerId)?.name||'')+'／候補 '+candidatesForTable(t).length+'名／S一括 '+(t.companionIncludeS?'ON':'OFF')+'／申告 '+(t.companionApplicants||[]).length+'名':''}</div>${isCompanion(t)?`<button class="secondary" style="width:100%;margin-top:8px" data-companion-manage="${t.id}">お連れ様候補・申告者</button>`:''}${!t.rotationEnded&&(p.stage==='urgent'||p.stage==='over')?`<button class="swap-now" data-table-swap="${t.id}">今すぐ交代</button>`:''}<div class="mini-actions"><button class="secondary" data-edit="${t.id}">編集</button><button class="secondary" data-release-table="${t.id}">着席解除</button>${t.rotationEnded?'':`<button class="secondary" data-pause="${t.id}">終了</button>`}</div><div class="mini-actions"><button class="danger" data-end-send="${t.id}">送り有り卓終了</button><button class="danger" data-end-no-send="${t.id}">送り無し卓終了</button></div></div>`}).join('')||'<div class="info-card">卓設定から新しい卓を追加してください。</div>';box.querySelectorAll('[data-companion-manage]').forEach(b=>b.onclick=()=>openCompanionManage(b.dataset.companionManage));box.querySelectorAll('[data-table-swap]').forEach(b=>b.onclick=()=>{let t=state.tables.find(x=>x.id===b.dataset.tableSwap);if(completeSwap(t,'manual'))render()});box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openTableModal(b.dataset.edit));box.querySelectorAll('[data-release-table]').forEach(b=>b.onclick=()=>{let cs=state.casts.filter(x=>x.currentTable===b.dataset.releaseTable);if(cs.length){cs.forEach(c=>undoCast(c))}else toast('現在の着席者はいません')});box.querySelectorAll('[data-pause]').forEach(b=>b.onclick=()=>pauseTableRotation(state.tables.find(x=>x.id===b.dataset.pause)));box.querySelectorAll('[data-end-send]').forEach(b=>b.onclick=()=>openSenderForTable(b.dataset.endSend,true));box.querySelectorAll('[data-end-no-send]').forEach(b=>b.onclick=()=>finalizeTable(state.tables.find(x=>x.id===b.dataset.endNoSend),'noSend'))}
+function renderStatus(){let box=document.querySelector('#statusList');box.innerHTML=state.tables.filter(t=>t.active).sort((a,b)=>a.entryAt-b.entryAt).map(t=>{let groups=seatGroupsForTable(t.id),p=tablePhase(t),senders=(t.senders||[]).map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean),currents=(t.currentCastIds||[]).map(id=>state.casts.find(c=>c.id===id)).filter(Boolean),currentNames=currents.map(c=>c.name).join('・'),st=tableStats(t);return`<div class="info-card"><div class="info-top"><strong>${esc(t.no)} <small>${esc(t.plan)}</small></strong><span>${!t.lastSeatAt?'未開始':p.stage==='over'?'超過 '+fmt(p.sec):fmt(p.sec)}</span></div><div class="hint">入店 ${hm(t.entryAt)}／現在 ${esc(currentNames||'空席')}／残${st.remainingTurns}ターン／送り ${senders.length}/${t.guests}</div><div>${groups.map(g=>`<div class="history-item"><b>第${g.turn}ターン　${esc(g.members.map(m=>m.castName||state.casts.find(c=>c.id===m.cast)?.name||'').join('・'))}</b><small>${g.members.length}名同時着席</small></div>`).join('')||'着席履歴なし'}</div>${currents.map(c=>`<button class="danger" data-status-release="${c.id}" style="width:100%;margin-top:8px">${esc(c.name)}の着席を解除</button>`).join('')}${senders.length?`<div class="hint">送り：${esc(senders.join('・'))}</div>`:''}</div>`}).join('')||'<div class="info-card">稼働中の卓はありません。</div>';box.querySelectorAll('[data-status-release]').forEach(b=>b.onclick=()=>undoCast(state.casts.find(c=>c.id===b.dataset.statusRelease)))}
+function fillOwners(selected=''){document.querySelector('#fOwner').innerHTML='<option value="">選択してください</option>'+state.casts.filter(c=>c.working).map(c=>`<option value="${c.id}" ${selected===c.id?'selected':''}>${esc(c.name)}（${c.rank}）</option>`).join('')}
+function toggleOwner(){document.querySelector('#companionOwnerWrap').classList.add('hidden');document.querySelector('#standardTableNoWrap').classList.remove('hidden');document.querySelector('#fNo').classList.add('hidden')}
+function updateTableSettingVisibility(){let plan=document.querySelector('#fPlan').value,auto=document.querySelector('#fAutoTimer').checked,targetOn=document.querySelector('#fTargetEnabled').checked,alertOn=document.querySelector('#fAlertEnabled').checked;document.querySelector('#manualTimerRow').classList.toggle('hidden',auto);document.querySelector('#targetSettingsRow').classList.toggle('hidden',!targetOn&&!alertOn);document.querySelector('#fTarget').disabled=!targetOn||plan==='お連れ様';document.querySelector('#fLead').disabled=!alertOn}
+function updateTimerPreview(){let plan=document.querySelector('#fPlan').value,auto=document.querySelector('#fAutoTimer').checked,targetOn=document.querySelector('#fTargetEnabled').checked,alertOn=document.querySelector('#fAlertEnabled').checked,target=Math.max(30,Math.min(50,+document.querySelector('#fTarget').value||50)),count=eligibleCountFor(plan,''),rotationSize=+document.querySelector('#fRotation').value||2,turns=Math.ceil(count/rotationSize),fallback=180,sec=auto?(targetOn?calculateCycleSec(plan,target,count,rotationSize):fallback):(+document.querySelector('#fCycle').value||180);sec=Math.max(15,Math.round(sec/15)*15);document.querySelector('#fTarget').value=target;updateTableSettingVisibility();let m=Math.floor(sec/60),r=sec%60,label=(m?m+'分':'')+(r?r+'秒':'');let parts=[`着席可能 <b>${count}名</b>／<b>${rotationSize}人回し</b>／予定 <b>${turns}ターン</b>`,`タイマー <b>${label}</b>`];if(targetOn)parts[1]+=`／完走見込 約${Math.ceil(sec*turns/60)}分`;parts.push(`<small>${auto?'自動タイマーON':'手動タイマー'}／完走目標${targetOn?'ON':'OFF'}／準備アラート${alertOn?'ON（'+(+document.querySelector('#fLead').value||90)+'秒前）':'OFF'}</small>`);document.querySelector('#timerPreview').innerHTML=parts.join('<br>')}
+function openTableModal(id=null){editTableId=id;let t=id?state.tables.find(x=>x.id===id):null,plan=t?.plan||'B';document.querySelector('#modalTitle').textContent=t?'卓を編集':'卓を追加';document.querySelector('#fPlan').value=plan;document.querySelector('#fNoSelect').value=t?.no||'';document.querySelector('#fNo').value='';document.querySelector('#fEntry').value=t?hm(t.entryAt):new Date().toTimeString().slice(0,5);document.querySelector('#fGuests').value=String(t?.guests||2);document.querySelector('#fRotation').value=t?.rotationSize||2;document.querySelector('#fAutoTimer').checked=t?!!t.autoTimer:false;document.querySelector('#fTargetEnabled').checked=t?!!t.targetEnabled:false;document.querySelector('#fAlertEnabled').checked=t?!!t.alertEnabled:false;document.querySelector('#fTarget').value=t?.targetMin||50;let cycleSec=Math.max(15,Math.round((t?.cycleSec||180)/15)*15);document.querySelector('#fCycle').value=String(cycleSec);document.querySelector('#fLead').value=t?.lead||90;fillOwners(t?.ownerId||'');toggleOwner();updateTimerPreview();let endBtn=document.querySelector('#endTableFromModal');endBtn.classList.toggle('hidden',!t||!t.active);endBtn.textContent='終了（一時終了）';endBtn.onclick=()=>{if(!t)return;pauseTableRotation(t);document.querySelector('#tableModal').classList.add('hidden')};document.querySelector('#tableModal').classList.remove('hidden')}
+function uniqueTableId(){
+  let id;
+  do{
+    id='t'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+  }while(state.tables.some(t=>t.id===id));
+  return id;
+}
+
+function saveTable(){let plan=document.querySelector('#fPlan').value,no=document.querySelector('#fNoSelect').value.trim().toUpperCase();if(!no){toast('卓番を選択してください');return}let duplicate=state.tables.find(t=>t.active&&t.no===no&&t.id!==editTableId);if(duplicate){toast(no+'はすでに稼働中です');return}let entryValue=document.querySelector('#fEntry').value||new Date().toTimeString().slice(0,5),[h,m]=entryValue.split(':').map(Number),d=new Date();if(!Number.isFinite(h)||!Number.isFinite(m)){toast('入店時間を確認してください');return}d.setHours(h,m,0,0);let ownerId=editTableId?(state.tables.find(x=>x.id===editTableId)?.ownerId||''):'';let rotationSize=+document.querySelector('#fRotation').value||2,autoTimer=document.querySelector('#fAutoTimer').checked,targetEnabled=document.querySelector('#fTargetEnabled').checked,alertEnabled=document.querySelector('#fAlertEnabled').checked,targetMin=Math.max(30,Math.min(50,+document.querySelector('#fTarget').value||50)),count=eligibleCountFor(plan,ownerId),fallback=180,cycleSec=autoTimer?(targetEnabled?calculateCycleSec(plan,targetMin,count,rotationSize):fallback):(+document.querySelector('#fCycle').value||180),lead=Math.max(30,+document.querySelector('#fLead').value||90);cycleSec=Math.max(15,Math.round(cycleSec/15)*15);let data={no,plan,ownerId,entryAt:d.getTime(),guests:+document.querySelector('#fGuests').value||1,rotationSize,timerMode:autoTimer?'auto':'manual',autoTimer,targetEnabled,alertEnabled,targetMin,cycleSec,cycle:cycleSec/60,lead};if(editTableId)Object.assign(state.tables.find(x=>x.id===editTableId),data);else state.tables.push({id:uniqueTableId(),...data,active:true,seated:[],senders:[],senderPending:[],lastSeatAt:null,currentCastIds:[],groupNo:0});save();document.querySelector('#tableModal').classList.add('hidden');render();toast(no+'を保存しました')}
+
+function openUtility(title,html){document.querySelector('#utilityTitle').textContent=title;document.querySelector('#utilityBody').innerHTML=html;document.querySelector('#utilityModal').classList.remove('hidden')}
+function closeUtility(){document.querySelector('#utilityModal').classList.add('hidden')}
+function castForm(c={}){openUtility(c.id?'キャスト編集':'キャスト追加',`<div class="form"><label>キャスト名<input id="uName" value="${esc(c.name||'')}"></label><div class="row"><label>ランク<select id="uRank">${['S','A','B','C'].map(r=>`<option ${c.rank===r?'selected':''}>${r}</option>`).join('')}</select></label><label>チーム色<input id="uTeam" type="color" value="${c.team||'#777777'}"></label></div><button class="primary" id="uSave">保存</button>${c.id?'<button class="danger" id="uDelete">削除</button>':''}</div>`);document.querySelector('#uSave').onclick=()=>{let name=document.querySelector('#uName').value.trim();if(!name){toast('名前を入力してください');return}if(c.id)Object.assign(c,{name,rank:document.querySelector('#uRank').value,team:document.querySelector('#uTeam').value});else state.casts.push(normalize({casts:[{id:'c'+Date.now(),name,rank:document.querySelector('#uRank').value,team:document.querySelector('#uTeam').value}],tables:[]}).casts[0]);save();closeUtility();render();toast(name+'を保存しました')};if(c.id)document.querySelector('#uDelete').onclick=()=>{if(!confirm(c.name+'を削除しますか？'))return;state.casts=state.casts.filter(x=>x.id!==c.id);state.tables.forEach(t=>{t.seated=t.seated.filter(id=>id!==c.id);t.senders=t.senders.filter(id=>id!==c.id)});save();closeUtility();render()}}
+function openBulkAdd(){openUtility('キャストまとめて追加',`<div class="notice">1行に1名入力。名前だけでも追加できます。<br>形式：名前,ランク,色（例：れい,S,#9b6cff）</div><div class="form" style="margin-top:10px"><label>キャスト一覧<textarea id="bulkNames" rows="10" style="width:100%;resize:vertical;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px;color:var(--text)" placeholder="れい,S,#9b6cff\nたいが,A,#65d58a\nかぐや"></textarea></label><div class="row"><label>省略時ランク<select id="bulkRank"><option>S</option><option>A</option><option>B</option><option selected>C</option></select></label><label>省略時カラー<input id="bulkTeam" type="color" value="#777777"></label></div><button class="primary" id="bulkAddSave">まとめて追加</button></div>`);document.querySelector('#bulkAddSave').onclick=()=>{let lines=document.querySelector('#bulkNames').value.split(/\n/).map(x=>x.trim()).filter(Boolean),rank=document.querySelector('#bulkRank').value,team=document.querySelector('#bulkTeam').value;if(!lines.length){toast('キャスト名を入力してください');return}let added=0;lines.forEach((line,i)=>{let p=line.split(/[,，\t]/).map(x=>x.trim()),name=p[0],r=['S','A','B','C'].includes((p[1]||'').toUpperCase())?p[1].toUpperCase():rank,col=/^#[0-9a-fA-F]{6}$/.test(p[2]||'')?p[2]:team;if(!name||state.casts.some(c=>c.name===name))return;state.casts.push(normalize({casts:[{id:'c'+Date.now()+i,name,rank:r,team:col}],tables:[]}).casts[0]);added++});save();closeUtility();render();toast(added+'名を追加しました')}}
+function castCheckList(selected=[]){return state.casts.map(c=>`<label class="switch-row"><span><b>${esc(c.name)}</b>　${c.rank}<small style="display:block;color:var(--muted)">${esc(restrictionsText(c)||'制限なし')}</small></span><input class="bulkCastCheck" type="checkbox" value="${c.id}" ${selected.includes(c.id)?'checked':''}></label>`).join('')||'<p class="hint">キャスト登録なし</p>'}
+function selectedBulkIds(){return[...document.querySelectorAll('.bulkCastCheck:checked')].map(x=>x.value)}
+function openBulkManage(){openUtility('キャストまとめて管理',`<div class="form"><div class="row"><button class="secondary" id="bulkAll">全選択</button><button class="secondary" id="bulkNone">全解除</button></div><div class="info-card">${castCheckList()}</div><label>一括ランク変更<select id="bulkManageRank"><option value="">変更しない</option><option>S</option><option>A</option><option>B</option><option>C</option></select></label><div class="row"><button class="secondary" id="bulkWorkingOn">出勤にする</button><button class="secondary" id="bulkWorkingOff">休みにする</button></div><button class="secondary" id="bulkClearTemp">一時制限を解除</button><button class="danger" id="bulkDelete">選択キャストを削除</button></div>`);document.querySelector('#bulkAll').onclick=()=>document.querySelectorAll('.bulkCastCheck').forEach(x=>x.checked=true);document.querySelector('#bulkNone').onclick=()=>document.querySelectorAll('.bulkCastCheck').forEach(x=>x.checked=false);let applyWorking=v=>{let ids=selectedBulkIds();state.casts.filter(c=>ids.includes(c.id)).forEach(c=>{c.working=v;if(!v){c.currentTable=null;c.preparingFor=null}});save();openBulkManage();render();toast(ids.length+'名を更新しました')};document.querySelector('#bulkWorkingOn').onclick=()=>applyWorking(true);document.querySelector('#bulkWorkingOff').onclick=()=>applyWorking(false);document.querySelector('#bulkClearTemp').onclick=()=>{let ids=selectedBulkIds();state.casts.filter(c=>ids.includes(c.id)).forEach(c=>Object.assign(c,{penalty:false,inHouse:false,ngTables:[]}));save();openBulkManage();render();toast('一時制限を解除しました')};document.querySelector('#bulkManageRank').onchange=e=>{if(!e.target.value)return;let ids=selectedBulkIds();state.casts.filter(c=>ids.includes(c.id)).forEach(c=>c.rank=e.target.value);save();openBulkManage();render();toast('ランクを変更しました')};document.querySelector('#bulkDelete').onclick=()=>{let ids=selectedBulkIds();if(!ids.length){toast('キャストを選択してください');return}if(!confirm(ids.length+'名を削除しますか？'))return;state.casts=state.casts.filter(c=>!ids.includes(c.id));state.tables.forEach(t=>{t.seated=t.seated.filter(id=>!ids.includes(id));t.senders=t.senders.filter(id=>!ids.includes(id));t.senderPending=t.senderPending.filter(id=>!ids.includes(id))});save();closeUtility();render();toast('削除しました')}}
+function openBulkColor(){openUtility('キャスト色まとめて管理',`<div class="form"><div class="row"><button class="secondary" id="colorAll">全選択</button><button class="secondary" id="colorNone">全解除</button></div><div class="info-card">${castCheckList()}</div><label>変更する色<input id="bulkColorValue" type="color" value="#777777"></label><button class="primary" id="bulkColorSave">選択したキャストへ反映</button></div>`);document.querySelector('#colorAll').onclick=()=>document.querySelectorAll('.bulkCastCheck').forEach(x=>x.checked=true);document.querySelector('#colorNone').onclick=()=>document.querySelectorAll('.bulkCastCheck').forEach(x=>x.checked=false);document.querySelector('#bulkColorSave').onclick=()=>{let ids=selectedBulkIds(),col=document.querySelector('#bulkColorValue').value;if(!ids.length){toast('キャストを選択してください');return}state.casts.filter(c=>ids.includes(c.id)).forEach(c=>c.team=col);save();closeUtility();render();toast(ids.length+'名の色を変更しました')}}
+function openCastSort(){let ordered=[...state.casts].sort((a,b)=>(a.order??0)-(b.order??0));openUtility('キャスト一括並び替え',`<p class="hint">右側の上下ボタンで営業中の表示順を変更します。ランク内ではこの順番が反映されます。</p><div class="drag-list">${ordered.map((c,i)=>`<div class="drag-item"><span class="drag-handle">≡</span><div class="list-main"><b>${esc(c.name)}</b><small>${c.rank}ランク</small></div><button class="icon-btn" data-up="${c.id}">↑</button><button class="icon-btn" data-down="${c.id}">↓</button></div>`).join('')}</div>`);document.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>moveCastOrder(b.dataset.up,-1));document.querySelectorAll('[data-down]').forEach(b=>b.onclick=()=>moveCastOrder(b.dataset.down,1))}
+function moveCastOrder(id,dir){let arr=[...state.casts].sort((a,b)=>(a.order??0)-(b.order??0)),i=arr.findIndex(c=>c.id===id),j=i+dir;if(i<0||j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];arr.forEach((c,k)=>c.order=k);save();openCastSort();render()}
+function makeTableSnapshot(){let snap={tables:clone(state.tables),refusals:clone(state.refusals),history:clone(state.history),casts:state.casts.map(c=>({id:c.id,currentTable:c.currentTable,preparingFor:c.preparingFor,ngTables:clone(c.ngTables)})),savedAt:now()};localStorage.setItem(scopedStorageKey(TABLE_SNAPSHOT_KEY),JSON.stringify(snap))}
+function resetTableData(){if(!confirm('卓データをリセットしますか？\n直前データは「卓データ復元」から戻せます。'))return;makeTableSnapshot();state.tables=[];state.refusals={};state.history=[];state.casts.forEach(c=>{c.currentTable=null;c.preparingFor=null;c.ngTables=[]});save();render();toast('卓データをリセットしました')}
+let restoreTapTimer=null,restoreArmed=false;
+function restoreTableData(){let btn=document.querySelector('#restoreTableMenu');if(!localStorage.getItem(scopedStorageKey(TABLE_SNAPSHOT_KEY))){toast('復元できる卓データがありません');return}if(!restoreArmed){restoreArmed=true;btn.classList.add('confirming');btn.querySelector('span').textContent='もう一度タップで決定';toast('もう一度タップすると復元します');clearTimeout(restoreTapTimer);restoreTapTimer=setTimeout(()=>{restoreArmed=false;btn.classList.remove('confirming');btn.querySelector('span').textContent='卓データ復元'},3500);return}clearTimeout(restoreTapTimer);restoreArmed=false;try{let snap=JSON.parse(localStorage.getItem(scopedStorageKey(TABLE_SNAPSHOT_KEY)));state.tables=snap.tables||[];state.refusals=snap.refusals||{};state.history=snap.history||[];(snap.casts||[]).forEach(x=>{let c=state.casts.find(y=>y.id===x.id);if(c){c.currentTable=x.currentTable||null;c.preparingFor=x.preparingFor||null;c.ngTables=x.ngTables||[]}});state=normalize(state);save();render();toast('卓データを復元しました')}catch{toast('卓データを復元できませんでした')}btn.classList.remove('confirming');btn.querySelector('span').textContent='卓データ復元'}
+function openCastManage(){openUtility('キャスト管理',`<div class="info-card">${state.casts.map(c=>`<div class="list-row"><span style="width:5px;height:38px;border-radius:5px;background:${c.team}"></span><div class="list-main"><b>${esc(c.name)}　${c.rank}</b><small>${esc(restrictionsText(c)||'制限なし')}／送り${c.sends}</small></div><button class="icon-btn" data-castedit="${c.id}">編集</button></div>`).join('')||'登録なし'}</div>`);document.querySelectorAll('[data-castedit]').forEach(b=>b.onclick=()=>castForm(state.casts.find(c=>c.id===b.dataset.castedit)))}
+function openCompanionApply(cid){let c=state.casts.find(x=>x.id===cid),tables=state.tables.filter(t=>t.active&&isCompanion(t)&&t.ownerId!==cid&&!(t.seated||[]).includes(cid));if(!tables.length){toast('申告できるお連れ様卓がありません');return}openUtility(c.name+'・回りたい卓',`<div class="notice">回りたいお連れ様卓を登録します。登録後は候補に自動表示され、着席後は候補から外れます。</div><div class="form" style="margin-top:10px">${tables.map(t=>`<label class="switch-row"><span>${esc(t.no)}　担当 ${esc(state.casts.find(x=>x.id===t.ownerId)?.name||'未設定')}<br><small>${esc(companionCategory(c,t)||'未登録')}</small></span><input class="applyComp" type="checkbox" value="${t.id}" ${(t.companionApplicants||[]).includes(cid)?'checked':''}></label>`).join('')}<button class="primary" id="saveCompApply">登録</button></div>`);document.querySelector('#saveCompApply').onclick=()=>{let selected=[...document.querySelectorAll('.applyComp:checked')].map(x=>x.value);tables.forEach(t=>{t.companionApplicants=(t.companionApplicants||[]).filter(id=>id!==cid);if(selected.includes(t.id))t.companionApplicants.push(cid)});save();closeUtility();render();toast('申告を保存しました')}}
+function openCompanionManage(tid){let t=state.tables.find(x=>x.id===tid);if(!t||!isCompanion(t))return;let owner=state.casts.find(c=>c.id===t.ownerId);let sCasts=state.casts.filter(c=>c.working&&c.rank==='S'&&c.id!==t.ownerId);openUtility(t.no+'・お連れ様候補',`<div class="notice">基本候補は「担当指名＋担当と同じチーム」。必要な卓ではSランク全員を幹部候補として一括追加できます。それ以外は申告制です。</div><div class="form" style="margin-top:10px"><div class="info-card"><b>担当</b><p>${esc(owner?.name||'未設定')}</p><b>同チーム候補</b><p>${esc(state.casts.filter(c=>owner&&c.team===owner.team&&c.id!==owner.id&&c.working).map(c=>c.name).join('・')||'なし')}</p><b>Sランク一括候補</b><p>${t.companionIncludeS?esc(sCasts.map(c=>c.name).join('・')||'対象者なし'):'OFF'}</p><b>申告者</b><p>${esc((t.companionApplicants||[]).map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean).join('・')||'なし')}</p></div><label class="switch-row important-switch"><span><b>Sランクをまとめて候補にする</b><br><small>幹部を回してほしい要望がある卓だけON</small></span><input id="compIncludeS" type="checkbox" ${t.companionIncludeS?'checked':''}></label><b>担当指名キャスト</b>${state.casts.filter(c=>c.working&&c.id!==t.ownerId).map(c=>`<label class="switch-row"><span>${esc(c.name)}　${c.rank}${owner&&c.team===owner.team?'（同チーム）':''}${c.rank==='S'&&t.companionIncludeS?'（S一括候補）':''}${(t.companionApplicants||[]).includes(c.id)?'（申告）':''}</span><input class="compPick" type="checkbox" value="${c.id}" ${(t.companionPicks||[]).includes(c.id)?'checked':''}></label>`).join('')}<button class="primary" id="saveCompManage">保存</button></div>`);document.querySelector('#saveCompManage').onclick=()=>{t.companionIncludeS=!!document.querySelector('#compIncludeS')?.checked;t.companionPicks=[...document.querySelectorAll('.compPick:checked')].map(x=>x.value);save();closeUtility();render();toast(t.companionIncludeS?'Sランクを含むお連れ様候補を保存しました':'お連れ様候補を保存しました')}}
+function openRestrictions(){openUtility('制限設定',`<div class="notice">制限は着席候補へ即時反映されます。勤怠ペナルティ中はお連れ様以外不可。VIPのB・Cは卓ごとの例外追加時のみ候補になります。</div><div class="info-card" style="margin-top:10px">${state.casts.map(c=>`<div class="list-row"><div class="list-main"><b>${esc(c.name)}　${c.rank}</b><small>${esc(restrictionsText(c)||'制限なし')}</small></div><button class="icon-btn" data-restrict="${c.id}">設定</button></div>`).join('')}</div>`);document.querySelectorAll('[data-restrict]').forEach(b=>b.onclick=()=>openRestrictionCast(b.dataset.restrict))}
+function openRestrictionCast(cid){let c=state.casts.find(x=>x.id===cid);openUtility(c.name+'・制限',`<div class="notice">遅刻・欠勤などの勤怠上の制限は「勤怠ペナルティ」にまとめて設定します。勤怠ペナルティ中はランク・VIPに関係なく、お連れ様卓以外には着席できません。</div><div class="form" style="margin-top:10px"><div class="switch-row"><span>本日出勤</span><input id="rWorking" type="checkbox" ${c.working?'checked':''}></div><div class="switch-row"><span>勤怠ペナルティ<br><small style="color:var(--muted)">遅刻・欠勤などを含む</small></span><input id="rPenalty" type="checkbox" ${c.penalty?'checked':''}></div><div class="switch-row"><span>場内中</span><input id="rInHouse" type="checkbox" ${c.inHouse?'checked':''}></div><label>送り数<input id="rSends" type="number" min="0" value="${c.sends}"></label><div><b>卓別NG</b>${state.tables.filter(t=>t.active).map(t=>`<label class="switch-row"><span>${esc(t.no)} ${esc(t.plan)}</span><input class="rNg" type="checkbox" value="${t.id}" ${c.ngTables.includes(t.id)?'checked':''}></label>`).join('')||'<p class="hint">稼働卓なし</p>'}</div><button class="primary" id="rSave">保存</button></div>`);document.querySelector('#rSave').onclick=()=>{const wasInHouse=!!c.inHouse;const nextInHouse=document.querySelector('#rInHouse').checked;c.working=document.querySelector('#rWorking').checked;c.penalty=document.querySelector('#rPenalty').checked;c.inHouse=nextInHouse;if(!wasInHouse&&nextInHouse)c.inHouseSince=now();if(wasInHouse&&!nextInHouse)c.inHouseSince=null;c.sends=+document.querySelector('#rSends').value||0;c.ngTables=[...document.querySelectorAll('.rNg:checked')].map(x=>x.value);if(!wasInHouse&&nextInHouse){const activeTable=c.currentTable||c.preparingFor||null;const t=activeTable?state.tables.find(x=>x.id===activeTable):null;state.history.push({type:'extension',cast:c.id,castName:c.name,table:activeTable||'',tableNo:t?.no||'',at:now()})}if(!c.working){c.currentTable=null;c.preparingFor=null}save();closeUtility();render();toast(!wasInHouse&&nextInHouse?'制限を保存しました・場内/延長を1件記録':'制限を保存しました')}}
+function finalizeQuickOutcome(t,kind){
+  if(!t)return;let tid=t.id,tableNo=t.no;
+  state.casts.forEach(c=>{if(c.currentTable===tid)c.currentTable=null;if(c.preparingFor===tid)c.preparingFor=null});
+  Object.keys(state.refusals||{}).forEach(k=>{if(k.endsWith('|'+tid))delete state.refusals[k]});
+  state.history.push({type:kind==='send'?'tableEndWithSend':'tableEndInHouse',table:tid,tableNo,senders:[...(t.senders||[])],at:now()});
+  state.tables=state.tables.filter(x=>x.id!==tid);
+  if(selectedTable===tid){selectedTable=null;selectedCast=null;document.querySelector('#sheet')?.classList.add('hidden')}
+  if(editTableId===tid)editTableId=null;
+  save();render();toast(tableNo+(kind==='send'?' 送り確定・卓終了':' 場内確定・卓終了'));
+}
+function openQuickSendAndFinish(tid){
+  let t=state.tables.find(x=>x.id===tid);if(!t)return;
+  let selected=[];
+  const draw=()=>{
+    openUtility(t.no+'・送り選択',`
+      <div class="notice">送りのキャストを選択してください。複数人選べます。最後に「決定」で確定して卓を終了します。</div>
+      <div class="sender-grid">${state.casts.filter(c=>c.working).map(c=>`<button class="sender-btn ${selected.includes(c.id)?'on':''}" data-pick-send="${c.id}">${esc(c.name)}<br><small>${selected.includes(c.id)?'✓ 選択中':'タップで選択'}</small></button>`).join('')}</div>
+      <p class="hint">選択中：${esc(selected.map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean).join('・')||'なし')}</p>
+      <button class="danger" id="decideSend" style="width:100%;margin-top:10px" ${selected.length?'':'disabled'}>決定</button>`);
+    document.querySelectorAll('[data-pick-send]').forEach(b=>b.onclick=()=>{let id=b.dataset.pickSend;selected=selected.includes(id)?selected.filter(x=>x!==id):[...selected,id];draw()});
+    document.querySelector('#decideSend').onclick=()=>{
+      if(!selected.length)return;
+      selected.forEach(cid=>{let c=state.casts.find(x=>x.id===cid);if(!c)return;if(!(t.senders||[]).includes(cid)){t.senders=t.senders||[];t.senders.push(cid);if(t.plan!=='お連れ様')c.sends=(Number(c.sends)||0)+1;state.history.push({type:'send',cast:cid,table:t.id,castName:c.name||'',tableNo:t.no,at:now()})}});
+      save();closeUtility();finalizeQuickOutcome(t,'send');
+    };
+  };draw();
+}
+function openQuickInHouseAndFinish(tid){
+  let t=state.tables.find(x=>x.id===tid);if(!t)return;
+  let selected=[];
+  const draw=()=>{
+    openUtility(t.no+'・場内選択',`
+      <div class="notice">場内のキャストを選択してください。複数人選べます。最後に「決定」で確定して卓を終了します。</div>
+      <div class="sender-grid">${state.casts.filter(c=>c.working).map(c=>`<button class="sender-btn ${selected.includes(c.id)?'on':''}" data-pick-inhouse="${c.id}">${esc(c.name)}<br><small>${selected.includes(c.id)?'✓ 選択中':'タップで選択'}</small></button>`).join('')}</div>
+      <p class="hint">選択中：${esc(selected.map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean).join('・')||'なし')}</p>
+      <button class="danger" id="decideInHouse" style="width:100%;margin-top:10px" ${selected.length?'':'disabled'}>決定</button>`);
+    document.querySelectorAll('[data-pick-inhouse]').forEach(b=>b.onclick=()=>{let id=b.dataset.pickInhouse;selected=selected.includes(id)?selected.filter(x=>x!==id):[...selected,id];draw()});
+    document.querySelector('#decideInHouse').onclick=()=>{
+      if(!selected.length)return;
+      let at=now();selected.forEach(cid=>{let c=state.casts.find(x=>x.id===cid);if(!c)return;c.inHouse=true;c.inHouseSince=at;state.history.push({type:'extension',cast:c.id,castName:c.name,table:t.id,tableNo:t.no,at})});
+      save();closeUtility();finalizeQuickOutcome(t,'inhouse');
+    };
+  };draw();
+}
+function openSending(){openUtility('送り設定',`<div class="notice">送り指名を登録します。卓の最終終了は「送り有り卓終了」または「送り無し卓終了」から行います。</div><div class="info-card" style="margin-top:10px">${state.tables.filter(t=>t.active).map(t=>`<div class="list-row"><div class="list-main"><b>${esc(t.no)}　${esc(t.plan)}</b><small>送り ${(t.senders||[]).length}/${t.guests}</small></div><button class="icon-btn" data-sending="${t.id}">設定</button></div>`).join('')||'稼働卓なし'}</div>`);document.querySelectorAll('[data-sending]').forEach(b=>b.onclick=()=>openSenderForTable(b.dataset.sending,false))}
+function openSenderForTable(tid,finishMode=false){let t=state.tables.find(x=>x.id===tid);if(!t)return;openUtility(t.no+'・送り指名',`<div class="notice">キャストを1回タップで送り確定。もう一度タップで取り消せます。${finishMode?'送りを選んだ後、下の「送り有り卓終了」で確定します。':''}</div><div class="sender-grid">${state.casts.filter(c=>c.working).map(c=>{let on=t.senders.includes(c.id),pending=t.senderPending.includes(c.id);return`<button class="sender-btn ${on?'on':pending?'pending':''}" data-sender="${c.id}">${esc(c.name)}<br><small>${on?'✓ 送り':'送り'+c.sends}</small></button>`}).join('')}</div><p class="hint">確定 ${(t.senders||[]).length}/${t.guests}</p>${finishMode?`<button class="danger" id="finishWithSend" style="width:100%;margin-top:10px" ${(t.senders||[]).length?'':'disabled'}>送り有り卓終了</button>`:''}`);document.querySelectorAll('[data-sender]').forEach(b=>{let cid=b.dataset.sender;bindLong(b,()=>removeSender(t,cid,finishMode));b.onclick=()=>toggleSender(t,cid,finishMode)});let finish=document.querySelector('#finishWithSend');if(finish)finish.onclick=()=>{closeUtility();finalizeTable(t,'withSend')}}
+function toggleSender(t,cid,finishMode=false){let c=state.casts.find(x=>x.id===cid);if(!c)return;if(t.senders.includes(cid)){removeSender(t,cid,finishMode);return}t.senderPending=(t.senderPending||[]).filter(id=>id!==cid);t.senders=t.senders||[];t.senders.push(cid);if(t.plan!=='お連れ様')c.sends=(Number(c.sends)||0)+1;state.history.push({type:'send',cast:cid,table:t.id,castName:c.name||'',tableNo:t.no,at:now()});save();if(finishMode)openSenderForTable(t.id,finishMode);render();toast(c.name+' 送り確定')}
+function removeSender(t,cid,finishMode=false){let c=state.casts.find(x=>x.id===cid);if(t.senders.includes(cid)){t.senders=t.senders.filter(id=>id!==cid);if(c&&t.plan!=='お連れ様')c.sends=Math.max(0,c.sends-1);let idx=state.history.map(h=>h.type==='send'&&h.cast===cid&&h.table===t.id).lastIndexOf(true);if(idx>=0)state.history.splice(idx,1)}else t.senderPending=t.senderPending.filter(id=>id!==cid);save();openSenderForTable(t.id,finishMode);render();toast('送り設定を取り消しました')}
+function seatGroupsForTable(tid){
+ const seats=state.history.filter(h=>h.type==='seat'&&h.table===tid).sort((a,b)=>(Number(a.at)||0)-(Number(b.at)||0)||(Number(a.slot)||0)-(Number(b.slot)||0));
+ const groups=[];
+ seats.forEach(h=>{
+   const key=(h.turn!=null?'turn:'+h.turn:'time:'+Math.floor((Number(h.at)||0)/3000));
+   let g=groups.find(x=>x.key===key);
+   if(!g){g={key,turn:h.turn||groups.length+1,at:Number(h.at)||0,members:[]};groups.push(g)}
+   if(!g.members.some(m=>m.cast===h.cast))g.members.push(h);
+ });
+ return groups;
+}
+function allSeatGroups(){
+ // 稼働中の卓一覧ではなく履歴そのものから生成する。
+ // 卓終了で state.tables から削除されても、着席履歴と営業集計に残る。
+ const map=new Map();
+ state.history.filter(h=>h.type==='seat').forEach(h=>{
+   const tableId=h.table||h.tableId||'';
+   const turn=Number(h.turn||h.group||1);
+   const key=tableId+'|'+turn;
+   if(!map.has(key))map.set(key,{table:tableId,tableNo:h.tableNo||tableNo(tableId)||'卓',turn,at:Number(h.at)||0,members:[]});
+   const g=map.get(key);
+   g.at=Math.min(g.at||Number(h.at)||0,Number(h.at)||0);
+   if(!g.members.some(m=>m.cast===h.cast))g.members.push(h);
+ });
+ return [...map.values()].sort((a,b)=>b.at-a.at);
+}
+
+function removeSeatTurn(tableId,turn){
+ if(!confirm(`第${turn}ターンの着席履歴を取り消しますか？\n同時着席した全員が未着席へ戻り、後続ターンを詰め直します。`))return;
+ const removed=state.history.filter(h=>h.type==='seat'&&(h.table||h.tableId)===tableId&&Number(h.turn||h.group||1)===Number(turn));
+ if(!removed.length){toast('対象の着席履歴がありません');return}
+ const removedIds=new Set(removed.map(h=>h.cast));
+ state.history=state.history.filter(h=>{
+   const sameTable=(h.table||h.tableId)===tableId;
+   const hTurn=Number(h.turn||h.group||1);
+   if(sameTable&&(h.type==='seat'||h.type==='leave')&&hTurn===Number(turn))return false;
+   return true;
+ });
+ // 後続ターンを1つ前へ詰める
+ state.history.forEach(h=>{
+   if((h.table||h.tableId)===tableId&&(h.type==='seat'||h.type==='leave')){
+     const hTurn=Number(h.turn||h.group||1);
+     if(hTurn>Number(turn)){h.turn=hTurn-1;if('group' in h)h.group=hTurn-1}
+   }
+ });
+ const t=state.tables.find(x=>x.id===tableId);
+ if(t){
+   if(Number(t.groupNo||0)===Number(turn)){
+     (t.currentCastIds||[]).forEach(id=>{let c=state.casts.find(x=>x.id===id);if(c&&c.currentTable===t.id)c.currentTable=null});
+     t.currentCastIds=[];t.lastSeatAt=null;
+   }
+   t.groupNo=Math.max(0,Number(t.groupNo||0)-1);
+   const remainingSeatIds=[...new Set(state.history.filter(h=>h.type==='seat'&&(h.table||h.tableId)===tableId).map(h=>h.cast))];
+   t.seated=remainingSeatIds;
+ }
+ removedIds.forEach(id=>{
+   let c=state.casts.find(x=>x.id===id);
+   if(c&&c.currentTable===tableId)c.currentTable=null;
+ });
+ save();render();toast(`第${turn}ターンを取り消しました`);showHistory();
+}
+
+function resetSeatHistory(){
+ if(!confirm('着席履歴をリセットしますか？\n営業集計の着席数・卓数もリセットされます。\n卓設定や現在の稼働状況は残ります。'))return;
+ state.history=state.history.filter(h=>h.type!=='seat'&&h.type!=='leave');
+ save();render();toast('着席履歴をリセットしました');
+}
+function showHistory(){let groups=allSeatGroups(),others=[...state.history].filter(h=>h.type!=='seat'&&h.type!=='leave').reverse();openUtility('着席・送り履歴',`<div class="notice">卓終了後も着席履歴は残ります。同じターンに着席したキャストを1組として表示します。誤登録はターン単位で取り消せます。</div><div class="info-card" style="margin-top:10px">${groups.map(g=>`<div class="history-item"><b>${esc(g.tableNo)}　第${g.turn}ターン　${esc(g.members.map(m=>m.castName||state.casts.find(c=>c.id===m.cast)?.name||'').join('・'))}</b><small>${new Date(g.at).toLocaleString('ja-JP')}／${g.members.length}名同時着席</small><button class="secondary" data-remove-seat-turn="${esc(g.table)}|${g.turn}" style="width:100%;margin-top:7px">このターンを取り消す</button></div>`).join('')||'着席履歴なし'}</div>${others.length?`<div class="info-card" style="margin-top:10px"><b>その他の履歴</b>${others.map(h=>`<div class="history-item"><b>${esc(h.type==='send'?'送り':h.type==='tableEndWithSend'?'送り有り卓終了':h.type==='tableEndNoSend'?'送り無し卓終了':h.type==='tableEndExtension'?'場内卓終了':h.type==='rotationEnd'?'一時終了':'卓終了')}　${esc(h.castName||'')} ${h.tableNo?'→ '+esc(h.tableNo):''}</b><small>${new Date(h.at).toLocaleString('ja-JP')}</small></div>`).join('')}</div>`:''}<button class="danger" id="resetSeatHistory" style="width:100%;margin-top:10px">着席履歴リセット</button>`);document.querySelectorAll('[data-remove-seat-turn]').forEach(b=>b.onclick=()=>{let [tid,turn]=b.dataset.removeSeatTurn.split('|');removeSeatTurn(tid,Number(turn))});document.querySelector('#resetSeatHistory').onclick=()=>{resetSeatHistory();showHistory()}}
+function businessSummaryData(){
+  const seats=state.history.filter(h=>h.type==='seat');
+  const sends=state.history.filter(h=>h.type==='send');
+  const extensions=state.history.filter(h=>h.type==='extension');
+  const rows=state.casts.map(c=>{
+    const hs=seats.filter(h=>h.cast===c.id);
+    const sendCount=sends.filter(h=>h.cast===c.id).length;
+    const extensionCount=extensions.filter(h=>h.cast===c.id).length;
+    const sessions=[...new Map(hs.map(h=>[h.table||h.tableId||((h.tableNo||'卓')+'|'+h.at),h.tableNo||tableNo(h.table)||'卓'])).entries()];
+    const tables=sessions.map(x=>x[1]);
+    const attackCount=hs.length;
+    const extensionRate=sendCount>0?(extensionCount/sendCount*100):0;
+    return{c,tableCount:sessions.length,seatCount:hs.length,attackCount,sendCount,extensionCount,extensionRate,tables};
+  }).sort((a,b)=>b.attackCount-a.attackCount||b.extensionCount-a.extensionCount||b.sendCount-a.sendCount||b.tableCount-a.tableCount||(a.c.order??0)-(b.c.order??0));
+  const totalTables=new Set(seats.map(h=>h.table||h.tableId||((h.tableNo||'卓')+'|'+h.at))).size;
+  const totalSeats=seats.length;
+  const totalSends=sends.length;
+  const totalExtensions=extensions.length;
+  const totalExtensionRate=totalSends>0?(totalExtensions/totalSends*100):0;
+  return{rows,totalTables,totalSeats,totalSends,totalExtensions,totalExtensionRate};
+}
+function pct(v){return Number.isFinite(v)?(Math.round(v*10)/10).toFixed(v%1?1:0):'0'}
+function businessSummaryText(){
+  let d=businessSummaryData(),date=new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'numeric',day:'numeric'}).format(new Date());
+  let lines=[
+    `【初回回し営業集計】`,
+    `日付：${date}`,
+    `総アタック数：${d.totalSeats}`,
+    `総送り数：${d.totalSends}`,
+    `総場内数：${d.totalExtensions}`,
+    `全体場内率：${pct(d.totalExtensionRate)}%`,
+    `着席卓数：${d.totalTables}卓`,
+    ''
+  ];
+  d.rows.forEach((r,i)=>{
+    lines.push(`${i+1}. ${r.c.name}`);
+    lines.push(`　アタック ${r.attackCount}｜送り ${r.sendCount}｜場内 ${r.extensionCount}｜場内率 ${pct(r.extensionRate)}%`);
+    lines.push(`　${r.tableCount}卓：${r.tables.length?r.tables.join('・'):'着席なし'}`);
+  });
+  return lines.join('\n');
+}
+async function copyBusinessSummary(){let text=businessSummaryText();try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text)}else{let ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');ta.remove()}toast('営業集計をコピーしました')}catch(e){openUtility('LINE用営業集計',`<div class="notice">長押ししてコピーしてください。</div><textarea style="width:100%;min-height:55vh;margin-top:10px">${esc(text)}</textarea>`)}}
+function showBusinessSummary(){
+  let d=businessSummaryData();
+  openUtility('営業集計',`<div class="notice">アタック＝着席回数。場内数は「場内中」をOFF→ONにした時点で延長成立として1件自動記録します。場内率＝場内数÷送り数×100です。</div>
+  <div class="row" style="margin-top:10px">
+    <div class="info-card" style="text-align:center"><small>アタック</small><div style="font-size:25px;font-weight:950">${d.totalSeats}</div></div>
+    <div class="info-card" style="text-align:center"><small>送り</small><div style="font-size:25px;font-weight:950">${d.totalSends}</div></div>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <div class="info-card" style="text-align:center"><small>場内</small><div style="font-size:25px;font-weight:950">${d.totalExtensions}</div></div>
+    <div class="info-card" style="text-align:center"><small>場内率</small><div style="font-size:25px;font-weight:950">${pct(d.totalExtensionRate)}%</div></div>
+  </div>
+  <div class="row" style="margin-top:10px"><button class="primary" id="copyBusinessSummary" style="font-size:16px">LINE用にコピー</button><button class="secondary" id="previewBusinessSummary">コピー内容を表示</button></div>
+  <div class="info-card" style="margin-top:10px">${d.rows.map((r,i)=>`<div class="list-row" style="align-items:flex-start"><span class="count-badge">${i+1}</span><div class="list-main"><b>${esc(r.c.name)}</b><small>AT ${r.attackCount}｜送り ${r.sendCount}｜場内 ${r.extensionCount}｜場内率 ${pct(r.extensionRate)}%</small><small>${r.tableCount}卓：${r.tables.length?esc(r.tables.join('・')):'着席なし'}</small></div><strong style="font-size:17px">${pct(r.extensionRate)}%</strong></div>`).join('')}</div>
+  <button class="danger" id="summaryResetSeatHistory" style="width:100%;margin-top:10px">着席履歴リセット</button>`);
+  document.querySelector('#copyBusinessSummary').onclick=copyBusinessSummary;
+  document.querySelector('#previewBusinessSummary').onclick=()=>openUtility('LINE用営業集計',`<div class="notice">この文章がコピーされます。必要に応じて編集してから長押しコピーもできます。</div><textarea style="width:100%;min-height:55vh;margin-top:10px">${esc(businessSummaryText())}</textarea>`);
+  document.querySelector('#summaryResetSeatHistory').onclick=()=>{resetSeatHistory();showBusinessSummary()};
+}
+function backup(){let blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='SWAMP-FLOW_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)}
+function copyPlainText(text,successMessage='コピーしました'){
+  if(navigator.clipboard&&window.isSecureContext){
+    return navigator.clipboard.writeText(text).then(()=>toast(successMessage)).catch(()=>fallbackCopyText(text,successMessage));
+  }
+  return fallbackCopyText(text,successMessage);
+}
+function fallbackCopyText(text,successMessage){
+  try{let ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');ta.remove();toast(successMessage);return Promise.resolve()}catch(e){return Promise.reject(e)}
+}
+function endBusiness(){
+  if(!confirm('営業を終了しますか？\n\n・卓とタイマーをリセット\n・着席中／準備中を解除\n・一時制限と送り数をリセット\n・出勤状態を全員「出勤」に戻します\n\n本日の営業集計は保存されます。'))return;
+  const endedAt=Date.now();
+  const summaryText=businessSummaryText();
+  const summaryData=businessSummaryData();
+  if(typeof addBusinessSummaryToMonthly==='function')addBusinessSummaryToMonthly(summaryData,endedAt);
+  state.settings.businessArchives=Array.isArray(state.settings.businessArchives)?state.settings.businessArchives:[];
+  state.settings.businessArchives.unshift({
+    id:'business-'+endedAt,
+    endedAt,
+    text:summaryText,
+    totalTables:summaryData.totalTables,
+    totalSeats:summaryData.totalSeats,
+    totalSends:summaryData.totalSends,
+    totalExtensions:summaryData.totalExtensions,
+    totalExtensionRate:summaryData.totalExtensionRate,
+    rows:summaryData.rows.map(r=>({castId:r.c.id,castName:r.c.name,tableCount:r.tableCount,seatCount:r.seatCount,attackCount:r.attackCount,sendCount:r.sendCount,extensionCount:r.extensionCount,extensionRate:r.extensionRate,tables:[...r.tables]})),
+    history:clone(state.history||[])
+  });
+  state.settings.businessArchives=state.settings.businessArchives.slice(0,90);
+  state.tables=[];
+  state.refusals={};
+  state.history=[];
+  state.casts.forEach(c=>Object.assign(c,{
+    working:true,
+    currentTable:null,
+    preparingFor:null,
+    sends:0,
+    penalty:false,
+    inHouse:false,
+    ngTables:[]
+  }));
+  save();render();
+  openUtility('営業終了しました',`<div class="notice" style="border-color:#2f744c;background:#10251a;color:#a9f3c3">卓・タイマー・一時制限をリセットし、全キャストを出勤状態へ戻しました。本日の営業集計は保存されています。</div><div class="row" style="margin-top:10px"><div class="info-card" style="text-align:center"><small>アタック</small><div style="font-size:25px;font-weight:950">${summaryData.totalSeats}</div></div><div class="info-card" style="text-align:center"><small>送り</small><div style="font-size:25px;font-weight:950">${summaryData.totalSends}</div></div></div><div class="row" style="margin-top:8px"><div class="info-card" style="text-align:center"><small>場内</small><div style="font-size:25px;font-weight:950">${summaryData.totalExtensions}</div></div><div class="info-card" style="text-align:center"><small>場内率</small><div style="font-size:25px;font-weight:950">${pct(summaryData.totalExtensionRate)}%</div></div></div><button class="primary" id="copyEndedBusinessSummary" style="width:100%;margin-top:10px;font-size:16px">LINE用営業集計をコピー</button><textarea style="width:100%;min-height:34vh;margin-top:10px">${esc(summaryText)}</textarea>`);
+  document.querySelector('#copyEndedBusinessSummary').onclick=()=>copyPlainText(summaryText,'営業集計をコピーしました');
+}
+document.querySelector('#closeSheet').onclick=()=>{document.querySelector('#sheet').classList.add('hidden');selectedCast=selectedTable=null};document.querySelector('#sheet').onclick=e=>{if(e.target.id==='sheet'){e.currentTarget.classList.add('hidden');selectedCast=selectedTable=null}};document.querySelector('#addTable').onclick=()=>openTableModal();document.querySelector('#closeModal').onclick=()=>document.querySelector('#tableModal').classList.add('hidden');(()=>{const saveBtn=document.querySelector('#saveTable');let saving=false;const runSave=(e)=>{if(e){e.preventDefault();e.stopPropagation()}if(saving)return;saving=true;try{saveTable()}catch(err){console.error(err);toast('保存できませんでした：'+(err?.message||'不明なエラー'))}finally{setTimeout(()=>saving=false,250)}};saveBtn.disabled=false;saveBtn.onclick=runSave;saveBtn.addEventListener('pointerup',runSave,{passive:false});})();document.querySelector('#fPlan').onchange=()=>{toggleOwner();document.querySelector('#fNo').value='';document.querySelector('#fCycle').value='180';document.querySelector('#fTarget').value=50;updateTimerPreview()};document.querySelector('#fAutoTimer').onchange=updateTimerPreview;document.querySelector('#fTargetEnabled').onchange=updateTimerPreview;document.querySelector('#fAlertEnabled').onchange=updateTimerPreview;document.querySelector('#fTarget').oninput=updateTimerPreview;document.querySelector('#fCycle').oninput=updateTimerPreview;document.querySelector('#fLead').oninput=updateTimerPreview;document.querySelector('#fRotation').onchange=updateTimerPreview;document.querySelector('#fGuests').onchange=updateTimerPreview;document.querySelector('#closeUtility').onclick=closeUtility;document.querySelector('#utilityModal').onclick=e=>{if(e.target.id==='utilityModal')closeUtility()};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['home','tables','status','menu'].forEach(p=>document.querySelector('#'+p+'Page').classList.toggle('hidden',p!==b.dataset.page))});
+document.querySelector('#testModeMenu').onclick=toggleTestMode;updateTestModeUI();document.querySelector('#bulkAddCastMenu').onclick=openBulkAdd;document.querySelector('#addCastMenu').onclick=()=>castForm();document.querySelector('#castManageMenu').onclick=openCastManage;document.querySelector('#bulkCastManageMenu').onclick=openBulkManage;document.querySelector('#bulkColorMenu').onclick=openBulkColor;document.querySelector('#castSortMenu').onclick=openCastSort;document.querySelector('#restrictionMenu').onclick=openRestrictions;document.querySelector('#sendingMenu').onclick=openSending;document.querySelector('#summaryMenu').onclick=showBusinessSummary;document.querySelector('#historyMenu').onclick=showHistory;document.querySelector('#backupMenu').onclick=backup;document.querySelector('#importMenu').onclick=()=>document.querySelector('#importInput').click();document.querySelector('#endBusinessMenu').onclick=endBusiness;document.querySelector('#resetTableMenu').onclick=resetTableData;document.querySelector('#restoreTableMenu').onclick=restoreTableData;
+document.querySelector('#importInput').onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{state=normalize(JSON.parse(r.result));save();render();toast('データを復元しました')}catch{toast('復元できないファイルです')}};r.readAsText(f);e.target.value=''};
+
+// ===== STEP3 着席システム =====
+function ensurePending(t){
+  if(!Array.isArray(t.pendingCastIds))t.pendingCastIds=[];
+  if(!Number.isFinite(Number(t.pendingUpdatedAt)))t.pendingUpdatedAt=0;
+  return t.pendingCastIds;
+}
+function isFirstTurn(t){
+  return !(t.seated||[]).length && !(t.currentCastIds||[]).length && !(t.groupNo>0) && !state.history.some(h=>h.type==='seat'&&h.table===t.id);
+}
+function pendingSecondsLeft(t){
+  ensurePending(t);
+  if(!t.pendingCastIds.length||isFirstTurn(t))return 5;
+  return Math.max(0,Math.ceil((5000-(Date.now()-t.pendingUpdatedAt))/1000));
+}
+function togglePendingCast(c,t){
+  ensurePending(t);
+  if(c.currentTable===t.id){toast(c.name+'は現在着席中です');return}
+  const idx=t.pendingCastIds.indexOf(c.id);
+  if(idx>=0){
+    t.pendingCastIds.splice(idx,1);
+    if(c.preparingFor===t.id)c.preparingFor=null;
+    t.pendingUpdatedAt=Date.now();
+    save();render();toast(c.name+'の受付を取り消しました');return;
+  }
+  let reason=blockReason(c,t);
+  if(reason){toast(reason);return}
+  if(t.pendingCastIds.length>=3){toast('同時受付は3名までです');return}
+  if(c.preparingFor&&c.preparingFor!==t.id){toast('別卓で準備中 '+tableNo(c.preparingFor));return}
+  t.pendingCastIds.push(c.id);c.preparingFor=t.id;t.pendingUpdatedAt=Date.now();
+  save();render();
+  toast(c.name+'を'+t.no+'の受付中へ追加');
+}
+function cancelPendingGroup(t){
+  ensurePending(t);
+  t.pendingCastIds.forEach(id=>{let c=state.casts.find(x=>x.id===id);if(c&&c.preparingFor===t.id)c.preparingFor=null});
+  t.pendingCastIds=[];t.pendingUpdatedAt=0;save();render();toast(t.no+'の受付を取り消しました');
+}
+function commitPendingGroup(t,source='manual'){
+  ensurePending(t);
+  const ids=[...t.pendingCastIds];
+  if(!ids.length){toast('キャストを選択してください');return false}
+  const at=Date.now();
+  // 現在着席中を離席
+  (t.currentCastIds||[]).forEach(id=>{let prev=state.casts.find(c=>c.id===id);if(prev){prev.currentTable=null;state.history.push({type:'leave',cast:id,table:t.id,castName:prev.name,tableNo:t.no,turn:t.groupNo||1,at})}});
+  t.currentCastIds=[];
+  t.groupNo=(Number(t.groupNo)||0)+1;
+  ids.forEach((id,slot)=>{
+    let c=state.casts.find(x=>x.id===id);if(!c)return;
+    c.preparingFor=null;c.currentTable=t.id;
+    t.currentCastIds.push(id);
+    if(!t.seated.includes(id))t.seated.push(id);
+    state.history.push({type:'seat',cast:id,table:t.id,castName:c.name,tableNo:t.no,turn:t.groupNo,slot:slot+1,at});
+  });
+  t.pendingCastIds=[];t.pendingUpdatedAt=0;t.lastSeatAt=at;t.autoHandledAt=0;
+  save();if(navigator.vibrate)navigator.vibrate(80);render();
+  toast(ids.map(id=>state.casts.find(c=>c.id===id)?.name).filter(Boolean).join('・')+' → '+t.no+' 同時着席');
+  return true;
+}
+function processPendingGroups(){
+  let changed=false;
+  state.tables.filter(t=>t.active&&!t.rotationEnded).forEach(t=>{
+    ensurePending(t);
+    if(!t.pendingCastIds.length||isFirstTurn(t)||!t.pendingUpdatedAt)return;
+    if(Date.now()-t.pendingUpdatedAt>=5000){commitPendingGroup(t,'auto');changed=true}
+  });
+  return changed;
+}
+function renderDirectBoard(){
+ let box=document.querySelector('#directBoard');if(!box)return;
+ let tables=state.tables.filter(t=>t.active);
+ if(!tables.length){box.innerHTML='<div class="info-card" style="min-width:calc(100vw - 20px)">卓設定から卓を追加してください。</div>';return}
+ box.innerHTML=tables.map(t=>{
+   ensurePending(t);
+   let p=tablePhase(t),current=(t.currentCastIds||[]).map(id=>state.casts.find(c=>c.id===id)).filter(Boolean),pending=t.pendingCastIds.map(id=>state.casts.find(c=>c.id===id)).filter(Boolean),st=tableStats(t),first=isFirstTurn(t);
+   let candidates=state.casts.filter(c=>c.working&&!(t.seated||[]).includes(c.id)).sort((a,b)=>['S','A','B','C'].indexOf(a.rank)-['S','A','B','C'].indexOf(b.rank)||(a.order??0)-(b.order??0));
+   let rankHtml=['S','A','B','C'].map(rank=>{let list=candidates.filter(c=>c.rank===rank);if(!list.length)return'';return '<div class="direct-rank">'+rank+'ランク</div>'+list.map(c=>{let reason=blockReason(c,t),pend=t.pendingCastIds.includes(c.id);return `<button class="direct-cast ${reason&&!pend?'blocked':''} ${pend?'pending':''}" data-direct-table="${t.id}" data-direct-cast="${c.id}" style="--team:${esc(c.team)}"><b>${esc(c.name)}</b><small>${pend?'受付中・再タップで取消':reason?esc(reason):'タップで受付'}</small></button>`}).join('')}).join('');
+   let time=!t.lastSeatAt?'未開始':p.stage==='over'?'超過 '+fmt(p.sec):fmt(p.sec);
+   let pendingHtml=pending.length?`<div class="direct-pending"><b>${first?'1ターン目・開始待ち':'同時着席受付中'}</b><br>${esc(pending.map(c=>c.name).join('・'))}<br>${first?'ドリンク・乾杯後にスタートしてください':`無操作であと <span class="direct-countdown">${pendingSecondsLeft(t)}</span> 秒`}<div class="direct-pending-actions"><button class="direct-start" data-commit-pending="${t.id}">${first?'スタート':'今すぐ開始'}</button><button class="direct-cancel" data-cancel-pending="${t.id}">全取消</button></div></div>`:'';
+   return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><div class="direct-table-head"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${pendingHtml}</div><div class="direct-current"><b>現在着席</b>${esc(current.map(c=>c.name).join('・')||'空席')}</div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前タップ＝受付追加／受付中の再タップ＝取消<br>1ターン目はスタート、2ターン目以降は5秒無操作で確定</div></section>`
+ }).join('');
+ box.querySelectorAll('[data-direct-cast]').forEach(btn=>{btn.onclick=()=>{let c=state.casts.find(x=>x.id===btn.dataset.directCast),t=state.tables.find(x=>x.id===btn.dataset.directTable);if(c&&t)togglePendingCast(c,t)};bindLong(btn,()=>{let c=state.casts.find(x=>x.id===btn.dataset.directCast),t=state.tables.find(x=>x.id===btn.dataset.directTable);if(c&&t&&ensurePending(t).includes(c.id))togglePendingCast(c,t)})});
+ box.querySelectorAll('[data-commit-pending]').forEach(b=>b.onclick=()=>commitPendingGroup(state.tables.find(t=>t.id===b.dataset.commitPending),'manual'));
+ box.querySelectorAll('[data-cancel-pending]').forEach(b=>b.onclick=()=>cancelPendingGroup(state.tables.find(t=>t.id===b.dataset.cancelPending)));
+}
+
+function updateLiveOnly(){
+  const clock=document.querySelector('#clock');
+  if(clock)clock.textContent=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+  const active=state.tables.filter(t=>t.active);
+  const mt=document.querySelector('#mTables'),ms=document.querySelector('#mSeated'),ma=document.querySelector('#mAlerts');
+  if(mt)mt.textContent=active.length;
+  if(ms)ms.textContent=state.casts.filter(c=>c.currentTable).length;
+  if(ma)ma.textContent=active.filter(t=>['find','prepare','urgent','over'].includes(tablePhase(t).stage)).length;
+  document.querySelectorAll('#directBoard .direct-table[data-direct-table]').forEach(card=>{
+    const t=state.tables.find(x=>x.id===card.dataset.directTable);if(!t)return;
+    const p=tablePhase(t);
+    const timer=card.querySelector('.direct-timer');
+    if(timer)timer.textContent=t.rotationEnded?'一時終了':(!t.lastSeatAt?'未開始':p.stage==='over'?'超過 '+fmt(p.sec):fmt(p.sec));
+    card.classList.remove('find','prepare','urgent','over','paused');
+    if(t.pausedAt)card.classList.add('paused'); else if(p.stage)card.classList.add(p.stage);
+    const cd=card.querySelector('.direct-countdown');
+    if(cd)cd.textContent=pendingSecondsLeft(t);
+    const banner=card.querySelector('.timer-stage-banner');
+    if(banner){
+      banner.className='timer-stage-banner '+(t.pausedAt?'paused':p.stage||'normal');
+      banner.textContent=t.pausedAt?'一時停止中':p.stage==='over'?'交代時間超過':p.stage==='urgent'?'30秒前：交代準備':p.stage==='prepare'?'90秒前：呼び出し・待機':p.stage==='find'?'3分前：次を見つけてください':'接客中';
+    }
+  });
+}
+let liveTickTimer=null;
+function runLiveTick(){
+  processAutoSwaps();
+  const changed=processPendingGroups();
+  if(!changed)updateLiveOnly();
+}
+function startLiveTick(){
+  if(liveTickTimer||document.hidden)return;
+  liveTickTimer=setInterval(runLiveTick,1000);
+}
+function stopLiveTick(){
+  if(!liveTickTimer)return;
+  clearInterval(liveTickTimer);
+  liveTickTimer=null;
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    stopLiveTick();
+  }else{
+    try{render()}catch{}
+    runLiveTick();
+    startLiveTick();
+  }
+});
+render();
+startLiveTick();
+</script>
 
 <style>
 .timer-stage-banner{margin-top:8px;padding:8px 9px;border-radius:10px;font-size:11px;font-weight:900;line-height:1.45;background:#10261a;color:#8cf0ad;border:1px solid #285a3c}
@@ -664,7 +1363,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.66 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.65 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -885,6 +1584,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   render();
 })();
 </script>
+
 
 
 <!-- Ver.11.2.16: 回す予定チェック -->
@@ -1138,6 +1838,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   render();
 })();
 </script>
+
 
 
 <style>
@@ -1429,6 +2130,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 </script>
 
 
+
 <style>
 /* Ver.11.2.22: NEXTは連続着席予約。卓スタート時にそのまま同時着席 */
 #directBoard .direct-next-summary{cursor:pointer}
@@ -1512,7 +2214,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.66 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.65 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -2636,6 +3338,70 @@ header .brand{height:38px !important;min-height:38px !important;}
 #homePage .all-timer-chip strong{font-size:12px!important;line-height:1!important;margin-top:4px!important;letter-spacing:-.2px!important}
 </style>
 
+<style id="v11262-undo-table-end-style">
+/* 直前の卓終了取消はメニュー内だけに表示 */
+#undoLastTableEndBtn{display:none}
+#undoLastTableEndBtn.show{display:flex}
+</style>
+<!-- SWAMP-FLOW Ver.11.2.65 / 卓終了取消ボタンをメニューへ正式配置 -->
+<script id="v11262-undo-table-end">
+(function(){
+ let lastEnd=null;
+ const clone=o=>JSON.parse(JSON.stringify(o));
+
+ function capture(t){
+   if(!t)return;
+   lastEnd={
+     table:clone(t),
+     casts:clone(state.casts),
+     history:clone(state.history),
+     refusals:clone(state.refusals||{}),
+     at:Date.now()
+   };
+   sessionStorage.setItem('swampFlowLastTableEnd',JSON.stringify(lastEnd));
+ }
+ function show(){
+   const b=document.querySelector('#undoLastTableEndBtn');
+   if(!b)return;
+   try{lastEnd=JSON.parse(sessionStorage.getItem('swampFlowLastTableEnd')||'null')}catch(e){}
+   b.classList.toggle('show',!!lastEnd);
+ }
+ function restore(){
+   if(!lastEnd)return;
+   const t=clone(lastEnd.table);
+   if(state.tables.some(x=>x.id===t.id)){toast(t.no+' はすでに存在します');return}
+   state.casts=clone(lastEnd.casts);
+   state.history=clone(lastEnd.history);
+   state.refusals=clone(lastEnd.refusals);
+   state.tables.push(t);
+   state.tables.sort((a,b)=>(a.entryAt||0)-(b.entryAt||0));
+   lastEnd=null;
+   sessionStorage.removeItem('swampFlowLastTableEnd');
+   save();render();show();
+   toast(t.no+' の卓終了を取り消しました');
+ }
+
+ const oldQuick=window.finalizeQuickOutcome;
+ if(typeof oldQuick==='function'){
+   window.finalizeQuickOutcome=function(t,kind){capture(t);oldQuick(t,kind);show()};
+ }
+ const oldFinalize=window.finalizeTable;
+ if(typeof oldFinalize==='function'){
+   window.finalizeTable=function(t,outcome){capture(t);oldFinalize(t,outcome);setTimeout(show,0)};
+ }
+
+ const undoBtn=document.querySelector('#undoLastTableEndBtn');
+ const endBusinessBtn=document.querySelector('#endBusinessMenu');
+ if(undoBtn&&endBusinessBtn){
+   undoBtn.className='danger-menu';
+   undoBtn.innerHTML='<span>直前の卓終了取消</span><small>最後に終了した卓を復元</small>';
+   endBusinessBtn.insertAdjacentElement('beforebegin',undoBtn);
+   undoBtn.onclick=restore;
+ }
+ show();
+})();
+</script>
+
 
 <style id="v11248-vip-exception">
 #directBoard .vip-quick-exception{
@@ -2689,7 +3455,544 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
-<!-- SWAMP-FLOW Ver.11.2.66 Stable / FOG-GOALS自動連動 -->
+<!-- SWAMP-FLOW Ver.11.2.65 Stable / FOG-GOALS自動連動 -->
+<script id="v11251-fog-goals-sync">
+(function(){
+  'use strict';
+
+  const FOG_GOALS_URL='https://sffzcooyulzjrxkxvcrx.supabase.co';
+  const FOG_GOALS_KEY='sb_publishable_3cmJ6BW-qBh6N3ThfwebJA_iw9tR_cP';
+  const SESSION_KEY='swamp-flow-fog-goals-session-v1';
+  const EMAIL_KEY='swamp-flow-fog-goals-email-v1';
+  let pendingEndAfterLogin=false;
+  let syncing=false;
+
+  function hEsc(v){
+    return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function normName(v){
+    return String(v??'').normalize('NFKC').replace(/[\s\u3000]+/g,'').trim();
+  }
+  function businessDateFromTs(ts){
+    const d=new Date(ts||Date.now());
+    if(d.getHours()<6)d.setDate(d.getDate()-1);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function loadSession(){
+    try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch{return null}
+  }
+  function saveSession(s){
+    if(!s){localStorage.removeItem(SESSION_KEY);return}
+    if(!s.expires_at && s.expires_in)s.expires_at=Math.floor(Date.now()/1000)+Number(s.expires_in||3600);
+    localStorage.setItem(SESSION_KEY,JSON.stringify(s));
+  }
+  async function jsonFetch(url,options={}){
+    const res=await fetch(url,options);
+    const text=await res.text();
+    let body=null;
+    if(text){try{body=JSON.parse(text)}catch{body=text}}
+    if(!res.ok){
+      const msg=(body&&typeof body==='object'&&(body.msg||body.message||body.error_description||body.error))||String(body||('HTTP '+res.status));
+      const err=new Error(msg);err.status=res.status;err.body=body;throw err;
+    }
+    return body;
+  }
+  async function authToken(grantType,payload){
+    return jsonFetch(FOG_GOALS_URL+'/auth/v1/token?grant_type='+encodeURIComponent(grantType),{
+      method:'POST',
+      headers:{'apikey':FOG_GOALS_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+  }
+  async function signInFogGoals(email,password){
+    const s=await authToken('password',{email,password});
+    saveSession(s);
+    localStorage.setItem(EMAIL_KEY,email);
+    return s;
+  }
+  async function refreshFogGoalsSession(session){
+    if(!session?.refresh_token)return null;
+    try{
+      const s=await authToken('refresh_token',{refresh_token:session.refresh_token});
+      saveSession(s);return s;
+    }catch(e){saveSession(null);return null}
+  }
+  async function validSession(){
+    let s=loadSession();
+    if(!s?.access_token)return null;
+    const exp=Number(s.expires_at||0);
+    if(exp && exp>Math.floor(Date.now()/1000)+90)return s;
+    s=await refreshFogGoalsSession(s);
+    return s?.access_token?s:null;
+  }
+  async function authUser(session){
+    return jsonFetch(FOG_GOALS_URL+'/auth/v1/user',{
+      headers:{'apikey':FOG_GOALS_KEY,'Authorization':'Bearer '+session.access_token}
+    });
+  }
+  async function rest(path,options={},session){
+    const headers=Object.assign({
+      'apikey':FOG_GOALS_KEY,
+      'Authorization':'Bearer '+session.access_token,
+      'Content-Type':'application/json'
+    },options.headers||{});
+    return jsonFetch(FOG_GOALS_URL+'/rest/v1/'+path,Object.assign({},options,{headers}));
+  }
+  async function logoutFogGoals(){
+    const s=loadSession();
+    try{
+      if(s?.access_token){
+        await jsonFetch(FOG_GOALS_URL+'/auth/v1/logout',{
+          method:'POST',headers:{'apikey':FOG_GOALS_KEY,'Authorization':'Bearer '+s.access_token}
+        });
+      }
+    }catch(e){}
+    saveSession(null);
+    updateLinkButton();
+  }
+
+  async function syncFogGoals(summaryData,endedAt){
+    const session=await validSession();
+    if(!session)return{needLogin:true};
+
+    let members;
+    try{
+      members=await rest('members?select=id,name,team_id&is_active=eq.true&order=display_order.asc',{method:'GET'},session);
+    }catch(e){
+      if(e.status===401){saveSession(null);return{needLogin:true}}
+      throw e;
+    }
+    if(!Array.isArray(members))throw new Error('FOG-GOALSのメンバー一覧を取得できませんでした');
+
+    const memberBuckets=new Map();
+    members.forEach(m=>{
+      const k=normName(m.name);
+      if(!k)return;
+      if(!memberBuckets.has(k))memberBuckets.set(k,[]);
+      memberBuckets.get(k).push(m);
+    });
+    const duplicateNames=[...memberBuckets.entries()].filter(([,v])=>v.length>1).map(([k])=>k);
+    if(duplicateNames.length)throw new Error('FOG-GOALS側で同名メンバーが重複しています：'+duplicateNames.join('・'));
+
+    const sourceRows=Array.isArray(summaryData?.rows)?summaryData.rows:[];
+    const sourceMap=new Map();
+    sourceRows.forEach(r=>{
+      const name=r?.c?.name||r?.castName||'';
+      const k=normName(name);
+      if(k)sourceMap.set(k,r);
+    });
+
+    const matched=[];
+    members.forEach(m=>{
+      const src=sourceMap.get(normName(m.name));
+      if(!src)return;
+      if(!m.team_id)throw new Error(m.name+' のteam_idがFOG-GOALS側で未設定です');
+      matched.push({member:m,src});
+    });
+    if(!matched.length)throw new Error('FOG FLOWとFOG-GOALSで一致するキャスト名がありません');
+
+    const memberNameSet=new Set(members.map(m=>normName(m.name)));
+    const excludedActive=sourceRows.filter(r=>{
+      const total=Number(r.attackCount||0)+Number(r.sendCount||0)+Number(r.extensionCount||0);
+      return total>0&&!memberNameSet.has(normName(r?.c?.name||r?.castName||''));
+    }).map(r=>r?.c?.name||r?.castName||'不明');
+
+    const date=businessDateFromTs(endedAt);
+    const ids=matched.map(x=>x.member.id);
+    const existing=await rest('daily_results?select=id,member_id&business_date=eq.'+encodeURIComponent(date)+'&member_id=in.('+ids.join(',')+')',{method:'GET'},session);
+    const existingByMember=new Map((Array.isArray(existing)?existing:[]).map(r=>[r.member_id,r]));
+    const nowIso=new Date().toISOString();
+
+    for(const x of matched){
+      const counts={
+        first_contact_count:Math.max(0,Number(x.src.attackCount)||0),
+        send_count:Math.max(0,Number(x.src.sendCount)||0),
+        inhouse_count:Math.max(0,Number(x.src.extensionCount)||0),
+        updated_at:nowIso
+      };
+      const row=existingByMember.get(x.member.id);
+      if(row){
+        await rest('daily_results?id=eq.'+encodeURIComponent(row.id),{
+          method:'PATCH',headers:{'Prefer':'return=minimal'},body:JSON.stringify(counts)
+        },session);
+      }else{
+        await rest('daily_results',{
+          method:'POST',headers:{'Prefer':'return=minimal'},body:JSON.stringify(Object.assign({
+            member_id:x.member.id,
+            team_id:x.member.team_id,
+            business_date:date
+          },counts))
+        },session);
+      }
+    }
+
+    return{ok:true,date,matched:matched.length,excludedActive};
+  }
+
+  async function runFogGoalsNameCheck(){
+    const checkBtn=document.querySelector('#fogGoalsNameCheckMenu');
+    if(checkBtn)checkBtn.disabled=true;
+    toast('FOG-GOALSと名前を照合中…');
+
+    try{
+      const session=await validSession();
+      if(!session){
+        openUtility('FOG-GOALS 名前照合',
+          '<div class="notice">名前照合にはFOG-GOALSへの連携ログインが必要です。<br><b>照合だけではデータを書き込みません。</b></div>'+ 
+          '<button class="primary" id="fogGoalsNameCheckLogin" style="width:100%;margin-top:10px">FOG-GOALS連携を開く</button>');
+        const loginBtn=document.querySelector('#fogGoalsNameCheckLogin');
+        if(loginBtn)loginBtn.onclick=()=>openFogGoalsLink(false);
+        return;
+      }
+
+      let members;
+      try{
+        members=await rest('members?select=id,name,team_id&is_active=eq.true&order=display_order.asc',{method:'GET'},session);
+      }catch(e){
+        if(e.status===401){
+          saveSession(null);
+          openUtility('FOG-GOALS 名前照合',
+            '<div class="notice" style="border-color:#7b2429;background:#291013;color:#ffd4d7">FOG-GOALSのログイン期限が切れています。</div>'+ 
+            '<button class="primary" id="fogGoalsNameCheckRelogin" style="width:100%;margin-top:10px">もう一度連携ログイン</button>');
+          const relogin=document.querySelector('#fogGoalsNameCheckRelogin');
+          if(relogin)relogin.onclick=()=>openFogGoalsLink(false);
+          return;
+        }
+        throw e;
+      }
+
+      if(!Array.isArray(members))throw new Error('FOG-GOALSのメンバー一覧を取得できませんでした');
+
+      const flowCasts=Array.isArray(state?.casts)?state.casts:[];
+      const flowBuckets=new Map();
+      flowCasts.forEach(c=>{
+        const k=normName(c?.name||'');
+        if(!k)return;
+        if(!flowBuckets.has(k))flowBuckets.set(k,[]);
+        flowBuckets.get(k).push(c);
+      });
+
+      const goalBuckets=new Map();
+      members.forEach(m=>{
+        const k=normName(m?.name||'');
+        if(!k)return;
+        if(!goalBuckets.has(k))goalBuckets.set(k,[]);
+        goalBuckets.get(k).push(m);
+      });
+
+      const goalDuplicates=[...goalBuckets.entries()]
+        .filter(([,rows])=>rows.length>1)
+        .map(([name])=>name);
+      const flowDuplicates=[...flowBuckets.entries()]
+        .filter(([,rows])=>rows.length>1)
+        .map(([name])=>name);
+
+      const matched=[];
+      const goalOnly=[];
+      members.forEach(m=>{
+        const k=normName(m?.name||'');
+        if(k&&flowBuckets.has(k))matched.push(m.name);
+        else goalOnly.push(m?.name||'名前なし');
+      });
+
+      const flowOnly=flowCasts
+        .filter(c=>{
+          const k=normName(c?.name||'');
+          return k&&!goalBuckets.has(k);
+        })
+        .map(c=>c.name);
+
+      const perfect=goalOnly.length===0&&goalDuplicates.length===0&&flowDuplicates.length===0;
+      const uniqueMatched=[...new Set(matched.map(normName))];
+
+      const resultColor=perfect?'#a9f3c3':'#ffd37a';
+      const resultBorder=perfect?'#2f744c':'#7b5a24';
+      const resultBg=perfect?'#10251a':'#2a210f';
+      const headline=perfect
+        ? '✅ FOG-GOALS側の名前はすべてSWAMP-FLOWと一致しています。'
+        : '⚠️ 名前が一致していない項目があります。';
+
+      const matchedHtml=members.length
+        ? members.map(m=>{
+            const ok=flowBuckets.has(normName(m?.name||''));
+            return '<div class="list-row"><div class="list-main"><b>'+(ok?'✅ ':'❌ ')+hEsc(m?.name||'名前なし')+'</b><small>'+(ok?'SWAMP-FLOWと一致':'SWAMP-FLOWに一致する名前なし')+'</small></div></div>';
+          }).join('')
+        : '<p class="hint">FOG-GOALS側に表示できる在籍メンバーがいません。</p>';
+
+      const issueBlocks=[];
+      if(goalOnly.length){
+        issueBlocks.push('<div class="notice" style="margin-top:10px;border-color:#7b2429;background:#291013;color:#ffd4d7"><b>FOG-GOALS → FLOW 不一致 '+goalOnly.length+'名</b><br>'+hEsc(goalOnly.join('・'))+'<br><small>この名前は営業終了同期で一致しません。</small></div>');
+      }
+      if(goalDuplicates.length){
+        issueBlocks.push('<div class="notice" style="margin-top:10px;border-color:#7b2429;background:#291013;color:#ffd4d7"><b>FOG-GOALS側 同名重複</b><br>'+hEsc(goalDuplicates.join('・'))+'</div>');
+      }
+      if(flowDuplicates.length){
+        issueBlocks.push('<div class="notice" style="margin-top:10px;border-color:#7b5a24;background:#2a210f;color:#ffd37a"><b>SWAMP-FLOW側 同名重複</b><br>'+hEsc(flowDuplicates.join('・'))+'</div>');
+      }
+      if(flowOnly.length){
+        issueBlocks.push('<div class="info-card" style="margin-top:10px"><b>SWAMP-FLOWのみ '+flowOnly.length+'名</b><p class="hint">FOG-GOALS未登録、退店扱い、またはこのログイン権限では見えない可能性があります。</p><p>'+hEsc(flowOnly.join('・'))+'</p></div>');
+      }
+
+      openUtility('FOG-GOALS 名前照合',
+        '<div class="notice" style="border-color:'+resultBorder+';background:'+resultBg+';color:'+resultColor+'"><b>'+headline+'</b><br><br>'+ 
+        'FOG-GOALS表示 '+members.length+'名 ／ 一致 '+uniqueMatched.length+'名 ／ 不一致 '+goalOnly.length+'名<br>'+ 
+        '<small>確認のみ。FOG-GOALS・月間集計・営業データへの書き込みはありません。</small></div>'+ 
+        issueBlocks.join('')+
+        '<div class="info-card" style="margin-top:10px"><b>FOG-GOALS登録名の照合結果</b><div style="margin-top:8px;display:grid;gap:6px">'+matchedHtml+'</div></div>'+ 
+        '<button class="secondary" id="fogGoalsNameCheckAgain" style="width:100%;margin-top:10px">もう一度照合</button>');
+
+      const again=document.querySelector('#fogGoalsNameCheckAgain');
+      if(again)again.onclick=()=>runFogGoalsNameCheck();
+      toast(perfect?'名前照合OK':'名前照合：要確認あり');
+    }catch(e){
+      console.error('FOG-GOALS name check error',e);
+      openUtility('FOG-GOALS 名前照合',
+        '<div class="notice" style="border-color:#7b2429;background:#291013;color:#ffd4d7"><b>名前照合に失敗しました。</b><br><br>'+hEsc(e?.message||'不明なエラー')+'</div>'+ 
+        '<button class="secondary" id="fogGoalsNameCheckRetry" style="width:100%;margin-top:10px">再試行</button>');
+      const retry=document.querySelector('#fogGoalsNameCheckRetry');
+      if(retry)retry.onclick=()=>runFogGoalsNameCheck();
+    }finally{
+      if(checkBtn)checkBtn.disabled=false;
+    }
+  }
+
+  function updateLinkButton(){
+    const btn=document.querySelector('#fogGoalsLinkMenu');
+    if(!btn)return;
+    const s=loadSession();
+    const small=btn.querySelector('small');
+    const last=state?.settings?.fogGoalsLastSync;
+    if(TEST_MODE){small.textContent='テスト中は同期しません';return}
+    if(s?.access_token){
+      small.textContent=last?.businessDate?'連携済み／最終同期 '+last.businessDate:'連携済み';
+    }else{
+      small.textContent='初回のみログインして自動同期';
+    }
+  }
+
+  async function openFogGoalsLink(autoContinue=false){
+    let user=null;
+    const s=await validSession();
+    if(s){try{user=await authUser(s)}catch(e){}}
+    if(user){
+      openUtility('FOG-GOALS連携',
+        '<div class="notice" style="border-color:#2f744c;background:#10251a;color:#a9f3c3">連携中です。</div>'+ 
+        '<div class="info-card" style="margin-top:10px"><b>'+hEsc(user.email||'ログイン済み')+'</b><p class="hint">営業終了時に、アタック・送り・場内をFOG-GOALSへ自動同期します。</p></div>'+ 
+        '<button class="danger" id="fogGoalsLogout" style="width:100%;margin-top:10px">連携ログアウト</button>');
+      document.querySelector('#fogGoalsLogout').onclick=async()=>{await logoutFogGoals();closeUtility();toast('FOG-GOALS連携を解除しました')};
+      return;
+    }
+
+    const savedEmail=localStorage.getItem(EMAIL_KEY)||'';
+    openUtility('FOG-GOALS連携',
+      '<div class="notice">FOG-GOALSで使っているログイン情報を入力してください。パスワードは保存しません。ログイン後はセッションだけ保持します。</div>'+ 
+      '<div class="form" style="margin-top:10px">'+
+      '<label>メールアドレス<input id="fogGoalsEmail" type="email" autocomplete="username" value="'+hEsc(savedEmail)+'"></label>'+ 
+      '<label>パスワード<input id="fogGoalsPassword" type="password" autocomplete="current-password"></label>'+ 
+      '<button class="primary" id="fogGoalsLogin" style="width:100%;min-height:46px">連携ログイン</button>'+ 
+      '<p class="hint" id="fogGoalsLoginStatus"></p></div>');
+
+    const btn=document.querySelector('#fogGoalsLogin');
+    btn.onclick=async()=>{
+      const email=document.querySelector('#fogGoalsEmail').value.trim();
+      const password=document.querySelector('#fogGoalsPassword').value;
+      const status=document.querySelector('#fogGoalsLoginStatus');
+      if(!email||!password){status.textContent='メールアドレスとパスワードを入力してください';return}
+      btn.disabled=true;status.textContent='ログイン中…';
+      try{
+        const session=await signInFogGoals(email,password);
+        const u=await authUser(session);
+        status.textContent='連携しました：'+(u?.email||email);
+        updateLinkButton();
+        if(autoContinue||pendingEndAfterLogin){
+          pendingEndAfterLogin=false;
+          closeUtility();
+          setTimeout(()=>runSyncedEndBusiness(true),80);
+        }else{
+          setTimeout(()=>closeUtility(),500);
+        }
+      }catch(e){
+        status.textContent='ログインできません：'+(e?.message||'不明なエラー');
+        btn.disabled=false;
+      }
+    };
+  }
+
+  function reviewDailySummary(summaryData){
+    return new Promise(resolve=>{
+      const rows=(summaryData.rows||[]).map(r=>({
+        ...r,
+        attackCount:Math.max(0,Number(r.attackCount)||0),
+        sendCount:Math.max(0,Number(r.sendCount)||0),
+        extensionCount:Math.max(0,Number(r.extensionCount)||0)
+      }));
+      openUtility('営業終了前の数字確認',
+        '<div class="notice"><b>送り・場内の入力漏れをここで修正できます。</b><br>間違いがなければそのまま「この数字で確定」を押してください。</div>'+ 
+        '<div style="margin-top:10px;display:grid;gap:7px">'+rows.map((r,i)=>
+          '<div class="info-card" style="padding:9px"><b>'+hEsc(r.c?.name||r.castName||'')+'</b>'+ 
+          '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px">'+
+          '<label style="font-size:11px">アタック<input data-daily-i="'+i+'" data-daily-f="attackCount" type="number" min="0" inputmode="numeric" value="'+r.attackCount+'" style="width:100%"></label>'+ 
+          '<label style="font-size:11px">送り<input data-daily-i="'+i+'" data-daily-f="sendCount" type="number" min="0" inputmode="numeric" value="'+r.sendCount+'" style="width:100%"></label>'+ 
+          '<label style="font-size:11px">場内<input data-daily-i="'+i+'" data-daily-f="extensionCount" type="number" min="0" inputmode="numeric" value="'+r.extensionCount+'" style="width:100%"></label>'+ 
+          '</div></div>').join('')+'</div>'+ 
+        '<div class="row" style="margin-top:12px"><button class="secondary" id="dailyReviewCancel">戻る</button><button class="primary" id="dailyReviewOk">この数字で確定</button></div>');
+      document.querySelectorAll('[data-daily-i]').forEach(inp=>inp.addEventListener('input',()=>{
+        const i=Number(inp.dataset.dailyI),f=inp.dataset.dailyF;
+        rows[i][f]=Math.max(0,Number(inp.value)||0);
+      }));
+      document.querySelector('#dailyReviewCancel').onclick=()=>{closeUtility();resolve(null)};
+      document.querySelector('#dailyReviewOk').onclick=()=>{
+        const out={...summaryData,rows};
+        out.totalSeats=rows.reduce((a,r)=>a+r.attackCount,0);
+        out.totalSends=rows.reduce((a,r)=>a+r.sendCount,0);
+        out.totalExtensions=rows.reduce((a,r)=>a+r.extensionCount,0);
+        out.totalExtensionRate=out.totalSends?out.totalExtensions/out.totalSends*100:0;
+        rows.forEach(r=>r.extensionRate=r.sendCount?r.extensionCount/r.sendCount*100:0);
+        closeUtility();resolve(out);
+      };
+    });
+  }
+
+  const legacyEndBusiness=typeof window.endBusiness==='function'?window.endBusiness:null;
+
+  async function runSyncedEndBusiness(skipConfirm=false){
+    if(syncing)return;
+    if(!legacyEndBusiness){toast('営業終了処理が見つかりません');return}
+    if(TEST_MODE){
+      if(!skipConfirm){
+        const ok=confirm('テストモードの営業を終了しますか？\n\n本番の月間集計・FOG-GOALSには反映されません。');
+        if(!ok)return;
+      }
+      const endedAt=Date.now();
+      const rawSummaryData=businessSummaryData();
+      const summaryData=await reviewDailySummary(rawSummaryData);
+      if(!summaryData)return;
+      const oldConfirm=window.confirm;
+      const oldMonthly=window.addBusinessSummaryToMonthly;
+      window.confirm=()=>true;
+      if(typeof oldMonthly==='function')window.addBusinessSummaryToMonthly=(_raw,ts)=>oldMonthly(summaryData,ts);
+      try{legacyEndBusiness()}finally{
+        window.confirm=oldConfirm;
+        if(typeof oldMonthly==='function')window.addBusinessSummaryToMonthly=oldMonthly;
+      }
+      toast('テスト営業終了：本番には未反映');
+      return;
+    }
+    if(!skipConfirm){
+      const ok=confirm('営業を終了しますか？\n\nFOG-GOALSへ「アタック・送り・場内」を同期してから営業データをリセットします。\n同期に失敗した場合はリセットしません。');
+      if(!ok)return;
+    }
+
+    const endedAt=Date.now();
+    const rawSummaryData=businessSummaryData();
+    const summaryData=await reviewDailySummary(rawSummaryData);
+    if(!summaryData)return;
+    syncing=true;
+    const endBtn=document.querySelector('#endBusinessMenu');
+    if(endBtn)endBtn.disabled=true;
+    toast('FOG-GOALSへ同期中…');
+
+    try{
+      const result=await syncFogGoals(summaryData,endedAt);
+      if(result.needLogin){
+        pendingEndAfterLogin=true;
+        syncing=false;
+        if(endBtn)endBtn.disabled=false;
+        await openFogGoalsLink(true);
+        return;
+      }
+
+      state.settings=state.settings||{};
+      state.settings.fogGoalsLastSync={
+        businessDate:result.date,
+        syncedAt:Date.now(),
+        matched:result.matched
+      };
+      save();
+
+      const oldConfirm=window.confirm;
+      const oldMonthly=window.addBusinessSummaryToMonthly;
+      window.confirm=()=>true;
+      if(typeof oldMonthly==='function')window.addBusinessSummaryToMonthly=(_raw,ts)=>oldMonthly(summaryData,ts);
+      try{legacyEndBusiness()}finally{
+        window.confirm=oldConfirm;
+        if(typeof oldMonthly==='function')window.addBusinessSummaryToMonthly=oldMonthly;
+      }
+      // 営業アーカイブも確認画面で確定した数字に合わせる
+      const archive=state?.settings?.businessArchives?.[0];
+      if(archive && Math.abs(Number(archive.endedAt||0)-endedAt)<5000){
+        archive.totalSeats=summaryData.totalSeats;
+        archive.totalSends=summaryData.totalSends;
+        archive.totalExtensions=summaryData.totalExtensions;
+        archive.totalExtensionRate=summaryData.totalExtensionRate;
+        archive.rows=summaryData.rows.map(r=>({castId:r.c?.id||r.castId,castName:r.c?.name||r.castName,tableCount:r.tableCount||0,seatCount:r.attackCount,attackCount:r.attackCount,sendCount:r.sendCount,extensionCount:r.extensionCount,extensionRate:r.extensionRate,tables:[...(r.tables||[])]}));
+        save();
+      }
+
+      const body=document.querySelector('#utilityBody');
+      if(body){
+        const extra=result.excludedActive?.length
+          ? '<div class="notice" style="margin-bottom:10px">FOG-GOALS同期：'+result.matched+'名完了。FOG-GOALS未登録のため未反映：'+hEsc(result.excludedActive.slice(0,8).join('・'))+(result.excludedActive.length>8?' ほか'+(result.excludedActive.length-8)+'名':'')+'</div>'
+          : '<div class="notice" style="margin-bottom:10px;border-color:#2f744c;background:#10251a;color:#a9f3c3">FOG-GOALS同期完了：'+result.matched+'名／営業日 '+hEsc(result.date)+'</div>';
+        body.insertAdjacentHTML('afterbegin',extra);
+      }
+      updateLinkButton();
+      toast('FOG-GOALS同期完了');
+    }catch(e){
+      console.error('FOG-GOALS sync error',e);
+      openUtility('営業終了を停止しました',
+        '<div class="notice" style="border-color:#7b2429;background:#291013;color:#ffd4d7"><b>FOG-GOALSへの同期に失敗したため、営業データはリセットしていません。</b><br><br>'+hEsc(e?.message||'不明なエラー')+'</div>'+ 
+        '<button class="secondary" id="fogGoalsRetryLink" style="width:100%;margin-top:10px">FOG-GOALS連携を確認</button>');
+      const retry=document.querySelector('#fogGoalsRetryLink');
+      if(retry)retry.onclick=()=>openFogGoalsLink(false);
+    }finally{
+      syncing=false;
+      if(endBtn)endBtn.disabled=false;
+    }
+  }
+
+  function installUi(){
+    document.title='SWAMP-FLOW Ver.11.2.65 Stable';
+    const h=document.querySelector('.brand h1');
+    if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.65 Stable <span class="stable-badge">STABLE</span>';
+
+    const endBtn=document.querySelector('#endBusinessMenu');
+    if(endBtn)endBtn.onclick=()=>runSyncedEndBusiness(false);
+
+    if(!document.querySelector('#fogGoalsLinkMenu')){
+      const diagnostic=document.querySelector('#diagnosticMenu');
+      const grid=diagnostic?.parentElement;
+      if(grid){
+        const btn=document.createElement('button');
+        btn.id='fogGoalsLinkMenu';
+        btn.className='full';
+        btn.innerHTML='<span>FOG-GOALS連携</span><small>初回のみログインして自動同期</small>';
+        grid.insertBefore(btn,diagnostic);
+        btn.onclick=()=>openFogGoalsLink(false);
+      }
+    }
+    if(!document.querySelector('#fogGoalsNameCheckMenu')){
+      const diagnostic=document.querySelector('#diagnosticMenu');
+      const grid=diagnostic?.parentElement;
+      if(grid){
+        const btn=document.createElement('button');
+        btn.id='fogGoalsNameCheckMenu';
+        btn.className='full';
+        btn.innerHTML='<span>FOG-GOALS名前照合</span><small>書き込みなしでキャスト名を確認</small>';
+        grid.insertBefore(btn,diagnostic);
+        btn.onclick=()=>runFogGoalsNameCheck();
+      }
+    }
+    updateLinkButton();
+    updateTestModeUI();
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installUi,{once:true});
+  else installUi();
+})();
+
+</script>
+
 
 
 <!-- SWAMP-FLOW Ver.11.2.63 / 延長ランキング自動化 -->
@@ -2777,6 +4080,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 </script>
 
 
+
 <!-- SWAMP-FLOW Ver.11.2.63 / キャスト管理入口統合 -->
 <script id="v11257-cast-management-hub">
 (function(){
@@ -2821,7 +4125,7 @@ header .brand{height:38px !important;min-height:38px !important;}
 #tableRestoreSheet .restore-item b{display:block;font-size:18px;margin-bottom:4px}
 #tableRestoreSheet .restore-item small{display:block;color:var(--muted);line-height:1.45}
 </style>
-<!-- SWAMP-FLOW Ver.11.2.66 / 卓終了取消・完全終了卓復元 -->
+<!-- SWAMP-FLOW Ver.11.2.65 / 卓終了取消・完全終了卓復元 -->
 <script id="v11265-table-restore">
 (function(){
   const undoBtn=document.querySelector('#undoLastTableEndBtn');
