@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.68 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.69 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -352,7 +352,7 @@ body.test-mode-active .menu-grid #testModeMenu span{color:#fff}
 </style>
 </head>
 <body>
-<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.68 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
+<header><div class="brand"><h1>SWAMP-FLOW Ver.11.2.69 Stable <span class="stable-badge">STABLE</span></h1><span class="clock" id="clock"></span></div><div class="summary"><div class="metric"><b id="mTables">0</b><small>稼働卓</small></div><div class="metric"><b id="mSeated">0</b><small>着席中</small></div><div class="metric"><b id="mAlerts">0</b><small>準備アラート</small></div></div></header>
 <div id="testModeBanner" class="test-mode-banner hidden">🧪 TEST MODE｜本番データには反映されません</div>
 <section id="intakeBanner" class="intake-banner"><button id="openIntakeJudge" class="intake-card intake-green"><div><small>初回受入判断</small><b id="intakeLabel">受付可能</b><span id="intakeReason">入力して判定</span></div><strong id="intakeCapacity">—</strong></button></section>
 <section id="homePage">
@@ -603,7 +603,7 @@ function processAutoSwaps(){
  // 実際の交代確認後に「今すぐ交代」または手動確定で着席させる。
  return false
 }
-function render(){document.querySelector('#clock').textContent=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});let active=state.tables.filter(t=>t.active);document.querySelector('#mTables').textContent=active.length;document.querySelector('#mSeated').textContent=state.casts.filter(c=>c.currentTable).length;document.querySelector('#mAlerts').textContent=active.filter(t=>['find','prepare','urgent','over'].includes(tablePhase(t).stage)).length;renderDirectBoard();renderTables();renderStatus();if(!document.querySelector('#sheet').classList.contains('hidden')){if(selectedTable&&!selectedCast)renderTableCandidates();else if(selectedCast)renderCandidates()}}
+function render(){document.querySelector('#clock').textContent=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});let active=state.tables.filter(t=>t.active);document.querySelector('#mTables').textContent=active.length;document.querySelector('#mSeated').textContent=state.casts.filter(c=>c.currentTable).length;document.querySelector('#mAlerts').textContent=active.filter(t=>['find','prepare','urgent','over'].includes(tablePhase(t).stage)).length;const home=document.querySelector('#homePage'),tables=document.querySelector('#tablesPage'),status=document.querySelector('#statusPage');if(home&&!home.classList.contains('hidden'))renderDirectBoard();if(tables&&!tables.classList.contains('hidden'))renderTables();if(status&&!status.classList.contains('hidden'))renderStatus();if(!document.querySelector('#sheet').classList.contains('hidden')){if(selectedTable&&!selectedCast)renderTableCandidates();else if(selectedCast)renderCandidates()}}
 function renderDirectBoard(){
  let box=document.querySelector('#directBoard');if(!box)return;
  // 再描画前に、卓全体の横位置と各卓のキャスト一覧の縦位置を保存する
@@ -1363,7 +1363,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 
-<!-- SWAMP-FLOW Ver.11.2.68 Stable / 営業終了リセット版 -->
+<!-- SWAMP-FLOW Ver.11.2.69 Stable / 営業終了リセット版 -->
 
 <script>
 (function(){
@@ -2214,7 +2214,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   };
 
   const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.68 Stable <span class="stable-badge">STABLE</span>';
+  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.69 Stable <span class="stable-badge">STABLE</span>';
   render();
 })();
 </script>
@@ -3543,6 +3543,21 @@ header .brand{height:38px !important;min-height:38px !important;}
     openUtility('当日着席履歴','<div class="notice"><b>'+dateLabel+' 営業分</b><br>当日の着席を卓ごと・ターン順に確認できます。営業終了した卓も履歴が残っていれば表示します。</div>'+(cards||'<div class="info-card" style="margin-top:10px">当日の着席履歴はまだありません。</div>'));
   }
   btn.onclick=openTodayHistory;
+})();
+</script>
+
+
+<!-- SWAMP-FLOW Ver.11.2.69 / visible-page render only -->
+<script id="v11269-visible-page-render">
+(function(){
+  document.querySelectorAll('nav button[data-page]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const p=btn.dataset.page;
+      if(p==='home')renderDirectBoard();
+      else if(p==='tables')renderTables();
+      else if(p==='status')renderStatus();
+    });
+  });
 })();
 </script>
 
