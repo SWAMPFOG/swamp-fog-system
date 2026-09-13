@@ -1,0 +1,39 @@
+name: SWAMP-FLOW Ver.11.2.66 step1 cleanup
+on:
+  push:
+    paths:
+      - '.github/workflows/swamp-flow-v11266-step1.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove only obsolete last-table undo runtime
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          before=s
+          pat=re.compile(r'\n<!-- SWAMP-FLOW Ver\.11\.2\.65 / 卓終了取消ボタンをメニューへ正式配置 -->\n<script id="v11262-undo-table-end">.*?</script>\n',re.S)
+          s,n=pat.subn('\n<!-- Ver.11.2.66 軽量化：旧「直前の卓終了取消」ランタイム削除 -->\n',s)
+          if n!=1:
+              raise SystemExit(f'expected 1 obsolete undo block, got {n}')
+          s=s.replace('SWAMP-FLOW Ver.11.2.65 Stable','SWAMP-FLOW Ver.11.2.66 Stable')
+          if 'id="v11265-table-restore"' not in s:
+              raise SystemExit('current selectable restore block missing')
+          if 'id="v11262-undo-table-end"' in s:
+              raise SystemExit('obsolete undo runtime still present')
+          if 'id="v11251-fog-goals-sync"' not in s:
+              raise SystemExit('FOG-GOALS block changed unexpectedly')
+          p.write_text(s,encoding='utf-8')
+          print('bytes_saved',len(before.encode())-len(s.encode()))
+          PY
+          git config user.name "SWAMPFOG"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git commit -m "SWAMP-FLOW Ver.11.2.66 step 1 lightweight cleanup"
+          git push
