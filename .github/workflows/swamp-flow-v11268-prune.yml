@@ -12,6 +12,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Prune unused features and update today history
         run: |
+          git config user.name "SWAMPFOG Bot"
+          git config user.email "actions@users.noreply.github.com"
           python3 - <<'PY'
           from pathlib import Path
           import base64
