@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="SWAMP-FLOW" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icon-192.png" />
-<title>SWAMP-FLOW Ver.11.2.72 Stable</title>
+<title>SWAMP-FLOW Ver.11.2.73 Stable</title>
 <style>
 :root{--bg:#090a0c;--panel:#14161a;--panel2:#1d2026;--line:#2b3038;--text:#f6f7f9;--muted:#9299a5;--green:#56e58e;--yellow:#ffd257;--orange:#ff9d45;--red:#ff5e68;--blue:#68b4ff;--nav:72px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}button,input,select{font:inherit;color:inherit}button{border:0}body{padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}.hidden{display:none!important}
@@ -1356,7 +1356,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
       const pendingHtml=pending.length?`<div class="direct-pending"><b>選択中 ${pending.length}名</b><br>${esc(pending.map(c=>c.name).join('・'))}</div>`:'';
       const canUndo=t.lastSeatAt&&p.stage!=='over'&&current.length;
       const currentHtml=current.length?current.map(c=>`<button type="button" class="current-cast-chip" data-simple-undo="${c.id}" data-simple-undo-table="${t.id}" ${canUndo?'':'disabled'}>${esc(c.name)}${canUndo?'　取消':''}</button>`).join(''):'空席';
-      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><button type="button" class="direct-table-head simple-start-head" data-simple-start="${t.id}"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${t.plan==='VIP'?`<button type="button" class="vip-quick-exception" data-vip-quick-exception="${t.id}">VIP例外追加</button>`:''}${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></button>${t.rotationEnded?`<div class="direct-outcome-actions direct-outcome-send-only"><button type="button" class="direct-send-open" data-quick-send="${t.id}">送り</button></div>`:''}<div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
+      return `<section class="direct-table ${p.stage||''} ${pending.length?'accepting':''} ${t.rotationEnded?'direct-table-ended':''}" data-direct-table="${t.id}"><div class="direct-table-head simple-start-head" data-simple-start="${t.id}" role="button" tabindex="0"><div class="direct-table-title"><b>${esc(t.no)}</b><span>${esc(t.plan)}</span></div><div class="direct-timer">${esc(t.rotationEnded?'一時終了':time)}</div><div class="direct-meta">入店 ${hm(t.entryAt)}／${t.guests}名<br></div>${t.plan==='VIP'?`<button type="button" class="vip-quick-exception" data-vip-quick-exception="${t.id}">VIP例外追加</button>`:''}${pendingHtml}<div class="tap-start-guide">${pending.length?'ここをタップして着席・タイマースタート':'先にキャストを選択'}</div></div>${t.rotationEnded?`<div class="direct-outcome-actions direct-outcome-send-only"><button type="button" class="direct-send-open" data-quick-send="${t.id}">送り</button></div>`:''}<div class="direct-current"><b>現在着席</b><div class="current-cast-list">${currentHtml}</div></div><div class="direct-list">${t.rotationEnded?'<div class="direct-empty">回し一時終了</div>':rankHtml||'<div class="direct-empty">着席可能キャストなし</div>'}</div><div class="direct-footer">名前を選択 → 上の卓情報をタップ</div></section>`;
     }).join('');
     // DOM差し替え後に、直前のスクロール位置を復元する。
     box.scrollLeft=boardScrollLeft;
@@ -1528,75 +1528,6 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 })();
 </script>
 
-
-
-<!-- Ver.11.2.16: 回す予定チェック -->
-<style>
-#directBoard .direct-cast{position:relative;padding-right:48px!important;text-align:left}
-#directBoard .planned-check{
-  position:absolute;right:8px;top:50%;transform:translateY(-50%);
-  width:30px;height:30px;border-radius:8px;border:2px solid #69717c;
-  background:#11151a;color:transparent;display:flex;align-items:center;justify-content:center;
-  font-size:18px;font-weight:1000;z-index:5;touch-action:none;
-}
-#directBoard .planned-check.on{background:#163d2a;border-color:#45b979;color:#9bffc3}
-#directBoard .planned-check.on::after{content:'✓'}
-#directBoard .direct-cast.is-planned{box-shadow:inset 0 0 0 1px #45b97988}
-#directBoard .direct-cast.is-planned small::after{content:' ・回す予定';color:#8cf0ad;font-weight:900}
-</style>
-<script>
-(function(){
-  const previousRenderDirectBoard=window.renderDirectBoard;
-  function ensurePlanned(t){
-    if(!Array.isArray(t.plannedCastIds))t.plannedCastIds=[];
-    return t.plannedCastIds;
-  }
-  function applyPlannedControls(){
-    const board=document.querySelector('#directBoard');
-    if(!board)return;
-    board.querySelectorAll('[data-simple-cast]').forEach(row=>{
-      if(row.querySelector('.planned-check'))return;
-      const t=state.tables.find(x=>x.id===row.dataset.simpleTable);
-      const c=state.casts.find(x=>x.id===row.dataset.simpleCast);
-      if(!t||!c)return;
-      const planned=ensurePlanned(t).includes(c.id);
-      row.classList.toggle('is-planned',planned);
-      const check=document.createElement('span');
-      check.className='planned-check'+(planned?' on':'');
-      check.setAttribute('role','checkbox');
-      check.setAttribute('aria-checked',planned?'true':'false');
-      check.setAttribute('aria-label',planned?'回す予定を解除':'回す予定に追加');
-      check.dataset.planTable=t.id;
-      check.dataset.planCast=c.id;
-      row.appendChild(check);
-
-      check.addEventListener('pointerdown',e=>{e.stopPropagation()});
-      check.addEventListener('pointerup',e=>{e.stopPropagation()});
-      check.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation()});
-      check.addEventListener('click',e=>{
-        e.preventDefault();e.stopPropagation();
-        const ids=ensurePlanned(t);
-        if(ids.includes(c.id)){
-          t.plannedCastIds=ids.filter(id=>id!==c.id);
-          save();render();toast(c.name+'の「回す予定」を解除しました');
-        }else{
-          ids.push(c.id);
-          save();render();toast(c.name+'を「回す予定」にしました');
-        }
-      });
-    });
-  }
-  window.renderDirectBoard=function(){
-    previousRenderDirectBoard();
-    applyPlannedControls();
-  };
-  // 卓終了や営業終了で予定状態が残らないよう、非稼働卓の予定は表示対象外。
-  // 履歴・着席カウントには一切影響しない。
-  const h=document.querySelector('.brand h1');
-  if(h)h.innerHTML='SWAMP-FLOW Ver.11.2.16 Stable <span class="stable-badge">STABLE</span>';
-  render();
-})();
-</script>
 
 
 <!-- Ver.11.2.17: 全卓タイマー一覧 -->
@@ -3565,4 +3496,68 @@ try{startLiveTick()}catch(e){window.__swampLiveTick=setInterval(efficientLiveTic
 efficientLiveTick();
 })();
 </script>
-</body></html>
+
+<!-- SWAMP-FLOW Ver.11.2.73 / compact tables + VIP timer tap fix -->
+<style id="v11273-compact-direct-tables">
+#directBoard.direct-board{
+  gap:5px!important;
+  padding-left:5px!important;
+  padding-right:5px!important;
+}
+#directBoard .direct-table{
+  flex:0 0 clamp(116px,30vw,128px)!important;
+  min-width:clamp(116px,30vw,128px)!important;
+  max-width:clamp(116px,30vw,128px)!important;
+  padding:5px!important;
+  border-radius:12px!important;
+}
+#directBoard .direct-table-head{
+  width:100%!important;
+  padding:6px!important;
+  margin:0!important;
+  text-align:left!important;
+}
+#directBoard .direct-table-title{gap:3px!important}
+#directBoard .direct-table-title b{font-size:16px!important;line-height:1!important}
+#directBoard .direct-table-title span{font-size:8px!important;padding:2px 4px!important;border-radius:5px!important}
+#directBoard .direct-timer{font-size:18px!important;line-height:1.05!important;margin-top:4px!important}
+#directBoard .direct-meta{font-size:8px!important;line-height:1.25!important;margin-top:2px!important}
+#directBoard .direct-current{font-size:9px!important;line-height:1.25!important;padding:5px!important;margin-top:4px!important}
+#directBoard .current-cast-list{gap:3px!important;margin-top:2px!important}
+#directBoard .current-cast-chip{width:100%!important;font-size:9px!important;padding:3px 4px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#directBoard .direct-list{padding:4px 3px calc(28px + env(safe-area-inset-bottom))!important}
+#directBoard .direct-rank{font-size:8px!important;line-height:1!important;margin:5px 2px 2px!important}
+#directBoard .direct-cast{
+  min-height:30px!important;
+  padding:5px 6px!important;
+  margin-bottom:3px!important;
+  gap:3px!important;
+  border-radius:7px!important;
+  padding-right:6px!important;
+}
+#directBoard .direct-cast b{
+  min-width:0!important;
+  font-size:11px!important;
+  line-height:1.15!important;
+  padding-left:2px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#directBoard .direct-cast small{display:none!important}
+#directBoard .direct-footer{font-size:8px!important;line-height:1.2!important;padding:4px 2px!important}
+#directBoard .tap-start-guide{font-size:9px!important;line-height:1.2!important;padding:5px!important;margin-top:4px!important}
+#directBoard .direct-pending{font-size:9px!important;line-height:1.25!important;padding:5px!important;margin-top:4px!important}
+#directBoard .vip-quick-exception{min-height:24px!important;margin:4px 0 1px!important;padding:4px!important;font-size:8px!important}
+#directBoard .planned-check{display:none!important}
+</style>
+<script id="v11273-vip-start-keyboard">
+(function(){
+  document.addEventListener('keydown',function(e){
+    const el=e.target&&e.target.closest?e.target.closest('[data-simple-start]'):null;
+    if(!el||e.target.closest('[data-vip-quick-exception]'))return;
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}
+  });
+})();
+</script>
+\n</body></html>
