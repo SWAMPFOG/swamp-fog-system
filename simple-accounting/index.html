@@ -2121,6 +2121,16 @@ document.querySelectorAll("#otherPrice,#customPrice").forEach(input=>{
   if(e.key==="Enter"){e.preventDefault();input.blur();}
  });
 });
+// iPhoneのキーボードを閉じた後は、内部スクロール位置を正常範囲へ戻す。
+if(window.visualViewport){
+ window.visualViewport.addEventListener("resize",()=>{
+  if(document.activeElement?.matches('input[type="number"],input[type="time"]'))return;
+  document.querySelectorAll("main > section.card.panel-active").forEach(panel=>{
+   const max=Math.max(0,panel.scrollHeight-panel.clientHeight);
+   if(panel.scrollTop>max)panel.scrollTop=max;
+  });
+ });
+}
 
 /* ===== iPhone 画面拡大・ダブルタップ抑止 ===== */
 document.addEventListener("gesturestart",e=>e.preventDefault(),{passive:false});
