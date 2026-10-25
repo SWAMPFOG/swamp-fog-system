@@ -735,7 +735,7 @@ placeholder="金額"
  <div class="kiri-result" id="kiriResult">希望金額を入力してください</div>
  <div class="kiri-actions"><button type="button" id="kiriApply" disabled>値引きを適用</button><button type="button" id="kiriClear">切りを解除</button></div>
  <div class="kiri-note">現在会計を基準に計算。希望額より高い場合は差額を値引き。低い場合は追加注文できる小計の目安を表示。追加注文後は再計算してください。</div>
-
+</div>
 </section>
 
 </main>
@@ -1693,6 +1693,7 @@ renderAdded();
 ========================= */
 
 let kiriDiscount=0;
+let kiriAppliedBase=null;
 let kiriBaseNow=0;
 function updateKiri(){
  const input=$("kiriTarget");
@@ -1722,9 +1723,7 @@ TAX 40%
 */
 
 const drinkTaxed=
-Math.floor(
-sub*1.4
-);
+Math.floor(sub*14/10+1e-7);
 
 
 const em=
@@ -1786,7 +1785,7 @@ $("extraRow").style.display=(extraBase||lastExtraBase)?"flex":"none";
 const taxableNowSeat=moveNow?moveNow.taxableSeat:(nonNormal?nowSeat:0);
 const taxableLastSeat=moveLast?moveLast.taxableSeat:(nonNormal?lastSeat:0);
 const taxBase=sub+taxableNowSeat+extraBase;
-$("taxAmount").textContent=yen(Math.floor(taxBase*.4));
+$("taxAmount").textContent=yen(Math.floor(taxBase*4/10+1e-7));
 $("taxNote").textContent=(taxableNowSeat||extraBase)?"（ドリンク・対象席・TC・指名料）":"（ドリンク分）";
 
 
@@ -1807,7 +1806,7 @@ const baseNowText=
 
 ?yen(
 floor1000(
-nowSeat+Math.floor(taxableNowSeat*.4)+
+nowSeat+Math.floor(taxableNowSeat*4/10+1e-7)+
 drinkTaxed+
 extraTaxed
 )
@@ -1822,9 +1821,9 @@ const baseLastText=
 
 ?yen(
 floor1000(
-lastSeat+Math.floor(taxableLastSeat*.4)+
+lastSeat+Math.floor(taxableLastSeat*4/10+1e-7)+
 drinkTaxed+
-Math.floor(lastExtraBase*1.4)
+Math.floor(lastExtraBase*14/10+1e-7)
 )
 )
 
@@ -1833,6 +1832,8 @@ Math.floor(lastExtraBase*1.4)
 
 
 kiriBaseNow=Number(baseNowText.replace(/[^0-9]/g,""));
+// 注文・卓・時間で元会計が変わったら、古い値引きを自動解除する。
+if(kiriDiscount>0&&kiriAppliedBase!==kiriBaseNow){kiriDiscount=0;kiriAppliedBase=null;}
 const baseLast=Number(baseLastText.replace(/[^0-9]/g,""));
 $("grandNow").textContent=yen(Math.max(0,kiriBaseNow-kiriDiscount));
 $("grandLast").textContent=yen(Math.max(0,baseLast-kiriDiscount));
@@ -2015,9 +2016,10 @@ $("kiriApply").onclick=()=>{
  const target=Number($("kiriTarget").value);
  if(!$("kiriTarget").value||!Number.isSafeInteger(target)||target<1000||target%1000!==0||kiriBaseNow<=target)return;
  kiriDiscount=kiriBaseNow-target;
+ kiriAppliedBase=kiriBaseNow;
  recalc();
 };
-$("kiriClear").onclick=()=>{kiriDiscount=0;$("kiriTarget").value="";recalc();};
+$("kiriClear").onclick=()=>{kiriDiscount=0;kiriAppliedBase=null;$("kiriTarget").value="";recalc();};
 
 /* =========================
    内訳
@@ -2041,7 +2043,7 @@ return;
 
 
 added=[];
-kiriDiscount=0;$("kiriTarget").value="";
+kiriDiscount=0;kiriAppliedBase=null;$("kiriTarget").value="";
 
 plan="free";
 rvipDiscount=false;
