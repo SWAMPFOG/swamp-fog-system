@@ -506,6 +506,13 @@ main>section.card.detail-card:not(.panel-active){display:none!important}
  .bottom-nav button{padding:6px 2px}
 }
 
+/* 内訳・切り計算は同じタブ内で画面切替。上部と重ならない */
+.detail-switch{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px}
+.detail-switch button{border:1px solid #d6d6da;border-radius:10px;padding:10px 4px;background:#fff;font-weight:900;color:#333}
+.detail-switch button.selected{background:#171719;color:#fff;border-color:#171719}
+#detailView[hidden],#kiriView[hidden]{display:none!important}
+#kiriView .kiri-box{margin-top:0}
+.detail-card{scroll-padding-top:12px}
 /* 切り計算：内訳タブ内で完結 */
 .kiri-box{margin-top:12px;border:1px solid #e1d3a0;background:#fffaf0;border-radius:12px;padding:12px}
 .kiri-title{font-weight:900;font-size:16px;margin-bottom:7px}
@@ -705,6 +712,8 @@ placeholder="金額"
 
 <!-- 内訳 -->
 <section class="card detail-card">
+<div class="detail-switch"><button type="button" id="detailViewBtn" class="selected">会計内訳</button><button type="button" id="kiriViewBtn">✂ 切り計算</button></div>
+<div id="detailView">
 <div class="card-title">会計内訳</div>
 <div class="detailrow"><span>卓種類</span><strong id="detailSeatKind">通常卓</strong></div>
 <div class="detailrow"><span>ドリンク 小計</span><strong id="subtotal">¥0</strong></div>
@@ -714,12 +723,15 @@ placeholder="金額"
 <div class="detailrow"><span>TAX 40% <small id="taxNote">（ドリンク分）</small></span><strong id="taxAmount">¥0</strong></div>
 <div class="detailrow detail-total"><span>現在の合計</span><strong id="detailGrandNow">¥0</strong></div>
 <div class="detailrow detail-total last"><span>ラストまでの合計</span><strong id="detailGrandLast">¥0</strong></div>
+</div>
+<div id="kiriView" hidden>
 <div class="kiri-box">
  <div class="kiri-title">✂ 切り計算</div>
  <div class="kiri-inputline"><input id="kiriTarget" type="number" min="1000" step="1000" inputmode="numeric" placeholder="切り希望額（例：200000）" aria-label="切り希望額"><span>円切り</span></div>
  <div class="kiri-result" id="kiriResult">希望金額を入力してください</div>
  <div class="kiri-actions"><button type="button" id="kiriApply" disabled>値引きを適用</button><button type="button" id="kiriClear">切りを解除</button></div>
  <div class="kiri-note">現在会計を基準に計算。希望額より高い場合は差額を値引き。低い場合は追加注文できる小計の目安を表示。追加注文後は再計算してください。</div>
+</div>
 </div>
 <div class="rule">通常卓の席料金は税込み。その他の席料金・TC・指名料・ドリンクにTAX40%を適用。最終合計は千円未満切り捨て。</div>
 <div hidden><span id="drinkTaxed"></span><span id="extraTaxed"></span></div>
@@ -1991,6 +2003,22 @@ $("customPanel")
 
 
 /* =========================
+   内訳・切りの表示切替
+========================= */
+function setDetailMode(mode){
+ const kiri=mode==="kiri";
+ $("detailView").hidden=kiri;
+ $("kiriView").hidden=!kiri;
+ $("detailViewBtn").classList.toggle("selected",!kiri);
+ $("kiriViewBtn").classList.toggle("selected",kiri);
+ const card=$("kiriView").closest(".detail-card");
+ if(card)card.scrollTop=0;
+}
+$("detailViewBtn").onclick=()=>setDetailMode("detail");
+$("kiriViewBtn").onclick=()=>setDetailMode("kiri");
+setDetailMode("detail");
+
+/* =========================
    切り機能
 ========================= */
 $("kiriTarget").addEventListener("input",updateKiri);
@@ -2000,7 +2028,7 @@ $("kiriApply").onclick=()=>{
  kiriDiscount=kiriBaseNow-target;
  recalc();
 };
-$("kiriClear").onclick=()=>{kiriDiscount=0;$("kiriTarget").value="";recalc();};
+$("kiriClear").onclick=()=>{kiriDiscount=0;$("kiriTarget").value="";setDetailMode("detail");recalc();};
 
 /* =========================
    内訳
