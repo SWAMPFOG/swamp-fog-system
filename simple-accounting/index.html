@@ -505,6 +505,18 @@ main>section.card.detail-card:not(.panel-active){display:none!important}
  .seatline{display:none}.plan-status{display:none}
  .bottom-nav button{padding:6px 2px}
 }
+
+/* 切り計算：内訳タブ内で完結 */
+.kiri-box{margin-top:12px;border:1px solid #e1d3a0;background:#fffaf0;border-radius:12px;padding:12px}
+.kiri-title{font-weight:900;font-size:16px;margin-bottom:7px}
+.kiri-inputline{display:flex;gap:8px;align-items:center}
+.kiri-inputline input{min-width:0;flex:1;width:100%;border:1px solid #c8c8cc;border-radius:9px;padding:10px;font-size:16px;background:#fff;color:#111}
+.kiri-inputline span{font-weight:800}
+.kiri-result{margin-top:10px;font-size:14px;line-height:1.7;font-weight:800;white-space:normal}
+.kiri-actions{display:flex;gap:8px;margin-top:9px}
+.kiri-actions button{flex:1;border:0;border-radius:9px;padding:11px 7px;font-weight:900;background:#19191b;color:#fff}
+.kiri-actions button:last-child{background:#e6e6e9;color:#111}
+.kiri-note{font-size:11px;line-height:1.5;color:#65656b;margin-top:8px}
 </style>
 </head>
 
@@ -702,6 +714,13 @@ placeholder="金額"
 <div class="detailrow"><span>TAX 40% <small id="taxNote">（ドリンク分）</small></span><strong id="taxAmount">¥0</strong></div>
 <div class="detailrow detail-total"><span>現在の合計</span><strong id="detailGrandNow">¥0</strong></div>
 <div class="detailrow detail-total last"><span>ラストまでの合計</span><strong id="detailGrandLast">¥0</strong></div>
+<div class="kiri-box">
+ <div class="kiri-title">✂ 切り計算</div>
+ <div class="kiri-inputline"><input id="kiriTarget" type="number" min="1000" step="1000" inputmode="numeric" placeholder="切り希望額（例：200000）" aria-label="切り希望額"><span>円切り</span></div>
+ <div class="kiri-result" id="kiriResult">希望金額を入力してください</div>
+ <div class="kiri-actions"><button type="button" id="kiriApply" disabled>値引きを適用</button><button type="button" id="kiriClear">切りを解除</button></div>
+ <div class="kiri-note">現在会計を基準に計算。希望額より高い場合は差額を値引き。低い場合は追加注文できる小計の目安を表示。追加注文後は再計算してください。</div>
+</div>
 <div class="rule">通常卓の席料金は税込み。その他の席料金・TC・指名料・ドリンクにTAX40%を適用。最終合計は千円未満切り捨て。</div>
 <div hidden><span id="drinkTaxed"></span><span id="extraTaxed"></span></div>
 </section>
@@ -1659,6 +1678,20 @@ renderAdded();
    会計計算
 ========================= */
 
+let kiriDiscount=0;
+let kiriBaseNow=0;
+function updateKiri(){
+ const input=$("kiriTarget");
+ const target=Number(input.value);
+ const valid=input.value.trim()!==""&&Number.isSafeInteger(target)&&target>=1000&&target%1000===0;
+ const out=$("kiriResult"),apply=$("kiriApply");
+ apply.disabled=!valid||kiriBaseNow<=target;
+ if(!valid){out.textContent="切り希望額を1,000円単位で入力してください";return;}
+ const diff=target-kiriBaseNow;
+ if(diff<0){out.textContent="値引き額："+yen(-diff)+(kiriDiscount?" ／ 適用中："+yen(kiriDiscount):"");}
+ else if(diff>0){const preTax=Math.ceil(diff*10/14);out.textContent="追加できる大計："+yen(diff)+" ／ 必要な追加注文の小計：約"+yen(preTax)+"（TAX40%）";}
+ else{out.textContent="現在会計が希望額と一致しています";}
+}
 function recalc(){
 
 const sub=
@@ -1754,7 +1787,7 @@ entryMinutes()!==null;
 切り捨て
 */
 
-$("grandNow").textContent=
+const baseNowText=
 
 (hasEntry || ["通常卓","RVIP"].includes(seatKind($("tableNo").value)))
 
@@ -1769,7 +1802,7 @@ extraTaxed
 :"¥0";
 
 
-$("grandLast").textContent=
+const baseLastText=
 
 (hasEntry || ["通常卓","RVIP"].includes(seatKind($("tableNo").value)))
 
@@ -1783,6 +1816,13 @@ Math.floor(lastExtraBase*1.4)
 
 :"¥0";
 
+
+
+kiriBaseNow=Number(baseNowText.replace(/[^0-9]/g,""));
+const baseLast=Number(baseLastText.replace(/[^0-9]/g,""));
+$("grandNow").textContent=yen(Math.max(0,kiriBaseNow-kiriDiscount));
+$("grandLast").textContent=yen(Math.max(0,baseLast-kiriDiscount));
+updateKiri();
 
 if(em===null){
 
@@ -1951,6 +1991,18 @@ $("customPanel")
 
 
 /* =========================
+   切り機能
+========================= */
+$("kiriTarget").addEventListener("input",updateKiri);
+$("kiriApply").onclick=()=>{
+ const target=Number($("kiriTarget").value);
+ if(!$("kiriTarget").value||!Number.isSafeInteger(target)||target<1000||target%1000!==0||kiriBaseNow<=target)return;
+ kiriDiscount=kiriBaseNow-target;
+ recalc();
+};
+$("kiriClear").onclick=()=>{kiriDiscount=0;$("kiriTarget").value="";recalc();};
+
+/* =========================
    内訳
 ========================= */
 
@@ -1972,6 +2024,7 @@ return;
 
 
 added=[];
+kiriDiscount=0;$("kiriTarget").value="";
 
 plan="free";
 rvipDiscount=false;
