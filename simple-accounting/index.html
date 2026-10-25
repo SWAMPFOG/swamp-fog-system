@@ -1019,6 +1019,8 @@ function moveCalculation(totalMinutes){
  const original=seatKind($("tableNo").value),dest=seatKind($("moveTo").value);
  if(original===dest)return null;
  const end=entry+totalMinutes;
+ // 移動前は元の卓・元のプランのまま計算する
+ if(end<=mt)return null;
  const before=Math.min(Math.max(0,end-entry),mt-entry);
  const after=Math.max(0,end-mt);
  const seatA=segmentSeat(original,before,true);
