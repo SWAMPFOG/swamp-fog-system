@@ -443,8 +443,8 @@ input[type=time],select{height:39px;font-size:15px}
 .products{gap:6px}
 .item{padding:6px 0}
 .controls button{width:32px;height:32px}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:9999;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:7px 9px calc(7px + env(safe-area-inset-bottom));background:#0c0d10;box-shadow:0 -3px 16px #0003;pointer-events:auto}
-.bottom-nav button{border:1px solid #37383d;background:#1b1c20;color:#d5d5d8;border-radius:10px;padding:10px 2px;font-weight:900;font-size:12px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:9999;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:7px 6px calc(7px + env(safe-area-inset-bottom));background:#0c0d10;box-shadow:0 -3px 16px #0003;pointer-events:auto}
+.bottom-nav button{border:1px solid #37383d;background:#1b1c20;color:#d5d5d8;border-radius:9px;padding:10px 1px;font-weight:900;font-size:clamp(10px,2.7vw,12px);white-space:nowrap}
 .bottom-nav button.active{background:#e6c65f;color:#111;border-color:#e6c65f}
 @media(max-height:720px){
  .top{padding:6px 9px}
@@ -513,6 +513,8 @@ main>section.card.detail-card:not(.panel-active){display:none!important}
 #detailView[hidden],#kiriView[hidden]{display:none!important}
 #kiriView .kiri-box{margin-top:0}
 .detail-card{scroll-padding-top:12px}
+.kiri-card .kiri-box{margin-top:0}
+.kiri-card{min-width:0}
 /* 切り計算：内訳タブ内で完結 */
 .kiri-box{margin-top:12px;border:1px solid #e1d3a0;background:#fffaf0;border-radius:12px;padding:12px}
 .kiri-title{font-weight:900;font-size:16px;margin-bottom:7px}
@@ -712,8 +714,6 @@ placeholder="金額"
 
 <!-- 内訳 -->
 <section class="card detail-card">
-<div class="detail-switch"><button type="button" id="detailViewBtn" class="selected">会計内訳</button><button type="button" id="kiriViewBtn">✂ 切り計算</button></div>
-<div id="detailView">
 <div class="card-title">会計内訳</div>
 <div class="detailrow"><span>卓種類</span><strong id="detailSeatKind">通常卓</strong></div>
 <div class="detailrow"><span>ドリンク 小計</span><strong id="subtotal">¥0</strong></div>
@@ -723,18 +723,19 @@ placeholder="金額"
 <div class="detailrow"><span>TAX 40% <small id="taxNote">（ドリンク分）</small></span><strong id="taxAmount">¥0</strong></div>
 <div class="detailrow detail-total"><span>現在の合計</span><strong id="detailGrandNow">¥0</strong></div>
 <div class="detailrow detail-total last"><span>ラストまでの合計</span><strong id="detailGrandLast">¥0</strong></div>
-</div>
-<div id="kiriView" hidden>
+
+<div class="rule">通常卓の席料金は税込み。その他の席料金・TC・指名料・ドリンクにTAX40%を適用。最終合計は千円未満切り捨て。</div>
+
+<div hidden><span id="drinkTaxed"></span><span id="extraTaxed"></span></div>
+</section>
+<section class="card kiri-card">
 <div class="kiri-box">
  <div class="kiri-title">✂ 切り計算</div>
  <div class="kiri-inputline"><input id="kiriTarget" type="number" min="1000" step="1000" inputmode="numeric" placeholder="切り希望額（例：200000）" aria-label="切り希望額"><span>円切り</span></div>
  <div class="kiri-result" id="kiriResult">希望金額を入力してください</div>
  <div class="kiri-actions"><button type="button" id="kiriApply" disabled>値引きを適用</button><button type="button" id="kiriClear">切りを解除</button></div>
  <div class="kiri-note">現在会計を基準に計算。希望額より高い場合は差額を値引き。低い場合は追加注文できる小計の目安を表示。追加注文後は再計算してください。</div>
-</div>
-</div>
-<div class="rule">通常卓の席料金は税込み。その他の席料金・TC・指名料・ドリンクにTAX40%を適用。最終合計は千円未満切り捨て。</div>
-<div hidden><span id="drinkTaxed"></span><span id="extraTaxed"></span></div>
+
 </section>
 
 </main>
@@ -743,6 +744,7 @@ placeholder="金額"
 <button type="button" data-panel="2">全メニュー</button>
 <button type="button" data-panel="3">追加済み</button>
 <button type="button" data-panel="4">内訳</button>
+<button type="button" data-panel="5">切り計算</button>
 </nav>
 </div>
 
@@ -2005,19 +2007,6 @@ $("customPanel")
 /* =========================
    内訳・切りの表示切替
 ========================= */
-function setDetailMode(mode){
- const kiri=mode==="kiri";
- $("detailView").hidden=kiri;
- $("kiriView").hidden=!kiri;
- $("detailViewBtn").classList.toggle("selected",!kiri);
- $("kiriViewBtn").classList.toggle("selected",kiri);
- const card=$("kiriView").closest(".detail-card");
- if(card)card.scrollTop=0;
-}
-$("detailViewBtn").onclick=()=>setDetailMode("detail");
-$("kiriViewBtn").onclick=()=>setDetailMode("kiri");
-setDetailMode("detail");
-
 /* =========================
    切り機能
 ========================= */
@@ -2028,7 +2017,7 @@ $("kiriApply").onclick=()=>{
  kiriDiscount=kiriBaseNow-target;
  recalc();
 };
-$("kiriClear").onclick=()=>{kiriDiscount=0;$("kiriTarget").value="";setDetailMode("detail");recalc();};
+$("kiriClear").onclick=()=>{kiriDiscount=0;$("kiriTarget").value="";recalc();};
 
 /* =========================
    内訳
