@@ -470,6 +470,11 @@ main>section.card.detail-card:not(.panel-active){display:none!important}
 .detail-card .detail-total{margin-top:4px;padding:clamp(7px,1.2dvh,11px) 9px}
 .detail-card .detail-total strong{font-size:18px}
 .detail-card .rule{font-size:9px;line-height:1.25;margin-top:3px}
+.other-entry{padding:12px 4px}.other-input-btn{width:100%;padding:14px;font-size:15px}
+#otherForm{margin-top:12px}#otherForm label{display:block;margin-bottom:8px}
+.other-qty{display:flex;align-items:center;justify-content:center;gap:15px;margin-top:15px}
+.other-qty button{width:48px;height:44px;border-radius:10px;border:1px solid #bbb;background:#fff;font-size:25px;font-weight:bold}
+.other-qty span{font-size:14px;font-weight:800}
 </style>
 </head>
 
@@ -606,7 +611,7 @@ main>section.card.detail-card:not(.panel-active){display:none!important}
 
 </div>
 
-<button type="button" class="tab other-toggle" id="otherToggle">＋ その他（金額入力）</button><div id="otherPanel" class="custom-panel"><label>その他メニューの小計金額（税抜）</label><div class="custom-grid"><input type="number" id="otherPrice" min="1" step="1000" inputmode="numeric" placeholder="例：10000"><button type="button" class="custom-add" id="otherAdd">追加</button></div></div><div class="tabs" id="tabs"></div>
+<div class="tabs" id="tabs"></div><div id="otherPanel" class="other-entry" hidden><button type="button" id="otherToggle" class="custom-add other-input-btn">金額を入力</button><div id="otherForm" hidden><label>その他メニューの単価（税抜）</label><div class="custom-grid"><input type="number" id="otherPrice" min="1" step="1000" inputmode="numeric" placeholder="例：10000"><button type="button" class="custom-add" id="otherAdd">追加</button></div></div><div class="other-qty" id="otherQty" hidden><button type="button" id="otherMinus">−</button><span id="otherQtyLabel">0点</span><button type="button" id="otherPlus">＋</button></div></div>
 
 <div class="products" id="products"></div>
 
@@ -753,7 +758,8 @@ const categories=[
 "シャンパン",
 "ボトル",
 "高級ボトル",
-"ショット"
+"ショット",
+"その他"
 ];
 
 
@@ -1286,7 +1292,7 @@ ${c}
 
 
 document
-.querySelectorAll(".tab")
+.querySelectorAll("#tabs .tab")
 .forEach(
 b=>{
 
@@ -1314,7 +1320,10 @@ renderProducts();
 function renderProducts(){
 
 const list=
-master[category];
+master[category]||[];
+$("otherPanel").hidden=category!=="その他";
+$("otherPanel").style.display=category==="その他"?"block":"none";
+if(category==="その他")renderOtherQty();
 
 
 $("products").innerHTML=
@@ -1939,21 +1948,35 @@ recalc();
 /* ===== Ver.8 その他メニュー・よく使う編集 ===== */
 $("quickEditor").style.display="none";
 $("otherPanel").style.display="none";
-$("otherToggle").addEventListener("click",function(e){
- e.preventDefault();
- const panel=$("otherPanel");
- const open=panel.style.display!=="block";
- panel.style.display=open?"block":"none";
- this.textContent=open?"× その他を閉じる":"＋ その他（金額入力）";
-});
+$("otherForm").style.display="none";
+let selectedOtherPrice=null;
+function renderOtherQty(){
+ const q=selectedOtherPrice===null?0:getQty("その他",selectedOtherPrice);
+ $("otherQty").hidden=selectedOtherPrice===null;
+ $("otherQty").style.display=selectedOtherPrice===null?"none":"flex";
+ $("otherQtyLabel").textContent=selectedOtherPrice===null?"0点":yen(selectedOtherPrice)+" × "+q+"点";
+}
+$("otherToggle").onclick=()=>{
+ const form=$("otherForm");
+ const open=form.style.display!=="block";
+ form.hidden=!open;
+ form.style.display=open?"block":"none";
+ $("otherToggle").textContent=open?"閉じる":"金額を入力";
+ if(open)$("otherPrice").focus();
+};
 $("otherAdd").onclick=()=>{
  const value=Number($("otherPrice").value);
- if(!Number.isFinite(value)||value<=0||!Number.isInteger(value)){alert("正しい小計金額を入力してください");return;}
+ if(!Number.isFinite(value)||value<=0||!Number.isInteger(value)){alert("正しい金額を入力してください");return;}
+ selectedOtherPrice=value;
  addItem("その他",value,1);
  $("otherPrice").value="";
- $("otherPanel").style.display="none";
- $("otherToggle").textContent="＋ その他（金額入力）";
+ $("otherForm").hidden=true;
+ $("otherForm").style.display="none";
+ $("otherToggle").textContent="金額を入力";
+ renderOtherQty();
 };
+$("otherPlus").onclick=()=>{if(selectedOtherPrice!==null){changeItem("その他",selectedOtherPrice,1);renderOtherQty();}};
+$("otherMinus").onclick=()=>{if(selectedOtherPrice!==null){changeItem("その他",selectedOtherPrice,-1);renderOtherQty();}};
 function renderQuickChoices(){
  const all=Object.values(master).flat().filter(x=>x[1]!==null);
  $("quickChoices").innerHTML=all.map(([name,price])=>{
