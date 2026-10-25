@@ -1688,7 +1688,7 @@ $("tableNo").value
 
 
 const extraBase=moveNow?moveNow.extra:(nonNormal?4000:0);
-const lastExtraBase=moveLast?moveLast.extra:extraBase;
+const lastExtraBase=moveLast?moveLast.extra:(nonNormal?4000:0);
 
 
 const extraTaxed=
@@ -1719,7 +1719,7 @@ const taxableNowSeat=moveNow?moveNow.taxableSeat:(nonNormal?nowSeat:0);
 const taxableLastSeat=moveLast?moveLast.taxableSeat:(nonNormal?lastSeat:0);
 const taxBase=sub+taxableNowSeat+extraBase;
 $("taxAmount").textContent=yen(Math.floor(taxBase*.4));
-$("taxNote").textContent=nonNormal?"（ドリンク・席・TC・指名料）":"（ドリンク分）";
+$("taxNote").textContent=(taxableNowSeat||extraBase)?"（ドリンク・対象席・TC・指名料）":"（ドリンク分）";
 
 
 const hasEntry=
