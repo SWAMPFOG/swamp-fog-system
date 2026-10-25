@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#0b0b0c">
 <title>SWAMP FOG 簡単会計 Ver.8</title>
 
@@ -394,9 +394,12 @@ select{
 }
 
 /* ===== Ver.8 現場用・一画面操作 ===== */
-html,body{height:100%;overflow:hidden}
+html,body{height:100%;width:100%;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%;touch-action:pan-x pan-y}
+button,select,input{touch-action:manipulation}
+input,select,textarea{font-size:16px!important}
+[hidden]{display:none!important}
 body{background:#0c0d10}
-.app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:#f2f2f4;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+.app{width:100%;max-width:760px;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:#f2f2f4;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 .top{position:relative;flex:none;padding:8px 11px 9px}
 .topline{margin-bottom:6px}
 .totals-top{gap:6px}
@@ -407,7 +410,7 @@ main{padding:8px 9px 0;flex:1;min-height:0;display:flex;flex-direction:column;ga
 .card{margin:0;padding:10px;border-radius:13px}
 main>section:first-child{flex:none}
 main>section.card:not(:first-child){display:none;min-height:0;overflow:auto;flex:1}
-main>section.card.panel-active{display:block;min-height:0;overflow:auto;flex:1}
+main>section.card.panel-active{display:block;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;flex:1}
 main>section.card.panel-active{display:block}
 .setup{grid-template-columns:1fr 1fr;gap:7px}
 input[type=time],select{height:39px;font-size:15px}
@@ -478,6 +481,20 @@ main>section.card.detail-card:not(.panel-active){display:none!important}
 .move-area{margin-top:5px}.move-toggle{width:100%;padding:6px;background:#242428;color:#e6c65f;border:0;border-radius:8px;font-weight:800;font-size:11px}
 .move-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px}.move-grid label{font-size:10px}.move-grid input,.move-grid select{width:100%;height:33px}
 .move-clear{background:none;border:0;text-decoration:underline;font-size:11px;margin-top:4px}
+@media(max-height:780px){
+ .top{padding:5px 9px}.totalbox{padding:5px 7px}
+ main{padding:5px 7px 0;gap:4px}.card{padding:7px}
+ .setup{gap:4px}.seatline{margin-top:4px}
+ .plan-wrap{margin-top:4px}.plan{padding:5px 4px}
+ .move-area{margin-top:3px}.move-toggle{padding:5px}
+ .quick-btn,.product-btn{min-height:49px;padding:5px}
+ .detail-card .detailrow{padding:4px 2px}
+}
+@media(max-height:650px){
+ .brand{font-size:12px}.totalbox .amount{font-size:21px}
+ .seatline{display:none}.plan-status{display:none}
+ .bottom-nav button{padding:6px 2px}
+}
 </style>
 </head>
 
@@ -2067,6 +2084,18 @@ function switchPanel(index){
 panelButtons.forEach((b,i)=>{b.onclick=()=>switchPanel(i);});
 switchPanel(0);
 document.querySelectorAll(".quick-btn").forEach(b=>b.setAttribute("type","button"));
+
+/* ===== iPhone 画面拡大・ダブルタップ抑止 ===== */
+document.addEventListener("gesturestart",e=>e.preventDefault(),{passive:false});
+document.addEventListener("gesturechange",e=>e.preventDefault(),{passive:false});
+document.addEventListener("gestureend",e=>e.preventDefault(),{passive:false});
+let lastTouchEnd=0;
+document.addEventListener("touchend",e=>{
+ if(e.target.closest("input,select,textarea"))return;
+ const now=Date.now();
+ if(now-lastTouchEnd<300)e.preventDefault();
+ lastTouchEnd=now;
+},{passive:false});
 
 /* =========================
    初期化
