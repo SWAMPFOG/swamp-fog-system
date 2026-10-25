@@ -1801,6 +1801,7 @@ ${em%60}分`;
 $("detailGrandNow").textContent=$("grandNow").textContent;
 $("detailGrandLast").textContent=$("grandLast").textContent;
 updatePlanStatus();
+fitTotalAmounts();
 
 }
 
@@ -2148,6 +2149,23 @@ if(window.visualViewport){
   });
  });
 }
+
+/* ===== 会計金額の桁数に合わせて文字を収める ===== */
+function fitTotalAmounts(){
+ document.querySelectorAll(".totalbox .amount").forEach(el=>{
+  // 毎回基本のCSSサイズに戻してから測定し、金額減少時も文字を戻す。
+  el.style.fontSize="";
+  const width=el.clientWidth;
+  if(!width)return;
+  let size=parseFloat(getComputedStyle(el).fontSize);
+  while(el.scrollWidth>width&&size>12){
+   size-=1;
+   el.style.fontSize=size+"px";
+  }
+ });
+}
+window.addEventListener("resize",fitTotalAmounts);
+if(window.visualViewport)window.visualViewport.addEventListener("resize",fitTotalAmounts);
 
 /* ===== iPhone 画面拡大・ダブルタップ抑止 ===== */
 document.addEventListener("gesturestart",e=>e.preventDefault(),{passive:false});
