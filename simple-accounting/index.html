@@ -454,6 +454,22 @@ input[type=time],select{height:39px;font-size:15px}
 .detail-card .detail-total.last{background:#ededf0;color:#111;margin-top:5px}
 .detail-card .detail-total.last strong{color:#111}
 .detail-card .rule{font-size:10px;line-height:1.5}
+
+.other-toggle{width:100%;border-radius:10px;margin-bottom:8px;background:#171719;color:#e6c65f;border-color:#171719}
+.quick-editor{margin-top:8px;overflow:auto;max-height:100%}
+.quick-choices{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px}
+.quick-choice{display:flex;align-items:center;gap:5px;padding:8px 5px;border:1px solid #ddd;border-radius:8px;margin:0;font-size:11px;color:#111}
+.quick-choice span{flex:1}.quick-choice small{font-size:9px;color:#666}
+.quick-choice input{width:17px;height:17px;flex:none}
+.save-quick{width:100%;padding:10px;margin-top:8px}
+.detail-card{display:flex!important;flex-direction:column;justify-content:space-between;overflow:hidden!important}
+main>section.card.detail-card:not(.panel-active){display:none!important}
+.detail-card .card-title{font-size:13px;margin:0}
+.detail-card .detailrow{padding:clamp(4px,1.1dvh,9px) 2px;font-size:12px;min-height:0}
+.detail-card .detailrow strong{font-size:14px}
+.detail-card .detail-total{margin-top:4px;padding:clamp(7px,1.2dvh,11px) 9px}
+.detail-card .detail-total strong{font-size:18px}
+.detail-card .rule{font-size:9px;line-height:1.25;margin-top:3px}
 </style>
 </head>
 
@@ -566,13 +582,11 @@ input[type=time],select{height:39px;font-size:15px}
 よく使う
 </div>
 
-<div class="hint">
-タップで +1
-</div>
+<button type="button" id="editQuickBtn" class="tab">編集</button>
 
 </div>
 
-<div class="quick-grid" id="quickGrid"></div>
+<div class="quick-grid" id="quickGrid"></div><div id="quickEditor" class="quick-editor" hidden><div class="hint">よく使う商品を選択（最大6個）</div><div id="quickChoices" class="quick-choices"></div><button type="button" id="saveQuickBtn" class="custom-add save-quick">保存して戻る</button></div>
 
 </section>
 
@@ -592,7 +606,7 @@ input[type=time],select{height:39px;font-size:15px}
 
 </div>
 
-<div class="tabs" id="tabs"></div>
+<button type="button" class="tab other-toggle" id="otherToggle">＋ その他（金額入力）</button><div id="otherPanel" class="custom-panel"><label>その他メニューの小計金額（税抜）</label><div class="custom-grid"><input type="number" id="otherPrice" min="1" step="1000" inputmode="numeric" placeholder="例：10000"><button type="button" class="custom-add" id="otherAdd">追加</button></div></div><div class="tabs" id="tabs"></div>
 
 <div class="products" id="products"></div>
 
@@ -743,7 +757,7 @@ const categories=[
 ];
 
 
-const quickItems=[
+const defaultQuickItems=[
 ["ソフトドリンク",1000],
 ["ピッチャー",2000],
 ["缶類（2本1セット）",3000],
@@ -753,6 +767,15 @@ const quickItems=[
 ];
 
 
+let quickItems=defaultQuickItems.slice();
+try{
+ const saved=JSON.parse(localStorage.getItem("swampfog_simple_quick_v8")||"null");
+ if(Array.isArray(saved)&&saved.length&&saved.length<=6){
+  const allowed=Object.values(master).flat().filter(x=>x[1]!==null);
+  const valid=saved.filter(x=>Array.isArray(x)&&allowed.some(y=>y[0]===x[0]&&y[1]===x[1]));
+  if(valid.length)quickItems=valid;
+ }
+}catch(e){console.warn("quick settings unavailable",e)}
 const tables=["NORMAL","SEMI","VIP","RVIP"];
 
 
@@ -1912,6 +1935,41 @@ recalc();
 
 };
 
+
+/* ===== Ver.8 その他メニュー・よく使う編集 ===== */
+$("otherToggle").onclick=()=>{$("otherPanel").classList.toggle("show");};
+$("otherAdd").onclick=()=>{
+ const value=Number($("otherPrice").value);
+ if(!Number.isFinite(value)||value<=0||!Number.isInteger(value)){alert("正しい小計金額を入力してください");return;}
+ addItem("その他",value,1);
+ $("otherPrice").value="";
+ $("otherPanel").classList.remove("show");
+};
+function renderQuickChoices(){
+ const all=Object.values(master).flat().filter(x=>x[1]!==null);
+ $("quickChoices").innerHTML=all.map(([name,price])=>{
+ const selected=quickItems.some(x=>x[0]===name&&x[1]===price);
+ return '<label class="quick-choice"><input type="checkbox" data-name="'+name+'" data-price="'+price+'" '+(selected?'checked':'')+'><span>'+name+'</span><small>'+yen(price)+'</small></label>';
+ }).join("");
+}
+$("editQuickBtn").onclick=()=>{
+ const editing=$("quickEditor").hidden;
+ $("quickEditor").hidden=!editing;
+ $("quickGrid").style.display=editing?"none":"grid";
+ $("editQuickBtn").textContent=editing?"キャンセル":"編集";
+ if(editing)renderQuickChoices();
+};
+$("saveQuickBtn").onclick=()=>{
+ const checked=Array.from($("quickChoices").querySelectorAll("input:checked"));
+ if(!checked.length||checked.length>6){alert("1〜6個の商品を選択してください");return;}
+ quickItems=checked.map(x=>[x.dataset.name,Number(x.dataset.price)]);
+ try{localStorage.setItem("swampfog_simple_quick_v8",JSON.stringify(quickItems));}
+ catch(e){alert("保存できませんでした。ブラウザの保存設定をご確認ください");return;}
+ $("quickEditor").hidden=true;
+ $("quickGrid").style.display="grid";
+ $("editQuickBtn").textContent="編集";
+ renderQuick();
+};
 
 /* ===== Ver.8 画面切替 ===== */
 const panels=Array.from(document.querySelectorAll("main > section.card")).slice(1);
