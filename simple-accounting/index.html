@@ -455,8 +455,8 @@ input[type=time],select{height:39px;font-size:15px}
 .detail-card .detail-total.last strong{color:#111}
 .detail-card .rule{font-size:10px;line-height:1.5}
 
-.other-toggle{width:100%;border-radius:10px;margin-bottom:8px;background:#171719;color:#e6c65f;border-color:#171719}
-.quick-editor{margin-top:8px;overflow:auto;max-height:100%}
+.other-toggle{position:relative;z-index:2;touch-action:manipulation;width:100%;border-radius:10px;margin-bottom:8px;background:#171719;color:#e6c65f;border-color:#171719}
+.quick-editor{position:relative;z-index:2;margin-top:8px;overflow:auto;max-height:100%}
 .quick-choices{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px}
 .quick-choice{display:flex;align-items:center;gap:5px;padding:8px 5px;border:1px solid #ddd;border-radius:8px;margin:0;font-size:11px;color:#111}
 .quick-choice span{flex:1}.quick-choice small{font-size:9px;color:#666}
@@ -1937,13 +1937,22 @@ recalc();
 
 
 /* ===== Ver.8 その他メニュー・よく使う編集 ===== */
-$("otherToggle").onclick=()=>{$("otherPanel").classList.toggle("show");};
+$("quickEditor").style.display="none";
+$("otherPanel").style.display="none";
+$("otherToggle").addEventListener("click",function(e){
+ e.preventDefault();
+ const panel=$("otherPanel");
+ const open=panel.style.display!=="block";
+ panel.style.display=open?"block":"none";
+ this.textContent=open?"× その他を閉じる":"＋ その他（金額入力）";
+});
 $("otherAdd").onclick=()=>{
  const value=Number($("otherPrice").value);
  if(!Number.isFinite(value)||value<=0||!Number.isInteger(value)){alert("正しい小計金額を入力してください");return;}
  addItem("その他",value,1);
  $("otherPrice").value="";
- $("otherPanel").classList.remove("show");
+ $("otherPanel").style.display="none";
+ $("otherToggle").textContent="＋ その他（金額入力）";
 };
 function renderQuickChoices(){
  const all=Object.values(master).flat().filter(x=>x[1]!==null);
@@ -1952,24 +1961,26 @@ function renderQuickChoices(){
  return '<label class="quick-choice"><input type="checkbox" data-name="'+name+'" data-price="'+price+'" '+(selected?'checked':'')+'><span>'+name+'</span><small>'+yen(price)+'</small></label>';
  }).join("");
 }
-$("editQuickBtn").onclick=()=>{
- const editing=$("quickEditor").hidden;
+$("editQuickBtn").addEventListener("click",()=>{
+ const editing=$("quickEditor").style.display!=="block";
  $("quickEditor").hidden=!editing;
+ $("quickEditor").style.display=editing?"block":"none";
  $("quickGrid").style.display=editing?"none":"grid";
  $("editQuickBtn").textContent=editing?"キャンセル":"編集";
  if(editing)renderQuickChoices();
-};
-$("saveQuickBtn").onclick=()=>{
+});
+$("saveQuickBtn").addEventListener("click",()=>{
  const checked=Array.from($("quickChoices").querySelectorAll("input:checked"));
  if(!checked.length||checked.length>6){alert("1〜6個の商品を選択してください");return;}
  quickItems=checked.map(x=>[x.dataset.name,Number(x.dataset.price)]);
  try{localStorage.setItem("swampfog_simple_quick_v8",JSON.stringify(quickItems));}
  catch(e){alert("保存できませんでした。ブラウザの保存設定をご確認ください");return;}
  $("quickEditor").hidden=true;
+ $("quickEditor").style.display="none";
  $("quickGrid").style.display="grid";
  $("editQuickBtn").textContent="編集";
  renderQuick();
-};
+});
 
 /* ===== Ver.8 画面切替 ===== */
 const panels=Array.from(document.querySelectorAll("main > section.card")).slice(1);
