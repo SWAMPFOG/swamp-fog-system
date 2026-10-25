@@ -2092,7 +2092,14 @@ $("saveQuickBtn").addEventListener("click",()=>{
 const panels=Array.from(document.querySelectorAll("main > section.card")).slice(1);
 const panelButtons=Array.from(document.querySelectorAll(".bottom-nav button"));
 function switchPanel(index){
- panels.forEach((p,i)=>p.classList.toggle("panel-active",i===index));
+ // 入力中にタブを移動する場合はキーボードを閉じ、表示領域を安定させる。
+ const focused=document.activeElement;
+ if(focused&&focused.matches&&focused.matches("input,select,textarea"))focused.blur();
+ panels.forEach((p,i)=>{
+  const active=i===index;
+  p.classList.toggle("panel-active",active);
+  if(active)p.scrollTop=0;
+ });
  panelButtons.forEach((b,i)=>b.classList.toggle("active",i===index));
 }
 panelButtons.forEach((b,i)=>{b.onclick=()=>switchPanel(i);});
