@@ -2099,6 +2099,29 @@ panelButtons.forEach((b,i)=>{b.onclick=()=>switchPanel(i);});
 switchPanel(0);
 document.querySelectorAll(".quick-btn").forEach(b=>b.setAttribute("type","button"));
 
+/* ===== キーボード表示中の入力操作 ===== */
+// iOSのキーボードが開いても、入力欄を現在のタブ内で確認できる位置に保つ。
+document.addEventListener("focusin",e=>{
+ const input=e.target;
+ if(!input.matches('input[type="number"],input[type="time"]'))return;
+ const panel=input.closest("main > section.card.panel-active");
+ if(!panel)return;
+ window.setTimeout(()=>{
+  if(document.activeElement!==input)return;
+  const box=input.getBoundingClientRect();
+  const viewBottom=window.visualViewport
+   ?window.visualViewport.offsetTop+window.visualViewport.height
+   :window.innerHeight;
+  const bottom=Math.min(viewBottom,document.querySelector(".bottom-nav").getBoundingClientRect().top);
+  if(box.bottom>bottom-12)panel.scrollTop+=box.bottom-(bottom-12);
+ },300);
+});
+document.querySelectorAll("#otherPrice,#customPrice").forEach(input=>{
+ input.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();input.blur();}
+ });
+});
+
 /* ===== iPhone 画面拡大・ダブルタップ抑止 ===== */
 document.addEventListener("gesturestart",e=>e.preventDefault(),{passive:false});
 document.addEventListener("gesturechange",e=>e.preventDefault(),{passive:false});
