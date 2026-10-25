@@ -1278,7 +1278,7 @@ $("planStatus").className=
    よく使う
 ========================= */
 
-function yenWithTax(price){return yen(price)+"（"+yen(Math.floor(price*1.4))+"）"}
+function yenWithTax(price){return yen(price)+"（"+yen(Math.floor((price*14+1e-7)/10))+"）"}
 function renderQuick(){
 
 $("quickGrid").innerHTML=
