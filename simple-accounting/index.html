@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#0b0b0c">
-<title>SWAMP FOG 簡単会計 Ver.7</title>
+<title>SWAMP FOG 簡単会計 Ver.8</title>
 
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -404,7 +404,7 @@ select{
 <div class="topline">
   <div class="brand">
     SWAMP FOG
-    <small>簡単会計 Ver.7</small>
+    <small>簡単会計 Ver.8</small>
   </div>
 
   <button class="reset" id="resetBtn">
@@ -415,7 +415,7 @@ select{
 <div class="totals-top">
 
   <div class="totalbox">
-    <div class="label">今の合計</div>
+    <div class="label">現在会計</div>
     <div class="amount" id="grandNow">¥0</div>
     <div class="sub">千円未満切り捨て</div>
   </div>
@@ -448,8 +448,8 @@ select{
 </div>
 
 <div>
-<label>卓番</label>
-<select id="tableNo"></select>
+<label>卓種</label>
+<select id="tableNo"><option value="NORMAL">通常卓</option><option value="SEMI">SEMI-VIP</option><option value="VIP">VIP</option><option value="RVIP">RVIP</option></select>
 </div>
 
 </div>
@@ -468,18 +468,18 @@ select{
 
 </div>
 
-<div class="plan-wrap" id="planWrap">
+<div class="plan-wrap" id="planWrap"><div id="rvipOverride" style="display:none;margin-bottom:8px"><button type="button" class="plan" id="rvipDiscountBtn" style="width:100%">22時前 特別料金 ¥140,000</button></div>
 
 <label>プラン</label>
 
 <div class="plans">
 
-<button class="plan active" data-plan="quick">
+<button class="plan" data-plan="quick">
 クイック
 <span>1時間 ¥10,000</span>
 </button>
 
-<button class="plan" data-plan="free">
+<button class="plan active" data-plan="free">
 フリータイム
 <span>¥20,000</span>
 </button>
@@ -620,7 +620,7 @@ placeholder="金額"
 
 <div class="rule">
 営業時間 20:00〜25:00。<br>
-通常卓クイックは1時間まで¥10,000、
+通常卓はTAX込み。フリー¥20,000を初期表示。クイックは1時間まで¥10,000、
 1時間超でフリータイム¥20,000へ自動切替。<br>
 SEMI-VIP / VIPは端数時間を切り上げ。<br>
 通常卓以外はTC¥2,000＋指名料¥2,000を
@@ -724,20 +724,13 @@ const quickItems=[
 ];
 
 
-const tables=[
-...Array.from({length:8},(_,i)=>"A"+(i+1)),
-...Array.from({length:3},(_,i)=>"B"+(i+1)),
-...Array.from({length:8},(_,i)=>"C"+(i+1)),
-...Array.from({length:2},(_,i)=>"D"+(i+1)),
-...Array.from({length:9},(_,i)=>"S"+(i+1)),
-"VIP",
-"RVIP"
-];
+const tables=["NORMAL","SEMI","VIP","RVIP"];
 
 
 let category="ソフトドリンク";
-let plan="quick";
+let plan="free";
 let added=[];
+let rvipDiscount=false;
 
 
 const $=id=>document.getElementById(id);
@@ -755,7 +748,7 @@ Math.floor((Number(n)||0)/1000)*1000;
 
 function seatKind(t){
 
-if(/^D[12]$/.test(t)){
+if(t==="SEMI"){
 return "SEMI-VIP";
 }
 
@@ -877,7 +870,8 @@ $("tableNo").value
 
 
 if(k==="RVIP"){
-return 280000;
+const h=new Date().getHours();
+return (rvipDiscount || h>=22 || h<5)?140000:280000;
 }
 
 
@@ -1043,19 +1037,7 @@ el.classList.add("flash");
    卓番表示
 ========================= */
 
-function renderTables(){
-
-$("tableNo").innerHTML=
-tables
-.map(
-t=>
-`<option value="${t}">
-${t}
-</option>`
-)
-.join("");
-
-}
+function renderTables(){}
 
 
 /* =========================
@@ -1084,10 +1066,9 @@ b=>b.disabled=!normal
 );
 
 
-$("planWrap").style.opacity=
-normal
-?"1"
-:".55";
+$("planWrap").style.opacity="1";
+$("rvipOverride").style.display=kind==="RVIP"?"block":"none";
+$("rvipDiscountBtn").textContent=rvipDiscount?"特別料金 適用中 ✓（解除）":"22時前 特別料金 ¥140,000 を適用";
 
 
 if(!normal){
@@ -1571,11 +1552,9 @@ const lm=
 minutesToLast();
 
 
-const nowSeat=
-seatCharge(em);
+const nowSeat=seatCharge(em===null?0:em);
 
-const lastSeat=
-seatCharge(lm);
+const lastSeat=seatCharge(lm===null?0:lm);
 
 
 /*
@@ -1637,7 +1616,7 @@ entryMinutes()!==null;
 
 $("grandNow").textContent=
 
-hasEntry
+(hasEntry || ["通常卓","RVIP"].includes(seatKind($("tableNo").value)))
 
 ?yen(
 floor1000(
@@ -1730,13 +1709,15 @@ recalc();
 ========================= */
 
 $("tableNo").onchange=()=>{
-
+rvipDiscount=false;
 updateSeatUI();
 
 recalc();
 
 };
 
+
+$("rvipDiscountBtn").onclick=()=>{rvipDiscount=!rvipDiscount;updateSeatUI();recalc();};
 
 /* =========================
    入店時間
@@ -1874,7 +1855,8 @@ return;
 
 added=[];
 
-plan="quick";
+plan="free";
+rvipDiscount=false;
 
 category=
 "ソフトドリンク";
@@ -1899,7 +1881,7 @@ x=>
 
 x.classList.toggle(
 "active",
-x.dataset.plan==="quick"
+x.dataset.plan==="free"
 )
 
 );
