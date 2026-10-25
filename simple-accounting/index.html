@@ -1278,6 +1278,7 @@ $("planStatus").className=
    よく使う
 ========================= */
 
+function yenWithTax(price){return yen(price)+"（"+yen(Math.floor(price*1.4))+"）"}
 function renderQuick(){
 
 $("quickGrid").innerHTML=
@@ -1308,7 +1309,7 @@ ${name}
 </div>
 
 <div class="p">
-${yen(price)}
+${yenWithTax(price)}
 </div>
 
 </button>
@@ -1452,7 +1453,7 @@ ${name}
 </div>
 
 <div class="p">
-${yen(price)}
+${yenWithTax(price)}
 </div>
 
 </button>
@@ -1563,7 +1564,7 @@ ${x.name}
 </div>
 
 <div class="meta">
-${yen(x.price)}
+${yenWithTax(x.price)}
 ×
 ${x.qty}
 =
