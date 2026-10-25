@@ -1907,13 +1907,8 @@ recalc();
 
 $("customAdd").onclick=()=>{
 
-const price=
-Number(
-$("customPrice").value
-)||0;
-
-
-if(price<=0){
+const price=Number($("customPrice").value);
+if(!Number.isSafeInteger(price)||price<=0){
 
 alert(
 "金額を入力してください"
@@ -1981,9 +1976,16 @@ $("tableNo").selectedIndex=
 0;
 
 
-$("customPrice").value=
-"";
-
+$("customPrice").value="";
+$("otherPrice").value="";
+selectedOtherPrice=null;
+$("otherForm").hidden=true;$("otherForm").style.display="none";
+$("otherQty").hidden=true;$("otherQty").style.display="none";
+$("otherToggle").textContent="金額を入力";
+$("customPanel").classList.remove("show");
+$("quickEditor").hidden=true;$("quickEditor").style.display="none";
+$("quickGrid").style.display="grid";$("editQuickBtn").textContent="編集";
+$("moveTo").value="NORMAL";
 
 document
 .querySelectorAll(".plan")
@@ -2044,7 +2046,7 @@ $("otherToggle").onclick=()=>{
 };
 $("otherAdd").onclick=()=>{
  const value=Number($("otherPrice").value);
- if(!Number.isFinite(value)||value<=0||!Number.isInteger(value)){alert("正しい金額を入力してください");return;}
+ if(!Number.isSafeInteger(value)||value<=0){alert("正しい金額を入力してください");return;}
  selectedOtherPrice=value;
  addItem("その他",value,1);
  $("otherPrice").value="";
