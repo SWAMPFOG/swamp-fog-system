@@ -475,6 +475,9 @@ main>section.card.detail-card:not(.panel-active){display:none!important}
 .other-qty{display:flex;align-items:center;justify-content:center;gap:15px;margin-top:15px}
 .other-qty button{width:48px;height:44px;border-radius:10px;border:1px solid #bbb;background:#fff;font-size:25px;font-weight:bold}
 .other-qty span{font-size:14px;font-weight:800}
+.move-area{margin-top:5px}.move-toggle{width:100%;padding:6px;background:#242428;color:#e6c65f;border:0;border-radius:8px;font-weight:800;font-size:11px}
+.move-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px}.move-grid label{font-size:10px}.move-grid input,.move-grid select{width:100%;height:33px}
+.move-clear{background:none;border:0;text-decoration:underline;font-size:11px;margin-top:4px}
 </style>
 </head>
 
@@ -574,7 +577,8 @@ main>section.card.detail-card:not(.panel-active){display:none!important}
 </div>
 
 </div>
-
+<div class="move-area"><button type="button" id="moveToggle" class="move-toggle">＋ 卓移動を設定</button>
+<div id="movePanel" hidden><div class="move-grid"><label>移動時間<input type="time" id="moveTime"></label><label>移動先<select id="moveTo"><option value="NORMAL">通常卓</option><option value="SEMI">SEMI-VIP</option><option value="VIP">VIP</option><option value="RVIP">RVIP</option></select></label></div><button type="button" id="clearMove" class="move-clear">卓移動を解除</button></div></div>
 </section>
 
 
@@ -975,6 +979,38 @@ return mins>60
 
 }
 
+
+/* =========================
+   卓移動：移動前後の滞在時間を個別計算
+========================= */
+let moveEnabled=false;
+function moveMinutes(){
+ if(!moveEnabled||!$("moveTime").value)return null;
+ const [h,m]=$("moveTime").value.split(":").map(Number);
+ return norm(h,m);
+}
+function segmentSeat(kind,minutes,normalTransfer){
+ if(kind==="通常卓")return normalTransfer?(minutes<=60?10000:20000):seatCharge(minutes);
+ if(kind==="SEMI-VIP")return Math.max(1,Math.ceil(minutes/60))*14000;
+ if(kind==="VIP")return Math.max(1,Math.ceil(minutes/60))*42000;
+ const h=new Date().getHours();
+ return (rvipDiscount||h>=22||h<5)?140000:280000;
+}
+function moveCalculation(totalMinutes){
+ const entry=entryMinutes(),mt=moveMinutes();
+ if(!moveEnabled||entry===null||mt===null||mt<=entry||mt>1500)return null;
+ const original=seatKind($("tableNo").value),dest=seatKind($("moveTo").value);
+ if(original===dest)return null;
+ const end=entry+totalMinutes;
+ const before=Math.min(Math.max(0,end-entry),mt-entry);
+ const after=Math.max(0,end-mt);
+ const seatA=segmentSeat(original,before,true);
+ const seatB=after>0?segmentSeat(dest,after,true):0;
+ const taxableA=original!=="通常卓"?seatA:0;
+ const taxableB=dest!=="通常卓"?seatB:0;
+ const hasPremium=original!=="通常卓"||(after>0&&dest!=="通常卓");
+ return {seat:seatA+seatB,taxableSeat:taxableA+taxableB,extra:hasPremium?4000:0,kind:original+" → "+dest};
+}
 
 /* =========================
    商品
@@ -1613,9 +1649,10 @@ const lm=
 minutesToLast();
 
 
-const nowSeat=seatCharge(em===null?0:em);
-
-const lastSeat=seatCharge(lm===null?0:lm);
+const moveNow=em===null?null:moveCalculation(em);
+const moveLast=lm===null?null:moveCalculation(lm);
+const nowSeat=moveNow?moveNow.seat:seatCharge(em===null?0:em);
+const lastSeat=moveLast?moveLast.seat:seatCharge(lm===null?0:lm);
 
 
 /*
@@ -1633,10 +1670,8 @@ $("tableNo").value
 )!=="通常卓";
 
 
-const extraBase=
-nonNormal
-?4000
-:0;
+const extraBase=moveNow?moveNow.extra:(nonNormal?4000:0);
+const lastExtraBase=moveLast?moveLast.extra:extraBase;
 
 
 const extraTaxed=
@@ -1661,9 +1696,11 @@ $("extraBase").textContent=
 yen(extraBase);
 
 $("extraTaxed").textContent=yen(extraTaxed);
-$("detailSeatKind").textContent=seatKind($("tableNo").value);
-$("extraRow").style.display=nonNormal?"flex":"none";
-const taxBase=sub+(nonNormal?nowSeat+extraBase:0);
+$("detailSeatKind").textContent=moveNow?moveNow.kind:seatKind($("tableNo").value);
+$("extraRow").style.display=(extraBase||lastExtraBase)?"flex":"none";
+const taxableNowSeat=moveNow?moveNow.taxableSeat:(nonNormal?nowSeat:0);
+const taxableLastSeat=moveLast?moveLast.taxableSeat:(nonNormal?lastSeat:0);
+const taxBase=sub+taxableNowSeat+extraBase;
 $("taxAmount").textContent=yen(Math.floor(taxBase*.4));
 $("taxNote").textContent=nonNormal?"（ドリンク・席・TC・指名料）":"（ドリンク分）";
 
@@ -1685,7 +1722,7 @@ $("grandNow").textContent=
 
 ?yen(
 floor1000(
-(nonNormal?Math.floor(nowSeat*1.4):nowSeat)+
+nowSeat+Math.floor(taxableNowSeat*.4)+
 drinkTaxed+
 extraTaxed
 )
@@ -1700,9 +1737,9 @@ $("grandLast").textContent=
 
 ?yen(
 floor1000(
-(nonNormal?Math.floor(lastSeat*1.4):lastSeat)+
+lastSeat+Math.floor(taxableLastSeat*.4)+
 drinkTaxed+
-extraTaxed
+Math.floor(lastExtraBase*1.4)
 )
 )
 
@@ -1904,6 +1941,7 @@ added=[];
 
 plan="free";
 rvipDiscount=false;
+moveEnabled=false;$("moveTime").value="";$("movePanel").hidden=true;$("movePanel").style.display="none";$("moveToggle").textContent="＋ 卓移動を設定";
 
 category=
 "ソフトドリンク";
@@ -1945,6 +1983,20 @@ recalc();
 };
 
 
+/* ===== 卓移動の入力 ===== */
+$("moveToggle").onclick=()=>{
+ moveEnabled=!moveEnabled;
+ $("movePanel").hidden=!moveEnabled;
+ $("movePanel").style.display=moveEnabled?"block":"none";
+ $("moveToggle").textContent=moveEnabled?"卓移動を設定中 ▼":"＋ 卓移動を設定";
+ recalc();
+};
+$("moveTime").onchange=recalc;
+$("moveTo").onchange=recalc;
+$("clearMove").onclick=()=>{
+ moveEnabled=false;$("moveTime").value="";$("movePanel").hidden=true;
+ $("movePanel").style.display="none";$("moveToggle").textContent="＋ 卓移動を設定";recalc();
+};
 /* ===== Ver.8 その他メニュー・よく使う編集 ===== */
 $("quickEditor").style.display="none";
 $("otherPanel").style.display="none";
