@@ -406,8 +406,9 @@ body{background:#0c0d10}
 main{padding:8px 9px 0;flex:1;min-height:0;display:flex;flex-direction:column;gap:7px;overflow:hidden}
 .card{margin:0;padding:10px;border-radius:13px}
 main>section:first-child{flex:none}
-main>section:not(:first-child){display:none;min-height:0;overflow:auto;flex:1}
-main>section.panel-active{display:block}
+main>section.card:not(:first-child){display:none;min-height:0;overflow:auto;flex:1}
+main>section.card.panel-active{display:block;min-height:0;overflow:auto;flex:1}
+main>section.card.panel-active{display:block}
 .setup{grid-template-columns:1fr 1fr;gap:7px}
 input[type=time],select{height:39px;font-size:15px}
 .timewrap{grid-template-columns:minmax(0,1fr) 42px;gap:4px}
