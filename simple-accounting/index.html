@@ -900,6 +900,10 @@ return null;
 
 let n=nowMinutes();
 
+// 営業終了後(01:00〜19:59)は前営業日のラストとして扱う
+if(n>=1500 && n<2640){
+n=1500;
+}
 if(n<1200){
 n=1200;
 }
@@ -936,6 +940,11 @@ return Math.max(
    席料金
 ========================= */
 
+// RVIPの料金は「現在時刻」ではなく、その席を使い始めた時刻で確定する。
+function rvipSeatPrice(startMinutes){
+ if(rvipDiscount)return 140000;
+ return startMinutes>=1320?140000:280000;
+}
 function seatCharge(mins){
 
 if(mins===null){
@@ -949,8 +958,7 @@ $("tableNo").value
 
 
 if(k==="RVIP"){
-const h=new Date().getHours();
-return (rvipDiscount || h>=22 || h<5)?140000:280000;
+return rvipSeatPrice(entryMinutes()===null?nowMinutes():entryMinutes());
 }
 
 
@@ -1006,12 +1014,11 @@ function moveMinutes(){
  const [h,m]=$("moveTime").value.split(":").map(Number);
  return norm(h,m);
 }
-function segmentSeat(kind,minutes,normalTransfer){
+function segmentSeat(kind,minutes,normalTransfer,startMinutes){
  if(kind==="通常卓")return normalTransfer?(minutes<=60?10000:20000):seatCharge(minutes);
  if(kind==="SEMI-VIP")return Math.max(1,Math.ceil(minutes/60))*14000;
  if(kind==="VIP")return Math.max(1,Math.ceil(minutes/60))*42000;
- const h=new Date().getHours();
- return (rvipDiscount||h>=22||h<5)?140000:280000;
+ return rvipSeatPrice(startMinutes);
 }
 function moveCalculation(totalMinutes){
  const entry=entryMinutes(),mt=moveMinutes();
@@ -1023,8 +1030,8 @@ function moveCalculation(totalMinutes){
  if(end<=mt)return null;
  const before=Math.min(Math.max(0,end-entry),mt-entry);
  const after=Math.max(0,end-mt);
- const seatA=segmentSeat(original,before,true);
- const seatB=after>0?segmentSeat(dest,after,true):0;
+ const seatA=segmentSeat(original,before,true,entry);
+ const seatB=after>0?segmentSeat(dest,after,true,mt):0;
  const taxableA=original!=="通常卓"?seatA:0;
  const taxableB=dest!=="通常卓"?seatB:0;
  const hasPremium=original!=="通常卓"||(after>0&&dest!=="通常卓");
