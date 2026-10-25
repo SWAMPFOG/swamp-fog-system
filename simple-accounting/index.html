@@ -392,6 +392,58 @@ select{
   .totalbox .amount{font-size:27px}
   .totalbox.secondary .amount{font-size:21px}
 }
+
+/* ===== Ver.8 現場用・一画面操作 ===== */
+html,body{height:100%;overflow:hidden}
+body{background:#0c0d10}
+.app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:#f2f2f4}
+.top{position:relative;flex:none;padding:8px 11px 9px}
+.topline{margin-bottom:6px}
+.totals-top{gap:6px}
+.totalbox{padding:7px 9px;border-radius:11px}
+.totalbox .amount{font-size:clamp(22px,6.8vw,31px);margin-top:2px}
+.totalbox.secondary .amount{font-size:clamp(17px,5vw,24px)}
+main{padding:8px 9px 0;flex:1;min-height:0;display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.card{margin:0;padding:10px;border-radius:13px}
+main>section:first-child{flex:none}
+main>section:not(:first-child){display:none;min-height:0;overflow:auto;flex:1}
+main>section.panel-active{display:block}
+.setup{grid-template-columns:1fr 1fr;gap:7px}
+input[type=time],select{height:39px;font-size:15px}
+.timewrap{grid-template-columns:minmax(0,1fr) 42px;gap:4px}
+.seatline{margin-top:6px;gap:6px}
+.stat{padding:5px 8px}
+.stat .v{font-size:12px;margin-top:1px}
+.plan-wrap{margin-top:7px}
+.plans{gap:6px}
+.plan{padding:7px 6px;font-size:12px}
+.plan span{font-size:10px;margin-top:1px}
+.plan-status{margin-top:4px;font-size:10px}
+.card-title{font-size:14px;margin-bottom:7px}
+.quick-grid{gap:6px}
+.quick-btn,.product-btn{min-height:59px;padding:8px 6px}
+.quick-btn .n,.product-btn .n{font-size:11px}
+.quick-btn .p,.product-btn .p{font-size:10px}
+.tabs{padding-bottom:7px;gap:5px}
+.tab{padding:7px 10px}
+.products{gap:6px}
+.item{padding:6px 0}
+.controls button{width:32px;height:32px}
+.bottom-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:7px 9px calc(7px + env(safe-area-inset-bottom));background:#0c0d10;flex:none}
+.bottom-nav button{border:1px solid #37383d;background:#1b1c20;color:#d5d5d8;border-radius:10px;padding:10px 2px;font-weight:900;font-size:12px}
+.bottom-nav button.active{background:#e6c65f;color:#111;border-color:#e6c65f}
+@media(max-height:720px){
+ .top{padding:6px 9px}
+ .topline{margin-bottom:4px}
+ .totalbox{padding:5px 8px}
+ main{padding-top:5px;gap:5px}
+ .card{padding:7px}
+ .stat{padding:4px 7px}
+ .plan{padding:5px}
+ .bottom-nav{padding-top:5px}
+ .bottom-nav button{padding:7px 2px}
+}
+
 </style>
 </head>
 
@@ -633,7 +685,12 @@ SEMI-VIP / VIPは端数時間を切り上げ。<br>
 </section>
 
 </main>
-
+<nav class="bottom-nav" aria-label="会計操作">
+<button type="button" data-panel="1" class="active">よく使う</button>
+<button type="button" data-panel="2">全メニュー</button>
+<button type="button" data-panel="3">追加済み</button>
+<button type="button" data-panel="4">内訳</button>
+</nav>
 </div>
 
 
@@ -1897,6 +1954,17 @@ recalc();
 
 };
 
+
+/* ===== Ver.8 画面切替 ===== */
+const panels=Array.from(document.querySelectorAll("main > section.card")).slice(1);
+const panelButtons=Array.from(document.querySelectorAll(".bottom-nav button"));
+function switchPanel(index){
+ panels.forEach((p,i)=>p.classList.toggle("panel-active",i===index));
+ panelButtons.forEach((b,i)=>b.classList.toggle("active",i===index));
+}
+panelButtons.forEach((b,i)=>b.addEventListener("click",()=>switchPanel(i)));
+switchPanel(0);
+document.querySelectorAll(".quick-btn").forEach(b=>b.setAttribute("type","button"));
 
 /* =========================
    初期化
