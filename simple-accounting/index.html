@@ -522,6 +522,7 @@ main>section.card.detail-card:not(.panel-active){display:none!important}
 .detail-card{scroll-padding-top:12px}
 .kiri-card .kiri-box{margin-top:0}
 .kiri-card{min-width:0}
+.kiri-subtitle{font-size:13px;font-weight:900;margin-top:12px;padding-top:10px;border-top:1px solid #e5d8b8;color:#54401c}
 /* 切り計算：内訳タブ内で完結 */
 .kiri-box{margin-top:12px;border:1px solid #e1d3a0;background:#fffaf0;border-radius:12px;padding:12px}
 .kiri-title{font-weight:900;font-size:16px;margin-bottom:7px}
@@ -739,9 +740,12 @@ placeholder="金額"
 <div class="kiri-box">
  <div class="kiri-title">✂ 切り計算</div>
  <div class="kiri-inputline"><input id="kiriTarget" type="number" min="1000" step="1000" inputmode="numeric" placeholder="切り希望額（例：200000）" aria-label="切り希望額"><span>円切り</span></div>
- <div class="kiri-result" id="kiriResult">希望金額を入力してください</div>
+ <div class="kiri-subtitle">現在会計ベース</div>
+ <div class="kiri-result" id="kiriNowResult">希望金額を入力してください</div>
  <div class="kiri-actions"><button type="button" id="kiriApply" disabled>値引きを適用</button><button type="button" id="kiriClear">切りを解除</button></div>
- <div class="kiri-note">現在会計を基準に計算。希望額より高い場合は差額を値引き。低い場合は追加注文できる小計の目安を表示。追加注文後は再計算してください。</div>
+ <div class="kiri-subtitle">ラストまでベース</div>
+ <div class="kiri-result" id="kiriLastResult">希望金額を入力してください</div>
+ <div class="kiri-note">値引き適用は現在会計のみ。ラストまでの切り計算は表示専用です。追加注文や時間経過で金額が変わります。小計は目安です。</div>
 </div>
 </section>
 
@@ -1702,17 +1706,25 @@ renderAdded();
 let kiriDiscount=0;
 let kiriAppliedBase=null;
 let kiriBaseNow=0;
+let kiriBaseLast=0;
+function kiriSummary(base,target){
+ const diff=target-base;
+ if(diff<0)return "値引き額："+yen(-diff);
+ if(diff===0)return "希望額と一致しています";
+ // 大計は千円未満切り捨て。注文可能な小計は参考値。
+ return "追加できる大計："+yen(diff)+" ／ 追加注文の小計目安：約"+yen(Math.floor(diff*10/14))+"（TAX40%）";
+}
 function updateKiri(){
- const input=$("kiriTarget");
- const target=Number(input.value);
+ const input=$("kiriTarget"),target=Number(input.value);
  const valid=input.value.trim()!==""&&Number.isSafeInteger(target)&&target>=1000&&target%1000===0;
- const out=$("kiriResult"),apply=$("kiriApply");
- apply.disabled=!valid||kiriBaseNow<=target;
- if(!valid){out.textContent="切り希望額を1,000円単位で入力してください";return;}
- const diff=target-kiriBaseNow;
- if(diff<0){out.textContent="値引き額："+yen(-diff)+(kiriDiscount?" ／ 適用中："+yen(kiriDiscount):"");}
- else if(diff>0){const preTax=Math.ceil(diff*10/14);out.textContent="追加できる大計："+yen(diff)+" ／ 必要な追加注文の小計：約"+yen(preTax)+"（TAX40%）";}
- else{out.textContent="現在会計が希望額と一致しています";}
+ $("kiriApply").disabled=!valid||kiriBaseNow<=target;
+ if(!valid){
+  $("kiriNowResult").textContent="切り希望額を1,000円単位で入力してください";
+  $("kiriLastResult").textContent="切り希望額を入力してください";
+  return;
+ }
+ $("kiriNowResult").textContent=kiriSummary(kiriBaseNow,target)+(kiriDiscount?" ／ 適用中："+yen(kiriDiscount):"");
+ $("kiriLastResult").textContent=kiriSummary(kiriBaseLast,target);
 }
 function recalc(){
 
@@ -1842,6 +1854,7 @@ kiriBaseNow=Number(baseNowText.replace(/[^0-9]/g,""));
 // 注文・卓・時間で元会計が変わったら、古い値引きを自動解除する。
 if(kiriDiscount>0&&kiriAppliedBase!==kiriBaseNow){kiriDiscount=0;kiriAppliedBase=null;}
 const baseLast=Number(baseLastText.replace(/[^0-9]/g,""));
+kiriBaseLast=baseLast;
 $("grandNow").textContent=yen(Math.max(0,kiriBaseNow-kiriDiscount));
 $("grandLast").textContent=yen(Math.max(0,baseLast-kiriDiscount));
 updateKiri();
