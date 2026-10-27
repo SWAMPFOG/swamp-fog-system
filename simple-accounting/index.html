@@ -651,7 +651,7 @@ main>section.card.detail-card:not(.panel-active){display:none!important}
 
 </div>
 
-<div class="quick-grid" id="quickGrid"></div><div id="quickEditor" class="quick-editor" hidden><div class="hint">よく使う商品を選択（最大6個）</div><div id="quickChoices" class="quick-choices"></div><button type="button" id="saveQuickBtn" class="custom-add save-quick">保存して戻る</button></div>
+<div class="quick-grid" id="quickGrid"></div><div id="quickEditor" class="quick-editor" hidden><div class="hint">よく使う商品を選択（最大12個）</div><div id="quickChoices" class="quick-choices"></div><button type="button" id="saveQuickBtn" class="custom-add save-quick">保存して戻る</button></div>
 
 </section>
 
@@ -852,7 +852,7 @@ const defaultQuickItems=[
 let quickItems=defaultQuickItems.slice();
 try{
  const saved=JSON.parse(localStorage.getItem("swampfog_simple_quick_v8")||"null");
- if(Array.isArray(saved)&&saved.length&&saved.length<=6){
+ if(Array.isArray(saved)&&saved.length&&saved.length<=12){
   const allowed=Object.values(master).flat().filter(x=>x[1]!==null);
   const valid=saved.filter(x=>Array.isArray(x)&&allowed.some(y=>y[0]===x[0]&&y[1]===x[1]));
   if(valid.length)quickItems=valid;
@@ -2182,7 +2182,7 @@ $("editQuickBtn").addEventListener("click",()=>{
 });
 $("saveQuickBtn").addEventListener("click",()=>{
  const checked=Array.from($("quickChoices").querySelectorAll("input:checked"));
- if(!checked.length||checked.length>6){alert("1〜6個の商品を選択してください");return;}
+ if(!checked.length||checked.length>12){alert("1〜12個の商品を選択してください");return;}
  quickItems=checked.map(x=>[x.dataset.name,Number(x.dataset.price)]);
  try{localStorage.setItem("swampfog_simple_quick_v8",JSON.stringify(quickItems));}
  catch(e){alert("保存できませんでした。ブラウザの保存設定をご確認ください");return;}
